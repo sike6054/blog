@@ -128,12 +128,17 @@ Deep network의 성능을 향상시키는 가장 직접적인 방법은 depth나
 >![Extra.2](/blog/images/GoogLeNet, Extra.2(removed).png )
 >
 ><br/>
->[Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 오른쪽의 경우에는 각 feature map의 채널이 특정 패턴에 집중하는 것으로 보인다. 반면, 이를 사용하지 않은 왼쪽의 경우에는 각 채널들이 모든 종류의 패턴을 학습하려 드는 오지라퍼 정도로 느껴진다. [Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)에서는 실제로 sparsity를 도입하기 위한 것보단, node 간의 co-adaption을 줄이기 위한 방법으로 node를 랜덤하게 deactivation한 것이라 한다. 따라서, sparsity의 효과를 설명하기엔 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)이 적절한 예로 봐도 좋다. 아래 그래프를 참조하면 실제로 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 경우에는 deactivated node의 수가 압도적으로 많은 것으로 나타난다.
+>[Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 오른쪽의 경우에는 각 feature map의 채널이 특정 패턴에 집중하는 것으로 보인다. 반면, 이를 사용하지 않은 왼쪽의 경우에는 각 채널들이 모든 종류의 패턴을 학습하려 드는 오지라퍼 정도로 느껴진다. 
+>
+>[Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)에서는 실제로 sparsity를 도입하기 위한 것보단, node 간의 co-adaption을 줄이기 위한 방법으로 node를 랜덤하게 deactivation한 것이라 한다. 아래 그래프를 참조하면 실제로 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 경우에는 deactivated node의 수가 압도적으로 많은 것으로 나타난다.
 ><br/>
+>
 >![Extra.3](/blog/images/GoogLeNet, Extra.3(removed).png )
 >
 ><br/>
->하지만, [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)의 경우에는 deactivation일 뿐이지, deactivated node를 계산에서 제외하도록 sparse data structure를 이용하는 건 아닌 것으로 알고 있다. 아래는 [LeNet](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf)에서 사용하는 표다.<br/>
+>하지만, [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)의 경우에는 deactivation일 뿐이지, deactivated node를 계산에서 제외하도록 sparse data structure를 이용하는 건 아닌 것으로 알고 있다. 아래는 [LeNet](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf)에서 사용하는 표다.
+>
+><br/>
 >![Extra.4](/blog/images/GoogLeNet, Extra.4(removed).png )
 >
 ><br/>
@@ -301,15 +306,15 @@ a
 
 ---
 ## 7. ILSVRC 2014 Classification Challenge Setup and Results
-b
+a
 
 ---
 ## 8. ILSVRC 2014 Detection Challenge Setup and Results
-c
+a
 
 ---
 ## 9. Conclusions
-d
+a
 
 
 ---
