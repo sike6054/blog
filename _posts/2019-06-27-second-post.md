@@ -161,7 +161,7 @@ CNN 계열에서, [LeNet](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf)�
 <br/>
 Dense matrix 연산에 적합한 하드웨어를 활용한다는 조건 하에서, 위의 이론처럼 filter-level과 같은 중간 단계에서 sparsity을 이용할 방법이 있는가 하는 의문이 든다.
 
-[연구1](https://graal.ens-lyon.fr/~bucar/papers/ucca2D.pdf)과 같이 sparse matrix의 계산에 대한 수많은 연구들은, sparse matrix를 상대적으로 densely한 submatrix로 clustering 하는 방법이 sparse matrix multiplication에서 쓸만한 성능을 보였다고 한다. GoogLeNet 저자는 이 연구들을 두고, 가까운 미래에 non-uniform deeplearning architecture의 자동화 구성에 이와 유사한 방법이 활용 될 가능성이 있을거라 생각했다고 한다.
+[연구1](https://graal.ens-lyon.fr/~bucar/papers/ucca2D.pdf)과 같이 sparse matrix의 계산에 대한 수많은 연구들은, sparse matrix를 상대적으로 densely한 submatrix로 clustering 하는 방법이 sparse matrix multiplication에서 쓸만한 성능을 보였다고 한다. GoogLeNet 저자는 이 연구들을 두고, 가까운 미래에 non-uniform deeplearning architecture의 자동화 기법에 이와 유사한 방법이 활용 될 가능성이 있을거라 생각했다고 한다.
 
 <br/>
 Inception architecture는 [Arora의 연구](https://arxiv.org/pdf/1310.6343.pdf)에서 말한 sparse structure에 대한 근사화를 포함해, dense하면서도 쉽게 사용할 수 있도록 정교하게 설계된 network topology construction 알고리즘을 평가하기 위한 사례 연구로 시작됐다.
@@ -282,8 +282,7 @@ GoogLeNet에서는 보조 분류기(auxiliary classifier)를 중간 layer에 연
 <br/>
 보조 분류기를 포함한 측면의 추가 네트워크에 대한 정확한 구조는 다음과 같다. 최종 형태는 Fig.3 참조
 
-- Filter size가 5x5이고 strides가 3인 average pooling layer.
->(4a)와 (4d)에서의 출력 shape은 각각 4x4x512와 4x4x528
+- Filter size가 5x5이고 strides가 3인 average pooling layer. 출력의 shape은 (4a)와 (4d)에서 각각 4x4x512와 4x4x528이다
 
 - Dimension reduction을 위한 1x1 conv layer(128 filters) 및 ReLU
 
@@ -291,8 +290,7 @@ GoogLeNet에서는 보조 분류기(auxiliary classifier)를 중간 layer에 연
 
 - Dropout layer (0.7)
 
-- Linear layer에 softmax를 사용한 classifier. 
->Main classifier와 동일하게 1000-class에 대한 학습을 진행
+- Linear layer에 softmax를 사용한 1000-class classifier.
 
 <br/>
 ![Fig.3](/blog/images/GoogLeNet, Fig.3(removed).png )
@@ -302,19 +300,19 @@ GoogLeNet에서는 보조 분류기(auxiliary classifier)를 중간 layer에 연
 
 ---
 ## 6. Training Methodology
-a
+Inception a
 
 ---
 ## 7. ILSVRC 2014 Classification Challenge Setup and Results
-a
+Inception a
 
 ---
 ## 8. ILSVRC 2014 Detection Challenge Setup and Results
-a
+Inception a
 
 ---
 ## 9. Conclusions
-a
+Inception a
 
 
 ---
