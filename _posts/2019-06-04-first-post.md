@@ -461,7 +461,7 @@ def ResNet50(model_input, classes=10):
 ```
 >dimension이 달라지는 부분에선 projection이 추가되어야 하기 때문에 identity와 구분했다. `bottleneck_projection` 내부를 보면, 첫 번째 convolution에서 feature map size를 줄이기 위해 strides=2를 사용하며, shortcut에서도 이를 맞추기 위해 strides=2를 사용한다. conv2_2에서 strides=1을 사용하는 이유는 이미 `MaxPooling2D`를 거쳐 feature map size가 줄어든 상태이기 때문이다.
 >
->위 ResNet50은 keras에서 제공하는 application model 코드와 비교해도 큰 차이가 없다. 처음 7x7 conv layer와 pooling layer의 앞에 위치한 ZeroPadding2D라는 layer가 있는 것은, 두 layer를 padding='valid'로 세팅하고도 padding='same'의 결과를 원하기 때문이다. 즉, ZeroPadding2D layer를 사용하지 않고 padding='same'으로 세팅한 것과 같은 결과다.
+>위 ResNet50은 keras에서 제공하는 application model 코드와 비교해도 큰 차이가 없다.
 
 <br/>
 위에서 정의한 모델들을 ImageNet dataset 대신 224x224 크기로 resize한 CIFAR-10 dataset에 적용하는 전체 코드는 다음과 같다. 학습에 사용된 hyperparameter는 3.4절의 방법을 따르며, data augmentation은 하지 않는다.
