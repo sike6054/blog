@@ -115,18 +115,27 @@ Deep network의 성능을 향상시키는 가장 직접적인 방법은 depth나
 
 <br/>
 >Biological system의 모방이라는 부분을 잠깐 살펴보자. 노벨 생리의학상을 수여한 두 신경생리학자 Hubel과 Wiesel의 [연구1](https://physoc.onlinelibrary.wiley.com/doi/pdf/10.1113/jphysiol.1962.sp006837), [연구2](https://physoc.onlinelibrary.wiley.com/doi/epdf/10.1113/jphysiol.1968.sp008455) 등에서는 고양이와 원숭이를 실험 대상으로 진행한 연구 결과가 나와있다. 지금도 CNN 관련 기초 자료 중 상당수는 아래와 유사한 그림을 보여주면서 이들의 연구를 아이디어 배경으로 언급하고 있다. <br/>
+>
 >![Extra.1](/blog/images/GoogLeNet, Extra.1(removed).png )
+>
 ><br/>
 >CNN의 배경에 잠깐 언급할 때는 보통, 실험체의 시신경들이 특정 패턴에 뉴런이 반응하는 것을 발견했고 이에 착안한 방법이 CNN이다 정도로만 설명한다. 하지만, 실제로 각 패턴에 반응하는 뉴런의 집합은 전체 뉴런에 비해 극히 일부이므로 sparse하게 동작하는 것으로 볼 수 있으며, 논문에서는 이러한 맥락에서 biological system의 모방이라 표현한 것으로 보인다. 또한, 시신경 뉴런들의 이러한 동작에 대한 체계적인 연구가 [Sparse Coding](http://www.chaos.gwdg.de/~michael/CNS_course_2004/papers_max/OlshausenField1997.pdf)에서 진행됐다고 한다.
+>
 ><br/>
->Deep neural network와 관련해 sparsity 키워드를 검색해보면 실제로 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)으로 예를 드는 사이트가 굉장히 많이 나온다. [Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)은 정해진 비율만큼 랜덤하게 해당 layer의 노드를 deactivation 시키는 기법이다. 이 과정을 거치면 실제로 activated node의 수가 줄어들며, 자연스럽게 sparse한 구조가 이뤄진다. 아래의 그림을 보자.<br/>
+>Deep neural network와 관련해 sparsity 키워드를 검색해보면 실제로 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)으로 예를 드는 사이트가 굉장히 많이 나온다. [Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)은 정해진 비율만큼 랜덤하게 해당 layer의 노드를 deactivation 시키는 기법이다. 이 과정을 거치면 실제로 activated node의 수가 줄어들며, 자연스럽게 sparse한 구조가 이뤄진다. 아래의 그림을 보자.
+>
+><br/>
 >![Extra.2](/blog/images/GoogLeNet, Extra.2(removed).png )
+>
 ><br/>
->[Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 오른쪽의 경우에는 각 feature map의 채널이 특정 패턴에 집중하는 것으로 보인다. 반면, 이를 사용하지 않은 왼쪽의 경우에는 각 채널들이 모든 종류의 패턴을 학습하려 드는 오지라퍼 정도로 느껴진다. [Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)에서는 실제로 sparsity를 도입하기 위한 것보단, node 간의 co-adaption을 줄이기 위한 방법으로 node를 랜덤하게 deactivation한 것이라 한다. 따라서, sparsity의 효과를 설명하기엔 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)이 적절한 예로 봐도 좋다. 아래 그래프를 참조하면 실제로 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 경우에는 deactivated node의 수가 압도적으로 많은 것으로 나타난다.<br/>
+>[Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 오른쪽의 경우에는 각 feature map의 채널이 특정 패턴에 집중하는 것으로 보인다. 반면, 이를 사용하지 않은 왼쪽의 경우에는 각 채널들이 모든 종류의 패턴을 학습하려 드는 오지라퍼 정도로 느껴진다. [Dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)에서는 실제로 sparsity를 도입하기 위한 것보단, node 간의 co-adaption을 줄이기 위한 방법으로 node를 랜덤하게 deactivation한 것이라 한다. 따라서, sparsity의 효과를 설명하기엔 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)이 적절한 예로 봐도 좋다. 아래 그래프를 참조하면 실제로 [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)을 사용한 경우에는 deactivated node의 수가 압도적으로 많은 것으로 나타난다.
+><br/>
 >![Extra.3](/blog/images/GoogLeNet, Extra.3(removed).png )
+>
 ><br/>
 >하지만, [dropout](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf)의 경우에는 deactivation일 뿐이지, deactivated node를 계산에서 제외하도록 sparse data structure를 이용하는 건 아닌 것으로 알고 있다. 아래는 [LeNet](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf)에서 사용하는 표다.<br/>
 >![Extra.4](/blog/images/GoogLeNet, Extra.4(removed).png )
+>
 ><br/>
 >위의 표는, pre-layer의 feature map 채널이 6개이고, post-layer의 feature map 채널이 16개일 때 사용되는 표이다. 이 표는 pre-layer의 output이 column번 째의 채널을 형성할 때, pre-layer의 row번 째의 채널에 해당하는 데이터를 사용할 지에 대한 여부이다. 즉, output을 만들기 위한 데이터를 선택적으로 취하겠다는 것이다. 이는 네트워크 안에서의 symmetry를 깨고, 합리적인 연결만을 유지하는 것이 목적이다. Symmetry를 깨는 이유는, 각 feature map들이 서로 다르면서 상호 보완적인 feature를 추출하도록 유도하는 효과가 있기 때문이라 한다.
 >
