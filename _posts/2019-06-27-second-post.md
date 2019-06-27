@@ -452,6 +452,8 @@ model.fit(x_train,
 
 >귀찮으니 CIFAR-10 dataset을 upscaling해서 테스트 한다. ImageNet에 적용하려면, GoogLeNet 함수를 호출하면서 class 수를 1000으로 넣으면 된다. 보조 분류기 설명에서 FC layer를 하나만 언급했는데 Fig.3에는 두 개가 있다. 가볍게 무시하고 하나만 사용했다.
 >
+>6장에서는 optimizer로 asynchronous SGD를 사용한다고 되어있는데, 지금은 distributed learning framework에서 학습하는게 아니므로 가볍게 무시하고 SGD를 사용한다.
+>
 >mementum과 learning rate는 6장의 내용에 따라 정했으며, 그 외에 언급하지 않은 내용은 default로 두거나, 임의로 아무 값이나 넣어뒀다.
 >
 >n번 째의 epoch마다 learning rate scheduling을 적용하려면 직접 구현하는 수 밖에 없다더라.
