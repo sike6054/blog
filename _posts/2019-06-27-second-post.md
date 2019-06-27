@@ -235,7 +235,7 @@ Inception architecture는 후반부의 stage에서도 계산 복잡도의 폭발
 
 
 <br/>
-즉, **Inception 구조는 계산 자원을 효율적으로 사용하므로, 성능은 약간 떨어지더라도 저렴한 계산 비용으로 깊고 넓은 네트워크를 구축할 수 있다** 는 말이다. 논문에서는 사용 가능한 모든 knobs와 levers로 computational resource의 밸런스를 조절하여, 유사한 성능의 non-Inception architecture보다 3~10배 빠른 네트워크를 만들 수 있음을 발견했다. 물론 이 경우에는 신중한 수동적 설계가 필요하다.
+즉, **Inception 구조는 계산 자원을 효율적으로 사용하므로, 성능은 약간 떨어지더라도 저렴한 계산 비용으로 깊고 넓은 네트워크를 구축할 수 있다** 는 말이다. 저자들은 사용 가능한 모든 knobs와 levers로 computational resource의 밸런스를 조절하여, 유사한 성능의 non-Inception architecture보다 3~10배 빠른 네트워크를 만들 수 있음을 발견했다고 한다. 물론 이 경우에는 신중한 수동적 설계가 필요하다.
 >'사용 가능한 모든 knobs와 levers'에 해당하는 정확한 워딩은 'all the available knobs and levers'인데, 자주 사용하는 상투적 표현도 아닌 것 같다. 그냥 inception module에 관련된 각종 parameter를 변화하면서 적절한 값을 찾아봤다는 정도로 생각된다.
 
 
