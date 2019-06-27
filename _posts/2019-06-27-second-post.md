@@ -297,23 +297,136 @@ GoogLeNet에서는 보조 분류기(auxiliary classifier)를 중간 layer에 연
 >**Fig.3** <br/>ILSVRC 2014 competition에 제출됐던 GoogLeNet의 도식이다.
 
 
-
 ---
 ## 6. Training Methodology
-Inception a
+GoogLeNet은 [DistBelief](https://www.cs.toronto.edu/~ranzato/publications/DistBeliefNIPS2012_withAppendix.pdf)라는 distributed machine learning system을 사용하여 학습됐다.
+>구글에서 개발 된 대규모 분산 학습 프레임워크로, 적당한 양의 모델과 데이터 병렬성을 이용하여 학습한다고 한다.
+
+<br/>
+학습은 CPU 기반으로만 진행했었으나, high-end GPU를 몇 개 사용하여 학습하는 경우에는 1주일 내에 수렴 가능할 것으로 추정된다.
+>모바일이나 임베디드 시스템 상에서도 inference가 가능하도록 설계하는게 목적이었기 때문으로 생각된다.
+
+<br/>
+학습에선 momentum을 0.9로 한 [asynchronous SGD](https://static.googleusercontent.com/media/research.google.com/ko//pubs/archive/45187.pdf)를 사용했고, learning rate schedule은 8 epoch마다 4% 감소하도록 적용했다.
+>분산 학습에 사용되는 optimizer라고 한다. ([참고](https://www.facebook.com/groups/smartbean2/permalink/1879507065431662/))
+
+<br/>
+inference time에 사용 될 최종 모델을 생성하기 위해 [Polyak averaging](https://pdfs.semanticscholar.org/6dc6/1f37ecc552413606d8c89ffbc46ec98ed887.pdf)이 사용됐다.
+>[cs231n 강의 슬라이드](http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture7.pdf)에서는 Polyak averaging의 동작을 다음의 한 줄로 표현했음. 부가 설명은 [강의 동영상](https://www.youtube.com/watch?v=_JB0AO7QxSA) 참조
+> 
+>**INSTEAD of using actual parameter vector, keep a moving average of the parameter vector and use that at test time.**
+
+<br/>
+이미지 샘플링 방법은 ILSVRC 2014 competition까지의 몇 달 동안 크게 변화됐었다. 이미 수렴한 모델들은 다른 옵션을 사용하여 학습됐으며, 때로는 dropout이나 learning rate 등의 hyperparameter를 변경하기도 했다.
+>그래서 이 네트워크를 학습하는 가장 효과적인 방법에 대한 가이드를 제공하긴 어렵다고 함.
+
+<br/>
+문제를 더 복잡하게하기 위해, 모델 중 일부는 상대적으로 작은 크기의 crop 상에서 주로 학습했고, 다른 모델들은 더 큰 크기의 crop 상에서 학습했다.
+>이는 [Andrew Howard의 연구](https://arxiv.org/ftp/arxiv/papers/1312/1312.5402.pdf)에서 영감을 얻은 방법이라 한다.
+
+<br/>
+Competition 이후에는, 종횡비를 [3/4, 4/3]로 제한하여 8% ~ 100%의 크기에서 균등 분포로 patch sampling 하는 것이 매우 잘 작동한다는 것을 발견했다. 또한, [Andrew Howard의 연구](https://arxiv.org/ftp/arxiv/papers/1312/1312.5402.pdf)의 'photometric distortion'이 overfitting 방지에 유용하다는 것을 발견했다.
+
 
 ---
 ## 7. ILSVRC 2014 Classification Challenge Setup and Results
-Inception a
+ILSVRC 2014 classification challenge는 이미지를 Imagenet 계층에서 1000개의 카테고리 중 하나로 분류하는 작업을 포함한다. [ training / validation / test ] 데이터는 각각 [ 약 1,200,000 / 50,000 / 100,000 ]개의 이미지로 구성되어 있다.
+
+<br/>
+각 이미지는 ground truth로 하나의 카테고리만 연관되어 있으며, 성능 평가는 classifier의 prediction 중 highest scoring을 기반으로 측정되며, 대개 두 종류의 수치를 본다.
+
+1. **top-1 accuracy rate**는 ground truth를 highest score class와 비교하여 측정한다.
+        
+2. **top-5 error rate**는 ground truth을 predicted score 상에서의 최상위 5개 class와 비교하여 측정한다. 최상위 5개의 class 안에 ground truth가 속하기만 하면 순위에 상관없이 정답으로 간주한다.
+
+>이 challenge에서는 top-5 error rate로 ranking을 결정한다.
+
+<br/>
+GoogLeNet은 external data를 학습에 사용하지 않는 challenge에 참여했다. 논문에 언급 된 학습 기법 외에도, testing 시에는 더 높은 성능을 위해 일련의 기법들을 사용했다.
+
+<br/>
+- 동일한 GoogLeNet 모델의 7가지 버전(wider version도 하나 포함)을 독립적으로 학습했으며, 이들을 이용한 ensemble prediction을 수행했다. 각 모델들은 동일한 weight initialization과 learning rate policy로 학습했으며, sampling 방법과 shuffle로 인한 학습 데이터의 순서에서만 차이가 있다.
+
+<br/>
+- 테스트 과정에서는 [AlexNet](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)보다 더 적극적인 cropping 방식을 적용했다. shorter side가 각각 [256 / 288 / 320 / 352]인 4가지 scale로 이미지의 크기를 조정하여 [ left / center / right ]의 square를 취한다. 각 square에 대해 [ 모서리 4개 / 중앙 ]에서 224x224 crop 및 square 자체를 224x224 크기로 resize한 것과, 이들의 미러링 된 버전을 취한다. 물론 충분한 개수의 crop이 있는 경우에는 benefit이 적어지므로, 실제로는 이러한 적극적인 cropping이 필요하지 않을 수도 있다.
+>세로 방향의 이미지의 경우, [ left / center / right ] 대신, [ top / center / bottom ]에서 square를 취하며, 이미지 당 총 4x3x6x2 = 144개의 crop이 생성 됨.
+>
+>비슷한 접근법이 전년도에 [Andrew Howard](https://arxiv.org/ftp/arxiv/papers/1312/1312.5402.pdf)의 엔트리에서 사용됐었지만, 이들이 제안한 방법이 약간 더 좋다는 것을 경험적으로 입증됐다.
+>
+>아래의 그림에서 한 눈에 알아보자.
+>![Extra.5](/blog/images/GoogLeNet, Extra.5(removed).gif )
+
+<br/>
+- Final prediction은 [ multiple crop / all the individual classifier ]에 대한 softmax probability를 평균하여 얻는다. 실험 중에 [ max pooling over crops / averaging over classifiers ] 같은 validation data에 대한 대안적 접근법들을 분석했었으나, 단순한 averaging보다 열등한 성능을 보였다.
+
+<br/>
+논문의 나머지 부분에서는 final submission의 전반적인 성능에 기여하는 여러 요소들을 분석한다. Challenge에 제출한 final submission은 validation과 test set에서 모두 6.67%의 top-5 error를 기록하고, 1위를 차지했다. 이는 2012년의 SuperVision approach에 비해, 56.5%의 상대적 오류 감소율을 보인 것이며, 학습에 external data를 사용하는 2013년도 best approach인 Clarifai에 비해선 약 40%의 상대적 감소를 보였다. 최근 3년 간의 best approach에 대한 통계를 Table.2에서 보인다.
+
+<br/>
+![Table.2](/blog/images/GoogLeNet, Table.2(removed).png )
+>**Table.2** <br/>Classification performance.
+
+
+<br/>
+Table.3에서는 예측할 때 사용되는 [ model / crop ]의 수를 변경하면서 얻은 성능들을 보여준다.
+![Table.3](/blog/images/GoogLeNet, Table.3(removed).png )
+>**Table.3** <br/>Classification 성능에 대한 비교다. 하나의 모델만 사용할 때는 validation data에 대해 lowest top-1 error rate을 가진 모델을 선택했으며, 모든 수치는 testing data를 cheating하지 않기 위해, validation data에 대한 결과만 본다.
+
 
 ---
 ## 8. ILSVRC 2014 Detection Challenge Setup and Results
-Inception a
+ILSVRC 2014의 detection 분야는 이미지 내에서 200개의 possible class object 주위에 bounding box를 생성하는 것이다. Detected object가 [ ground truth와 class 일치 / bounding box가 50% 이상 overlap ] 되는 경우에 정답인 것으로 계산된다.
+>Overlap의 정도는 [Jaccard Index](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%B9%B4%EB%93%9C_%EC%A7%80%EC%88%98)를 이용하여 측정한다.
+
+<br/>
+Extraneous detection은 false positive으로 간주하여 페널티를 준다. Classification과는 달리, 각 이미지는 많은 object를 포함하거나 전혀 포함하지 않을 수 있으며, 크기도 다를 수 있으며, mAP로 성능을 평가한다.
+
+<br/>
+GoogLeNet의 detection approach는 [R-CNN](https://arxiv.org/pdf/1311.2524.pdf)과 비슷하며, region classifier를 Inception model로 보강했다. 또한 region proposal step은 object bounding box의 recall을 더 높이기 위해 [multi-box prediction](https://arxiv.org/pdf/1312.2249.pdf)을 사용한 [selective search](http://www.huppelen.nl/publications/selectiveSearchDraft.pdf)와 결합하여 보강했다.
+
+<br/>
+또한, false positive의 수를 줄이기 위해 super pixel size를 2배 증가시켰다. 이를 통해 [selective search](http://www.huppelen.nl/publications/selectiveSearchDraft.pdf) 알고리즘에서 얻어지는 proposal의 수가 반으로 줄어든다.
+>Superpixel 참고 [[1]](https://extremenormal.tistory.com/entry/Superpixel%EC%9D%B4%EB%9E%80) [[2]](https://hwiyong.tistory.com/84)
+
+<br/>
+여기에 [multi-box](https://arxiv.org/pdf/1312.2249.pdf)에서 나온 200개의 region proposal을 더하여, 총 개수는 [R-CNN](https://arxiv.org/pdf/1311.2524.pdf)에서 사용 된 proposal의 약 60%정도지만, coverage는 92%에서 93%로 늘어났다.
+>Proposal의 개수를 줄고 coverage가 늘어남으로 인해, single model의 경우 mAP가 1% 정도 향상되는 효과가 있었다.
+
+<br/>
+각 region에 대한 classification에는 6개의 GoogLeNet을 ensemble하여 사용하여, 정확도가 40%에서 43.9%로 향상됐다. ILSVRC 2014에 제출 시에는 시간적 한계로 인해, R-CNN에서 사용했던 bounding box regression를 사용하지 않았다.
+
+<br/>
+다음은 top detection 결과들과, 이후의 진행 상황들을 보여준다. 2013년의 결과에 비해 정확도가 거의 두 배로 향상됐으며, 최고 성능을 보인 팀들은 모두 CNN를 사용했다. Table.4의 공식 score와 각 팀의 전략들을 보여준다.
+
+<br/>
+![Table.4](/blog/images/GoogLeNet, Table.4(removed).png )
+>**Table.4** <br/>Comparison of detection performances.
+
+
+External data는 일반적으로 detection model의 pre-training 용도로 ILSVRC12 classification data를 사용하지만, 일부 팀에서는 localization data의 사용에 대해서도 언급했다. Localization bounding box는 detection data에 포함되어 있지 않기 때문에, general bounding box regressor를 pre-training 할 수 있다는 장점이 있다. 
+>동일한 방식으로 classification에 대해서도 pre-training 할 수 있다.
+>
+>GoogLeNet은 pre-training에 localization data를 사용하지 않은 결과이다.
+
+<br/>
+Table.5에서는 single model만을 사용한 결과를 비교한다. 최고 성능을 낸 모델은 Deep Insight이지만, 이 모델 3개를 ensemble 한 경우엔 0.3%만 향상 된 반면, GoogLeNet의 ensemble에선 훨씬 더 큰 향상 효과를 얻었다.
+
+![Table.5](/blog/images/GoogLeNet, Table.5(removed).png )
+>**Table.5** <br/>Single model performance for detection.
 
 ---
 ## 9. Conclusions
-Inception a
+GoogLeNet의 실험 결과는, 쉽게 이용 가능한 dense building blocks에 의해 optimal sparse structure를 근사화하는 것이, computer vision을 위한 네트워크의 성능 개선에 효과 있는 방법이라는 확실한 증거 제시한다.
+>쉽게 이용 가능한 기존의 conv layer로 optimal sparse structure를 나름 근사화 해봤고, 실험해보니 실제로 성능 개선에 효과가 있었다는 말이다.
+
+<br/>
+이 방법의 가장 큰 장점은 [ shallower / narrower ] 한 architecture에 비해, computational cost가 약간 증가 함에도 상당한 성능 향상을 얻을 수 있다는 것이다.
+
+<br/>
+Object detection에서는 [ context의 활용 / bounding box regression ]을 수행하지 않아도 경쟁력 있는 성능을 보였으며, 이는 inception architecture의 강점에 대한 또 다른 증거가 된다. 또한, classification과 detection의 결과들은, 유사한 크기의 훨씬 비싼 non-Inception-type 네트워크와 성능이 비슷할 것으로 예상된다.
+
+<br/>
+그럼에도, GoogLeNet approach는 sparser architecture로 바꾸는 것이 실현 가능하며 유용한 아이디어라는 확실한 증거를 제시한다. 이는 inception architecture의 아이디어를 다른 도메인에 적용하는 것 외에도, [Arora의 연구](https://arxiv.org/pdf/1310.6343.pdf)에 기반한 자동화 된 방식으로, 더 sparser하게 개선 된 구조에 대한 향후 연구를 제안한다.
 
 
 ---
-작성 중
