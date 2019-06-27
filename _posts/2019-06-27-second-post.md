@@ -296,6 +296,168 @@ GoogLeNet에서는 보조 분류기(auxiliary classifier)를 중간 layer에 연
 ![Fig.3](/blog/images/GoogLeNet, Fig.3(removed).png )
 >**Fig.3** <br/>ILSVRC 2014 competition에 제출됐던 GoogLeNet의 도식이다.
 
+<br/>
+글만 쓰면 정말 재미가 없다. Fig.3을 keras로 구현해보자.
+``` python
+from keras.models import Model, Input
+from keras.layers import Conv2D, MaxPooling2D, Dropout, GlobalAveragePooling2D, Dense, AveragePooling2D, Flatten, Concatenate
+from keras.optimizers import SGD
+from keras.callbacks import Callback
+
+from keras.utils import to_categorical
+from keras.datasets import cifar10
+import numpy as np
+
+class LearningRateSchedule(Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        if (epoch+1)%8 == 0:
+            lr = K.get_value(self.model.optimizer.lr)
+            K.set_value(self.model.optimizer.lr, lr*0.96)
+
+class LocalResponseNormalization(Layer):
+    def __init__(self, n=5, alpha=1e-4, beta=0.75, k=2, **kwargs):
+        self.n = n
+        self.alpha = alpha
+        self.beta = beta
+        self.k = k
+        super(LocalResponseNormalization, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.shape = input_shape
+        super(LocalResponseNormalization, self).build(input_shape)
+
+    def call(self, x):
+        _, r, c, f = self.shape 
+        squared = K.square(x)
+        pooled = K.pool2d(squared, (self.n, self.n), strides=(1,1), padding="same", pool_mode='avg')
+        summed = K.sum(pooled, axis=3, keepdims=True)
+        averaged = self.alpha * K.repeat_elements(summed, f, axis=3)
+            
+        denom = K.pow(self.k + averaged, self.beta)
+        
+        return x / denom 
+    
+    def get_output_shape_for(self, input_shape):
+        return input_shape
+
+def Upscaling_Data(data_list, reshape_dim):
+    ...
+
+def inception(input_tensor, filter_channels):
+    filter_1x1, filter_3x3_R, filter_3x3, filter_5x5_R, filter_5x5, pool_proj = filter_channels
+    
+    branch_1 = Conv2D(filter_1x1, (1, 1), strides=1, padding='same', activation='relu', kernel_initializer='he_normal')(input_tensor)
+    
+    branch_2 = Conv2D(filter_3x3_R, (1, 1), strides=1, padding='same', activation='relu', kernel_initializer='he_normal')(input_tensor)
+    branch_2 = Conv2D(filter_3x3, (3, 3), strides=1, padding='same', activation='relu', kernel_initializer='he_normal')(branch_2)
+
+    branch_3 = Conv2D(filter_5x5_R, (1, 1), strides=1, padding='same', activation='relu', kernel_initializer='he_normal')(input_tensor)
+    branch_3 = Conv2D(filter_5x5, (5, 5), strides=1, padding='same', activation='relu', kernel_initializer='he_normal')(branch_3)
+    
+    branch_4 = MaxPooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_4 = Conv2D(pool_proj, (1, 1), strides=1, padding='same', activation='relu', kernel_initializer='he_normal')(branch_4)
+    
+    DepthConcat = Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return DepthConcat
+    
+def GoogLeNet(model_input, classes=10):
+    conv_1 = Conv2D(64, (7, 7), strides=2, padding='same', activation='relu')(model_input) # (112, 112, 64)
+    pool_1 = MaxPooling2D((3, 3), strides=2, padding='same')(conv_1) # (56, 56, 64)
+    LRN_1 = LocalResponseNormalization()(pool_1) # (56, 56, 64)
+    
+    conv_2 = Conv2D(64, (1, 1), strides=1, padding='valid', activation='relu')(LRN_1) # (56, 56, 64)
+    conv_3 = Conv2D(192, (3, 3), strides=1, padding='same', activation='relu')(conv_2) # (56, 56, 192)
+    LRN_2 = LocalResponseNormalization()(conv_3) # (56, 56, 192)
+    pool_2 = MaxPooling2D((3, 3), strides=2, padding='same')(LRN_2) # (28, 28, 192)
+    
+    inception_3a = inception(pool_2, [64, 96, 128, 16, 32, 32]) # (28, 28, 256)
+    inception_3b = inception(inception_3a, [128, 128, 192, 32, 96, 64]) # (28, 28, 480)
+    
+    pool_3 = MaxPooling2D((3, 3), strides=2, padding='same')(inception_3b) # (14, 14, 480)
+    
+    inception_4a = inception(pool_3, [192, 96, 208, 16, 48, 64]) # (14, 14, 512)
+    inception_4b = inception(inception_4a, [160, 112, 224, 24, 64, 64]) # (14, 14, 512)
+    inception_4c = inception(inception_4b, [128, 128, 256, 24, 64, 64]) # (14, 14, 512)
+    inception_4d = inception(inception_4c, [112, 144, 288, 32, 64, 64]) # (14, 14, 528)
+    inception_4e = inception(inception_4d, [256, 160, 320, 32, 128, 128]) # (14, 14, 832)
+    
+    pool_4 = MaxPooling2D((3, 3), strides=2, padding='same')(inception_4e) # (7, 7, 832)
+    
+    inception_5a = inception(pool_4, [256, 160, 320, 32, 128, 128]) # (7, 7, 832)
+    inception_5b = inception(inception_5a, [384, 192, 384, 48, 128, 128]) # (7, 7, 1024)
+    
+    avg_pool = GlobalAveragePooling2D()(inception_5b)
+    dropout = Dropout(0.4)(avg_pool)
+    
+    linear = Dense(1000, activation='relu')(dropout)
+    
+    model_output = Dense(classes, activation='softmax', name='main_classifier')(linear) # 'softmax'
+    
+    # Auxiliary Classifier
+    auxiliary_4a = AveragePooling2D((5, 5), strides=3, padding='valid')(inception_4a)
+    auxiliary_4a = Conv2D(128, (1, 1), strides=1, padding='same', activation='relu')(auxiliary_4a)
+    auxiliary_4a = Flatten()(auxiliary_4a)
+    auxiliary_4a = Dense(1024, activation='relu')(auxiliary_4a)
+    auxiliary_4a = Dropout(0.7)(auxiliary_4a)
+    auxiliary_4a = Dense(classes, activation='softmax', name='auxiliary_4a')(auxiliary_4a)
+    
+    auxiliary_4d = AveragePooling2D((5, 5), strides=3, padding='valid')(inception_4d)
+    auxiliary_4d = Conv2D(128, (1, 1), strides=1, padding='same', activation='relu')(auxiliary_4d)
+    auxiliary_4d = Flatten()(auxiliary_4d)
+    auxiliary_4d = Dense(1024, activation='relu')(auxiliary_4d)
+    auxiliary_4d = Dropout(0.7)(auxiliary_4d)
+    auxiliary_4d = Dense(classes, activation='softmax', name='auxiliary_4d')(auxiliary_4d)
+    
+    
+    model = Model(model_input, [model_output, auxiliary_4a, auxiliary_4d])
+    
+    return model
+
+
+input_shape = (224, 224, 3)
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+x_train = Upscaling_Data(x_train, input_shape)
+x_test = Upscaling_Data(x_test, input_shape)
+
+x_train = np.float32(x_train / 255.)
+x_test = np.float32(x_test / 255.)
+
+y_train = to_categorical(y_train, num_classes=10)
+y_test = to_categorical(y_test, num_classes=10)
+
+model_input = Input( shape=input_shape )
+
+model = GoogLeNet(model_input, 10)
+
+optimizer = SGD(momentum=0.9)
+
+model.compile(optimizer, 
+				loss={'main_classifier' : 'categorical_crossentropy',
+                		'auxiliary_4a' : 'categorical_crossentropy',
+                        'auxiliary_4d' : 'categorical_crossentropy'},
+                loss_weights={'main_classifier' : 1.0, 
+                                'auxiliary_4a' : 0.3, 
+                                'auxiliary_4d' : 0.3}, 
+                metrics=['acc'])
+
+model.fit(x_train, 
+			{'main_classifier' : y_train, 
+                'auxiliary_4a' : y_train, 
+                'auxiliary_4d' : y_train},  
+        	epochs=100, batch_size=32)
+
+```
+
+>귀찮으니 CIFAR-10 dataset을 upscaling해서 테스트 한다. ImageNet에 적용하려면, GoogLeNet 함수를 호출하면서 class 수를 1000으로 넣으면 된다. 보조 분류기 설명에서 FC layer를 하나만 언급했는데 Fig.3에는 두 개가 있다. 가볍게 무시하고 하나만 사용했다.
+>
+>mementum과 learning rate는 6장의 내용에 따라 정했으며, 그 외에 언급하지 않은 내용은 default로 두거나, 임의로 아무 값이나 넣어뒀다.
+>
+>n번 째의 epoch마다 learning rate scheduling을 적용하려면 직접 구현하는 수 밖에 없다더라.
+>
+>LocalResponseNormalization 역시 keras에서 제공하지 않아서 [여기](https://datascienceschool.net/view-notebook/d19e803640094f76b93f11b850b920a4/)를 참조했다.
+
 
 ---
 ## 6. Training Methodology
