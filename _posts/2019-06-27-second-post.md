@@ -434,8 +434,8 @@ model = GoogLeNet(model_input, 10)
 optimizer = SGD(momentum=0.9)
 
 model.compile(optimizer, 
-				loss={'main_classifier' : 'categorical_crossentropy',
-                		'auxiliary_4a' : 'categorical_crossentropy',
+        	loss={'main_classifier' : 'categorical_crossentropy',
+                    'auxiliary_4a' : 'categorical_crossentropy',
                         'auxiliary_4d' : 'categorical_crossentropy'},
                 loss_weights={'main_classifier' : 1.0, 
                                 'auxiliary_4a' : 0.3, 
@@ -443,7 +443,7 @@ model.compile(optimizer,
                 metrics=['acc'])
 
 model.fit(x_train, 
-			{'main_classifier' : y_train, 
+        {'main_classifier' : y_train, 
                 'auxiliary_4a' : y_train, 
                 'auxiliary_4d' : y_train},  
         	epochs=100, batch_size=32)
@@ -518,6 +518,8 @@ GoogLeNet은 external data를 학습에 사용하지 않는 challenge에 참여�
 >비슷한 접근법이 전년도에 [Andrew Howard](https://arxiv.org/ftp/arxiv/papers/1312/1312.5402.pdf)의 엔트리에서 사용됐었지만, 이들이 제안한 방법이 약간 더 좋다는 것을 경험적으로 입증됐다.
 >
 >아래의 그림에서 한 눈에 알아보자.
+>
+><br/>
 >![Extra.5](/blog/images/GoogLeNet, Extra.5(removed).gif )
 
 <br/>
