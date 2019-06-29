@@ -316,15 +316,9 @@ Table.4에서는 previous best single-model의 성능과 비교한다. 우리의
 keras에서 18-layer plain/residual network를 비교하자면 다음과 같다. 위 실험에서 18-layer의 경우에는 dimension matching을 위해 zero-padding을 이용했었지만, 이 외에는 어차피 projection을 사용하기 때문에 projection으로 구현한다.
 
 ``` python
-def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, input_shape=None, activation='relu', name='default'):
-    if input_shape:
-        x = Conv2D(filters, kernel_size, kernel_initializer='he_normal', padding=padding, strides=strides, input_shape=input_shape)(x)
-
-    else:
-        x = Conv2D(filters, kernel_size, kernel_initializer='he_normal', padding=padding, strides=strides)(x)
-        
+def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu', name='default'):
+    x = Conv2D(filters, kernel_size, kernel_initializer='he_normal', padding=padding, strides=strides)(x)
     x = BatchNormalization()(x)
-    
     if activation:
         x = Activation(activation='relu')(x)
     
@@ -407,7 +401,7 @@ def bottleneck_identity(input_tensor, filter_sizes):
     
     x = conv2d_bn(input_tensor, filter_1, (1, 1))
     x = conv2d_bn(x, filter_2, (3, 3))
-    x = conv2d_bn(x, filter_3, (1, 1))
+    x = conv2d_bn(x, filter_3, (1, 1), activation=None)
     
     shortcut = Add()([input_tensor, x])
     shortcut = Activation(activation='relu')(shortcut)
@@ -419,7 +413,7 @@ def bottleneck_projection(input_tensor, filter_sizes, strides=2):
     
     x = conv2d_bn(input_tensor, filter_1, (1, 1), strides=strides)
     x = conv2d_bn(x, filter_2, (3, 3))
-    x = conv2d_bn(x, filter_3, (1, 1))
+    x = conv2d_bn(x, filter_3, (1, 1), activation=None)
     
     shortcut = conv2d_bn(input_tensor, filter_3, (1, 1), strides=strides, activation=None)
     shortcut = Add()([x, shortcut])
@@ -479,7 +473,7 @@ import numpy as np
 def Upscaling_Data(data_list, reshape_dim):
     ...
     
-def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, input_shape=None, activation='relu', name='default'):
+def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu', name='default'):
     ...
 
 def plain18(model_input, classes=10):
