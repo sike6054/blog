@@ -446,7 +446,7 @@ model.fit(x_train,
         {'main_classifier' : y_train, 
                 'auxiliary_4a' : y_train, 
                 'auxiliary_4d' : y_train},  
-        	epochs=100, batch_size=32)
+        	epochs=100, batch_size=32, callbacks=LearningRateSchedule())
 
 ```
 
