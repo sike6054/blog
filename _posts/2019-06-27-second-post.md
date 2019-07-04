@@ -77,7 +77,7 @@ ImageNet과 같은 큰 dataset의 경우, layer의 수와 크기를 늘리면서
 2. CNN classifier를 사용하여, 해당 location들의 object category를 식별
 
 <br/>
-이러한 two stage approach는 low-level feature를 활용한 bounding box segmentation의 정확성 뿐만 아니라, state-ofthe-art CNN의 강력한 classification power를 활용할 수 있다. 제안하는 방법을 이용한 detection submission에도 이와 유사한 pipeline을 적용했지만, 두 단계 모두에 대한 개선 사항이 있었다. 
+이러한 two stage approach는 low-level feature를 활용한 bounding box segmentation의 정확성 뿐만 아니라, state-of-the-art CNN의 강력한 classification power를 활용할 수 있다. 제안하는 방법을 이용한 detection submission에도 이와 유사한 pipeline을 적용했지만, 두 단계 모두에 대한 개선 사항이 있었다. 
     
 1. object bounding box의 높은 recall을 위한 [multi-box prediction](https://arxiv.org/pdf/1312.2249.pdf)
     
