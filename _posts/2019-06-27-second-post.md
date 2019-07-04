@@ -228,7 +228,7 @@ Inception network는 상기 타입의 module들이 서로 쌓여서 구성된 �
 >이는 비효율적인 인프라를 고려하기 위한 것이며, 꼭 필요한 절차는 아니다.
 
 <br/>
-Inception architecture는 후반부의 stage에서도 계산 복잡도의 폭발적인 증가 없이 각 단계의 unit 수를 크게 늘릴 수 있다는 것입니다. 이는, 더 큰 patch size를 갖는 expensive convolution에 앞서, dimensionality reduction을 보편적으로 사용함에 따라 가능해진다.
+Inception architecture는 후반부의 stage에서도 계산 복잡도의 폭발적인 증가 없이 각 단계의 unit 수를 크게 늘릴 수 있다는 것다. 이는, 더 큰 patch size를 갖는 expensive convolution에 앞서, dimensionality reduction을 보편적으로 사용함에 따라 가능해진다.
 
 <br/>
 또한, 이 디자인은 시각적 정보를 다양한 scale 상에서 처리된 후에 종합함으로써, 다음 stage에서 서로 다른 scale로부터 feature를 동시에 추상화 한다는 타당한 직관을 따른다.
