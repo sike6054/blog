@@ -220,7 +220,7 @@ Translation invariant를 가정하고, convolutional building block으로 네트
 <br/>
 다음은 inception architecture에서 이를 타개하기 위한 두 번째 아이디어를 설명한다. 이는 계산 요구량이 너무 많이 증가 할 경우에 현명하게 차원을 줄이는게 목적이며, 성공적인 embedding에 기반한 방법이다. 저차원의 embedding은 상대적으로 큰 image patch에 대한 많은 정보를 포함 할 수 있다. 하지만, 이러한 embedding은 정보가 고밀도로 압축 된 형식이며, 압축 된 정보는 처리하기가 더 어렵워진다.
 
-[Arora의 연구](https://arxiv.org/pdf/1310.6343.pdf)의 조건에 따르면, representation은 대부분의 위치에서 sparse하게 유지되어야하며, 필요한 경우에는 신호를 압축해야 한다. 따라서, 계산량이 많은 3x3이나 5x5 convolution 이전에는 reduction을 위한 1x1 convolution이 사용된다. 이 때, activation으로 ReLU를 사용함으로써 이중 목적으로 활용합니다. 최종 결과는 Fig.2의 (b)와 같다.
+[Arora의 연구](https://arxiv.org/pdf/1310.6343.pdf)의 조건에 따르면, representation은 대부분의 위치에서 sparse하게 유지되어야하며, 필요한 경우에는 신호를 압축해야 한다. 따라서, 계산량이 많은 3x3이나 5x5 convolution 이전에는 reduction을 위한 1x1 convolution이 사용된다. 이 때, activation으로 ReLU를 사용함으로써 이중 목적으로 활용다. 최종 결과는 Fig.2의 (b)와 같다.
 >단순한 계산량 감소 목적 외에도, non-linearity를 함께 취하겠다는 의미로 보인다.
 
 <br/>
