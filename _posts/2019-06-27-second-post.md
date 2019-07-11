@@ -582,7 +582,7 @@ Table.5에서는 single model만을 사용한 결과를 비교한다. 최고 성
 
 ---
 ## 9. Conclusions
-GoogLeNet의 실험 결과는, 쉽게 이용 가능한 dense building blocks에 의해 optimal sparse structure를 근사화하는 것이, computer vision을 위한 네트워크의 성능 개선에 효과 있는 방법이라는 확실한 증거 제시한다.
+GoogLeNet의 실험 결과는, 쉽게 이용 가능한 dense building blocks에 의해 optimal sparse structure를 근사화하는 것이, computer vision을 위한 네트워크의 성능 개선에 효과 있는 방법이라는 확실한 증거를 제시한다.
 >쉽게 이용 가능한 기존의 conv layer로 optimal sparse structure를 나름 근사화 해봤고, 실험해보니 실제로 성능 개선에 효과가 있었다는 말이다.
 
 <br/>
