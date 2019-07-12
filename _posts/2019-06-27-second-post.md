@@ -5,6 +5,7 @@ tags: AI ComputerVision Paper GoogLeNet
 categories: 
   - Paper
 toc: true
+comments: true
 ---
 
 ## Paper Information
