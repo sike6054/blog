@@ -38,6 +38,8 @@
 
     {% include scripts.html %}
     
-    <script id="dsq-count-scr" src="//aroddarys-personal-lab.disqus.com/count.js" async></script>
+    {% if site.discus-identifier %}
+    <script id="dsq-count-scr" src="//{{ site.discus-identifier }}.disqus.com/count.js" async></script>
+    {% endif %}
   </body>
 </html>
