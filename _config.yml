@@ -15,8 +15,8 @@
 minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Disqus
-discus_identifier: aroddarys-personal-lab  # add your discus identifier
-discus_id: aroddarys-personal-lab  # add your discus identifier
+discus_identifier: "aroddarys-personal-lab"  # add your discus identifier
+discus_id: "aroddarys-personal-lab"  # add your discus identifier
 
 # Site Settings
 locale                   : "en-US"
