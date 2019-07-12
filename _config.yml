@@ -303,4 +303,4 @@ defaults:
       author_profile: true
 
 # Disqus
-discus-identifier: aroddarys-personal-lab  # add your discus identifier
+discus-identifier: "aroddarys-personal-lab"  # add your discus identifier
