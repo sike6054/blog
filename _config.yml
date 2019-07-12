@@ -301,3 +301,6 @@ defaults:
     values:
       layout: single
       author_profile: true
+
+# Disqus
+discus-identifier: aroddarys-personal-lab  # add your discus identifier
