@@ -28,6 +28,10 @@ layout: archive
   </section>
 {% endfor %}
 
+{% if page.comments %}
+<div id="post-disqus" class="container">
 {% include disqus.html %}
+</div>
+{% endif %}
 
 {% if page.comments %} • <a href="https://sike6054.github.io/blog{{ page.url }}#disqus_thread">0 Comments</a>{% endif %}
