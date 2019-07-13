@@ -7,7 +7,7 @@ categories:
 toc: true
 ---
 
-## 0. Intro
+# 0. Intro
 
 이번에 개인용 딥 러닝 서버를 새로 구매했다. 주요 스펙은 다음과 같다.
 - MainBoard : **Z390**
@@ -63,7 +63,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 또한, 본 글에서는 Ubuntu 18.04를 설치하는 부분은 생략하고 있다. 모든 PATH가 CUDA 10.0 버전을 기준으로 작성됐으므로, 다른 버전을 사용할 경우에는 주의해서 수정할 필요가 있다.
 
 ---
-## 1. ssh 세팅
+# 1. ssh 세팅
 서버니까 원격으로 작업하고싶다. 필자는 putty를 주로 이용하기 때문에 ssh로 연결할 수 있게 준비한다.
 
 ### 1-1. IP 확인
@@ -80,7 +80,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >잘 된다.
 
 <br/>
-##2. Anaconda 가상 환경에 Keras(with Tensorflow) 설치
+# 2. Anaconda 가상 환경에 Keras(with Tensorflow) 설치
 
 `sudo apt install python3-dev python3-pip`
   
