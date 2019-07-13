@@ -4,7 +4,9 @@ date: 2019-07-14 05:09:11 -0400
 tags: AI Keras Install Environment
 categories:
   - Keras
+comments: true
 toc: true
+
 ---
 
 # 0. Intro
