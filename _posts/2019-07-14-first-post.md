@@ -17,6 +17,8 @@ toc: true
 
 <br/>
 기존에 많이 이용한 Ubuntu 16.04에서 CUDA 9.0 버전을 이용하고 싶었으나, 보드랑 호환 문제가 있었는지 OS 설치 단계부터 아래 사진과 같은 문제들을 만났다.
+
+<br/>
 ![Fig.1](/blog/images/Keras_Instll, 0.boot error.png )
 
 <br/>
@@ -25,17 +27,23 @@ Secure boot 비활성화나 standard mode로 변경하는 등, 다양한 해결 
 
 <br/>
 우선 Ubuntu가 설치 된 USB로 부팅을 하면 아래와 같은 모습을 볼 수 있다.
+
+<br/>
 ![Fig.2](/blog/images/Keras_Instll, 0.nouveau_0.png )
 >이건 사진을 깜빡하는 바람에 [여기](https://kldp.org/node/159690)서 가져왔다.
 
 <br/>
 위 화면일 때, 빠르게 **e** 키를 눌러주면 아래와 같은 화면에 진입하게 된다.
 >약간 여유는 있지만, 너무 지체하면 화면이 넘어 가버리더라.
+
+<br/>
 ![Fig.3](/blog/images/Keras_Instll, 0.nouveau_1.png )
 
 <br/>
 여기서 맨 오른쪽에 `splash ---`라고 된 부분을 `splash nomodeset`으로 바꿔주면 된다.
 >방향키로 커서를 옮기고, 키보드로 타이핑하여 수정하면 된다. 타이핑 결과는 아래 그림 참조.
+
+<br/>
 ![Fig.3](/blog/images/Keras_Instll, 0.nouveau_2.png )
 
 <br/>
