@@ -601,5 +601,3 @@ Object detection에서는 [ context의 활용 / bounding box regression ]을 수
 <br/>
 <br/>
 {% include disqus.html %}
-
-<br/>
