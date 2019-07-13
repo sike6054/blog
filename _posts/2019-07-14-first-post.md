@@ -94,6 +94,9 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >URL은 하단의 그림에 표시한 것이다. 버전이 다를 경우, [링크](https://www.tensorflow.org/install/pip)에서 본인에게 맞는 URL을 확인할 수 있다.
 
 <br/>
+![Fig.5](/blog/images/Keras_Instll, 2-2.tensorflow-gpu.png )
+
+<br/>
 `(your_name) pip install --upgrade tensorflow-gpu`
 `(your_name) conda deactivate`
 
@@ -110,7 +113,10 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 <br/>
 `sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64`
 `sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub`
->key가 다르다면 위의 `dpkg`라인의 수행 결과 마지막 부분에 나온 key 등록 명령어를 복사해서 수행하면 된다.
+>key가 다르다면 위의 `dpkg`라인의 수행 결과 마지막 부분에 나온 key 등록 명령어를 복사해서 수행하면 된다. (아래 수행 결과 참조)
+
+<br/>
+![Fig.6](/blog/images/Keras_Instll, 2-4.CUDA.png )
 
 <br/>
 `sudo apt-get install cuda`
@@ -264,6 +270,9 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 <br/>
 - **The name tf.is_variable_initialized is deprecated. Please use tf.compat.v1.is_variable_initialized instead.**류의 Warning
 >비슷한 Warning이 다수 목격될 수도 있다. 무시하도록 하는 방법도 있지만, 손이 빠르다면 직접 소스파일을 수정하는 무식한 방법도 약이 된다.
+
+<br/>
+![Fig.7](/blog/images/Keras_Instll, 2-7.Example.png )
 
 <br/>
 ##3. 끝
