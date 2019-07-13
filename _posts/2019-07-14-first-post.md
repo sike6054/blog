@@ -284,6 +284,7 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 
 <br/>
 ![Fig.7](/blog/images/Keras_Instll, 2-7.Example.PNG )
+>예제 실행 결과다.
 
 <br/>
 # 3. 끝
