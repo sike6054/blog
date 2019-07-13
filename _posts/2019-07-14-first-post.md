@@ -268,8 +268,8 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 코드를 저장하고 다음의 명령어로 실행해본다.
 
 <br/>
-`conda activate **sike**`<br/>
-`(your_name) python **test_resnet.py**`
+`conda activate your_name`<br/>
+`(your_name) python test_resnet.py`
 
 <br/>
 최신 버전을 설치하다 보면, 각종 warning을 마주하게 된다.
