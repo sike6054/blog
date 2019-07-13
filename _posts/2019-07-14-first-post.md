@@ -290,6 +290,8 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 
 <br/>
 # 3. 끝
-<br/>
 
+<br/>
+<br/>
 {% include disqus.html %}
+
