@@ -66,15 +66,15 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 # 1. ssh 세팅
 서버니까 원격으로 작업하고싶다. 필자는 putty를 주로 이용하기 때문에 ssh로 연결할 수 있게 준비한다.
 
-### 1-1. IP 확인
+## 1.1. IP 확인
 `sudo apt-get install net-tools`<br/>
 `ifconfig -a`
 
-### 1-2. putty로 해당 IP에 접근해보면
+## 1.2. putty로 해당 IP에 접근해보면
 ![Fig.4](/blog/images/Keras_Instll, 1-2.putty.png )
 >당연히 접속이 불가능하다. 이건 따라하지 말자.
 
-### 1-3. ssh 설치
+## 1.3. ssh 설치
 `sudo apt-get install ssh`
 
 <br/>
@@ -86,7 +86,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 
 `sudo apt install python3-dev python3-pip`
   
-### 2-1. Anaconda 설치
+## 2.1. Anaconda 설치
 `wget https://repo.anaconda.com/archive/Anaconda3-2019.03-Linux-x86_64.sh`
 >다운로드가 안 되면 [링크](https://www.anaconda.com/distribution/#linux)에 가서 원하는 버전으로 다운로드하면 된다.
 
@@ -96,7 +96,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >Python 버전은 자기가 원하는 것으로 설정하면 된다. PATH는 절대경로로 설정해주자.
 
 <br/>
-### 2-2. Anaconda 가상 환경에 Tensorflow 설치하기
+## 2.2. Anaconda 가상 환경에 Tensorflow 설치하기
 `conda activate your_name`
 >최초로 activate 하는 시점에는 `conda activate your_name`로 수행하면 에러가 날 수 있다. 처음에만 `source activate`와 `source deactivate`를 사용해주자.
 
@@ -112,12 +112,12 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 `(your_name) conda deactivate`
 
 <br/>
-### 2-3. NVIDIA Graphics Driver 설치
+## 2.3. NVIDIA Graphics Driver 설치
 [링크](https://www.nvidia.com/Download/index.aspx?lang=en-us)로 가서 다운로드 받고 설치한다.
 >GUI 환경에서 설치한 바람에 CLI 환경에서 설치하는 내용이 누락됐다.
 
 <br/>
-### 2-4. CUDA 설치
+## 2.4. CUDA 설치
 `wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64`
 >혹은 [링크](https://developer.nvidia.com/cuda-toolkit-archive)로 가서 설치하자.
 
@@ -133,7 +133,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 `sudo apt-get install cuda`
 
 <br/>
-### 2-5. cuDNN 설치
+## 2.5. cuDNN 설치
 [링크](https://developer.nvidia.com/cudnn)로 가서 CUDA 버전에 맞는 cuDNN을 다운로드 한다. (로그인이 필요하기 때문에, wget으로 다운받으려 하면 403 에러가 난다.)
 >`cuDNN Library for Linux`를 다운로드 했기 때문에, tar 파일 기준으로 설명한다.
 
@@ -148,7 +148,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 `export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH`
 
 <br/>
-### 2-6. Keras 설치
+## 2.6. Keras 설치
 `conda activate your_name`<br/>
 `(your_name) conda install h5py`<br/>
 `(your_name) conda install graphviz`<br/>
@@ -156,7 +156,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 `(your_name) conda install keras`
 
 <br/>
-### 2-7. 예제 실행
+## 2.7. 예제 실행
 [ResNet 포스팅](https://sike6054.github.io/blog/paper/first-post/)에서 구현한 코드를 일부 수정한 코드이다.
 
 ``` python
