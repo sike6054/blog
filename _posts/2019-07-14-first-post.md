@@ -76,6 +76,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 
 ### 1-3. ssh 설치
 `sudo apt-get install ssh`
+
 <br/>
 ![Fig.5](/blog/images/Keras_Instll, 1-3.login.png )
 >잘 된다.
