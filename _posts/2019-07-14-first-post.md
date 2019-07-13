@@ -9,6 +9,8 @@ toc: true
 
 ---
 
+{% include disqus.html %}
+
 # 0. Intro
 
 이번에 개인용 딥 러닝 서버를 새로 구매했다. 주요 스펙은 다음과 같다.
