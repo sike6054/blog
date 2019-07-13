@@ -45,6 +45,7 @@ Secure boot 비활성화나 standard mode로 변경하는 등, 다양한 해결 
 
 <br/>
 ![Fig.3](/blog/images/Keras_Instll, 0.nouveau_2.png )
+>올리고 보니 손이 흔들렸더라.
 
 <br/>
 이후에 F10을 누르면, 현재 세팅으로 부팅된다. 하지만, 이는 현재 부팅에만 적용하는 방법이며, 영구적으로 적용하려면 부팅 후에 터미널을 열고 다음의 동작을 따르자.
@@ -66,7 +67,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 서버니까 원격으로 작업하고싶다. 필자는 putty를 주로 이용하기 때문에 ssh로 연결할 수 있게 준비한다.
 
 ###1-1. IP 확인
-`sudo apt-get install net-tools`
+`sudo apt-get install net-tools`<br/>
 `ifconfig -a`
 
 ###1-2. putty로 해당 IP에 접근해보면
@@ -88,7 +89,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >다운로드가 안 되면 [링크](https://www.anaconda.com/distribution/#linux)에 가서 원하는 버전으로 다운로드하면 된다.
 
 <br/>
-`export PATH="/your_path/anaconda3/bin:$PATH"`
+`export PATH="/your_path/anaconda3/bin:$PATH"`<br/>
 `conda create -n your_name pip python=3.7`
 >Python 버전은 자기가 원하는 것으로 설정하면 된다. PATH는 절대경로로 설정해주자.
 
@@ -102,10 +103,10 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >URL은 하단의 그림에 표시한 것이다. 버전이 다를 경우, [링크](https://www.tensorflow.org/install/pip)에서 본인에게 맞는 URL을 확인할 수 있다.
 
 <br/>
-![Fig.5](/blog/images/Keras_Instll, 2-2.tensorflow-gpu.png )
+![Fig.5](/blog/images/Keras_Instll, 2-2.tensorflow-gpu.PNG )
 
 <br/>
-`(your_name) pip install --upgrade tensorflow-gpu`
+`(your_name) pip install --upgrade tensorflow-gpu`<br/>
 `(your_name) conda deactivate`
 
 <br/>
@@ -119,7 +120,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >혹은 [링크](https://developer.nvidia.com/cuda-toolkit-archive)로 가서 설치하자.
 
 <br/>
-`sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64`
+`sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64`<br/>
 `sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub`
 >key가 다르다면 위의 `dpkg`라인의 수행 결과 마지막 부분에 나온 key 등록 명령어를 복사해서 수행하면 된다. (아래 수행 결과 참조)
 
@@ -135,21 +136,21 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 >`cuDNN Library for Linux`를 다운로드 했기 때문에, tar 파일 기준으로 설명한다.
 
 <br/>
-`tar -xzvf cudnn-10.0-linux-x64-v7.6.1.34.tgz`
-`sudo cp cuda/include/cudnn.h /usr/local/cuda/include`
-`sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64`
+`tar -xzvf cudnn-10.0-linux-x64-v7.6.1.34.tgz`<br/>
+`sudo cp cuda/include/cudnn.h /usr/local/cuda/include`<br/>
+`sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64`<br/>
 `sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*`
 
 <br/>
-`export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH`
+`export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH`<br/>
 `export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH`
 
 <br/>
 ###2-6. Keras 설치
-`conda activate **sike**`
-`(your_name) conda install h5py`
-`(your_name) conda install graphviz`
-`(your_name) conda install pydot`
+`conda activate your_name`<br/>
+`(your_name) conda install h5py`<br/>
+`(your_name) conda install graphviz`<br/>
+`(your_name) conda install pydot`<br/>
 `(your_name) conda install keras`
 
 <br/>
@@ -267,7 +268,7 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 코드를 저장하고 다음의 명령어로 실행해본다.
 
 <br/>
-`conda activate **sike**`
+`conda activate **sike**`<br/>
 `(your_name) python **test_resnet.py**`
 
 <br/>
@@ -280,7 +281,7 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 >비슷한 Warning이 다수 목격될 수도 있다. 무시하도록 하는 방법도 있지만, 손이 빠르다면 직접 소스파일을 수정하는 무식한 방법도 약이 된다.
 
 <br/>
-![Fig.7](/blog/images/Keras_Instll, 2-7.Example.png )
+![Fig.7](/blog/images/Keras_Instll, 2-7.Example.PNG )
 
 <br/>
 ##3. 끝
