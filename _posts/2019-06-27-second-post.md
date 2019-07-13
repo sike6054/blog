@@ -597,3 +597,5 @@ Object detection에서는 [ context의 활용 / bounding box regression ]을 수
 
 
 ---
+
+{% include disqus.html %}
