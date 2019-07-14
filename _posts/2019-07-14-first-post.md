@@ -104,7 +104,7 @@ nouveau 관련 해결 방법은 [여기](http://ejklike.github.io/2017/03/05/ins
 
 <br/>
 `(your_name) pip install --ignore-installed --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.14.0-cp37-cp37m-linux_x86_64.whl`
->URL은 하단의 그림에 표시한 것이다. 버전이 다를 경우, [링크](https://www.tensorflow.org/install/pip)에서 본인에게 맞는 URL을 확인할 수 있다.
+>URL까지 합쳐서 하나의 명령어이다. 버전이 다를 경우, [링크](https://www.tensorflow.org/install/pip)에서 본인에게 맞는 URL을 확인할 수 있다. (아래 그림 참조)
 
 <br/>
 ![Fig.5](/blog/images/Keras_Instll, 2-2.tensorflow-gpu.PNG )
