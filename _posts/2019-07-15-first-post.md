@@ -362,3 +362,6 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 ---
 작성 중
+
+<br/>
+{% include disqus.html %}
