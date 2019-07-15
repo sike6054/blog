@@ -223,7 +223,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 3.1절에 따르면, filter의 크기가 3x3보다 큰 convolution은 항상 3x3 convolution의 sequence로 축소될 수 있으므로, 이를 이용하는 것은 보통 효율적이지 않다고 볼 수 있다.
 
 <br/>
-물론 2x2 convolution과 같이 더 작은 단위로 factorizing을 할 수도 있지만, $$n\times 1$$과과 같은 asymmetric convolution을 사용하는 것이 훨씬 좋은 것으로 밝혀졌다.
+물론 2x2 convolution과 같이 더 작은 단위로 factorizing을 할 수도 있지만, $$n\times1$$과과 같은 asymmetric convolution을 사용하는 것이 훨씬 좋은 것으로 밝혀졌다.
 
 <br/>
 3x1 convolution 뒤에 1x3 convolution을 사용한 2-layer를 sliding 하는 것과, 3x3 convolution의 receptive field는 동일하다. Fig.5 참조.
@@ -278,7 +278,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 ---
 ## 5. Efficient Grid Size Reduction
 전통적으로 CNN은 pooling 연산을 통해서 feature map의 grid size를 줄인다. 이 때, representational bottleneck을 피하기 위해, pooling을 적용하기 전에 activated filter의 dimension이 확장된다.
->예를 들어, $$d \times d$$ grid에 k개의 filter로부터 시작해서, $$\frac{d}{2} \times \frac{d}{2}$$ grid와 2k개의 filter에 도달하려면, 먼저 2k개의 filter로 stride가 1인 convolution을 계산한 후에 pooling을 수행한다.
+>예를 들어, $$d\timesd$$ grid에 k개의 filter로부터 시작해서, $$\frac{d}{2}\times \frac{d}{2}$$ grid와 2k개의 filter에 도달하려면, 먼저 2k개의 filter로 stride가 1인 convolution을 계산한 후에 pooling을 수행한다.
 >
 >Grid size가 줄어들기만 하는건 grid에 들어있던 정보를 보다 저차원의 데이터로 압축하는 것이기 때문에, 이를 병목 현상으로 볼 수 있다. 이 때문에, filter의 개수를 먼저 늘려준다면 정보의 병목 현상을 완화시키는 효과가 있는 것이다.
 
@@ -287,8 +287,8 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >논문에서는 $$2{d^2}k^2$$라고 되어있다. 하지만, stride가 1이라면 각 convolution filter마다 $$d^2$$번씩 계산하며, filter의 개수인 $$2k$$개만큼 곱해지면 총 $$2{d^2}k$$개가 맞는 것으로 보인다.
 
 <br/>
-만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $$2{{\frac{d}{2}}^2}k$$가 된다. 하지만, 이는 representation의 전반적인 차원이 $${{\frac{d}{2}}^2}k$$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
->여기도 마찬가지로, 논문에서는 $$2{{\frac{d}{2}}^2}k$$대신 $$2{{\frac{d}{2}}^2}k^2$$로 나타나 있다. 하지만, $${{\frac{d}{2}}^2}k$$는 제대로 계산됐다.
+만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $$2\frac{d}{2}^2k$$가 된다. 하지만, 이는 representation의 전반적인 차원이 $$\frac{d}{2}^2k$$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
+>여기도 마찬가지로, 논문에서는 $$2\frac{d}{2}^2k$$대신 $$2\frac{d}{2}^2k^2$$로 나타나 있다. 하지만, $$\frac{d}{2}^2k$$는 제대로 계산됐다.
 
 <br/>
 ![Fig.8](/blog/images/Inception-v3, Fig.9(removed).png )
@@ -306,7 +306,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >이 논문에서는 parametric operation만을 비용으로 계산하고 있기 때문에, convolution part만 계산하면 된다.
 
 <br/>
-좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $${\frac{d}{2}}^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $${\frac{d}{2}}^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
+좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $$\frac{d}{2}^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $$\frac{d}{2}^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
 
 ---
 ## 6. Inception-v2
