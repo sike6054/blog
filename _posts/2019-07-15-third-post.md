@@ -136,7 +136,7 @@ GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충
 
 <br/>
 1x1 conv layer 다음에 3x3 conv layer가 오는 경우를 생각해보자. 비전 네트워크에서는 인접한 activation들의 출력 간에 높은 상관 관계가 예상된다. 따라서, aggregation 전에 이들의 activation이 줄어들 수 있으며, 유사한 표현력의 local representation을 가지는 것으로 볼 수 있다.
->상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다. ???진ㅉ?
+>상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다.
 
 <br/>
 이 장에서는 특히 모델의 계산 효율을 높이는 목적을 고려하여, 다양한 환경에서의 convolution factorizing 방법들을 알아본다.
@@ -154,13 +154,15 @@ Inception network는 fully convolutional하기 때문에, 각 weight는 activati
 <br/>
 ### 3.1 Factorization into smaller convolutions
 보다 큰 spatial filter를 갖는 convolution은 계산적인 측면에서 불균형하게 비싼 경향이 있다.
->n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 25/9로, 약 2.78배 더 비싸다.
+>n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 $$$\frac{25}{9}$$$로, 약 2.78배 더 비싸다.
 
 <br/>
-물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다. (check)
+물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다.
 
 <br/>
 Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출력은 입력에 대해 5x5 filter가 sliding하는 형태의 소규모 fully-connected 네트워크처럼 보인다.
+
+<br/>
 ![Fig.1](/blog/images/Inception-v3, Fig.1(removed).png )
 >**Fig.1** <br/>Mini-network replacing the 5x5 convolutions.
 
@@ -184,15 +186,15 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >**Fig.3** <br/>2장의 원칙 3을 위해, 이 절에서 제안한 inception module
 
 <br/>
-이 구조는 인접한 unit 간의 weight를 공유함으로써 parameter 수를 확실히 줄여준다. 절감되는 계산 비용을 예측 분석하기 위해, 일반적인 상황에 적용 할 수 있는 몇 가지 단순한 가정을 해보자. 우선 $n = \alpha m$로 가정한다. 즉, activation이나 unit의 개수를 상수 $\alpha$에 따라 결정한다.
->5x5 convolution을 수행하는 경우엔 $\alpha$가 일반적으로 1보다 약간 크며, GoogLeNet의 경우엔 약 1.5를 사용했었다.
+이 구조는 인접한 unit 간의 weight를 공유함으로써 parameter 수를 확실히 줄여준다. 절감되는 계산 비용을 예측 분석하기 위해, 일반적인 상황에 적용 할 수 있는 몇 가지 단순한 가정을 해보자. 우선 $$$n = \alpha m$$$로 가정한다. 즉, activation이나 unit의 개수를 상수 $\alpha$에 따라 결정한다.
+>5x5 convolution을 수행하는 경우엔 $$$\alpha$$$가 일반적으로 1보다 약간 크며, GoogLeNet의 경우엔 약 1.5를 사용했었다.
 
 <br/>
 5x5 conv layer를 2-layer로 바꾸는 경우, 두 단계로 확장하는 것이 합리적이다. 여기선 문제를 단순화 하기 위해, 확장을 하지 않는 $\alpha =1$을 고려한다.
->2-layer의 경우, 각 단계에서 filter 수를 ${\sqrt \alpha}$만큼 증가시키는 방법을 취할 수 있다.
+>2-layer의 경우, 각 단계에서 filter 수를 $${\sqrt \alpha}$$만큼 증가시키는 방법을 취할 수 있다.
 
 <br/>
-만약 인접한 grid tile 간에 계산 결과를 재사용하지 않으면서, 단순히 5x5 convolution sliding만 하게 된다면 계산 비용이 증가하게 될 것이다. 이 때, 5x5 convolution sliding을 인접한 tile 간의 activation을 재사용하는 형태의 2-layer 3x3 convolution으로 나타낼 수 있으며, 이 경우에는 $\frac{9+9}{25}=0.72$배로 계산량이 감소된다.
+만약 인접한 grid tile 간에 계산 결과를 재사용하지 않으면서, 단순히 5x5 convolution sliding만 하게 된다면 계산 비용이 증가하게 될 것이다. 이 때, 5x5 convolution sliding을 인접한 tile 간의 activation을 재사용하는 형태의 2-layer 3x3 convolution으로 나타낼 수 있으며, 이 경우에는 $$\frac{9+9}{25}=0.72$$배로 계산량이 감소된다.
 >이 경우는 factorizing을 통해 28%의 상대적 이득을 얻는 것에 해당한다.
 
 이 경우에도 parameter들은 각 unit의 activation 계산에서 정확히 한 번씩만 사용되므로, parameter 개수에 대해서도 정확히 동일한 절약이 일어난다.
@@ -221,7 +223,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 3.1절에 따르면, filter의 크기가 3x3보다 큰 convolution은 항상 3x3 convolution의 sequence로 축소될 수 있으므로, 이를 이용하는 것은 보통 효율적이지 않다고 볼 수 있다.
 
 <br/>
-물론 2x2 convolution과 같이 더 작은 단위로 factorizing을 할 수도 있지만, $n\times 1$과과 같은 asymmetric convolution을 사용하는 것이 훨씬 좋은 것으로 밝혀졌다.
+물론 2x2 convolution과 같이 더 작은 단위로 factorizing을 할 수도 있지만, $$n\times 1$$과과 같은 asymmetric convolution을 사용하는 것이 훨씬 좋은 것으로 밝혀졌다.
 
 <br/>
 3x1 convolution 뒤에 1x3 convolution을 사용한 2-layer를 sliding 하는 것과, 3x3 convolution의 receptive field는 동일하다. Fig.5 참조.
@@ -231,19 +233,19 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >**Fig.5** <br/>Mini-network replacing the 3x3 convolutions.
 
 <br/>
-여전히 입출력의 filter 수가 같은 경우에는, 같은 수의 output filter에 대해 2-layer solution이  $\frac{3+3}{9}=0.66$배로 계산량이 감소된다.
->3x3 convolution을 두 개의 2x2 convolution으로 나누는 경우에는 계산량이 $\frac{4+4}{9}=0.89$배로 절약되어, asymmetric fatorizing보다 효과가 적은 것을 알 수 있다.
+여전히 입출력의 filter 수가 같은 경우에는, 같은 수의 output filter에 대해 2-layer solution이  $$\frac{3+3}{9}=0.66$$배로 계산량이 감소된다.
+>3x3 convolution을 두 개의 2x2 convolution으로 나누는 경우에는 계산량이 $$\frac{4+4}{9}=0.89$$배로 절약되어, asymmetric fatorizing보다 효과가 적은 것을 알 수 있다.
 
 <br/>
 이론적으로 더 나가보자면, Fig.6과 같이 nxn convolution은 1xn 뒤에 nx1 convolution이 오는 형태로 대체할 수 있으며, 여기서 n이 커짐에 따라 계산 비용 절감이 극적으로 증가한다고 주장할 수 있다.
 
 <br/>
 ![Fig.6](/blog/images/Inception-v3, Fig.6(removed).png )
->**Fig.6** <br/>$n \times n$ convolution을 factorizing한 inception module이다. 제안 된 구조에서는 $17 \times 17$ grid에서 n=7로 적용했다.
+>**Fig.6** <br/>$$n \times n$$ convolution을 factorizing한 inception module이다. 제안 된 구조에서는 $$17 \times 17$$ grid에서 n=7로 적용했다.
 
 <br/>
 실험을 통해 이와 같은 factorization이 grid-size가 큰 초반부의 layer에서는 잘 동작하지 않지만, medium grid-size인 중후반 layer에서는 7x1 과 1x7 convolution을 사용하여 매우 좋은 결과를 얻을 수 있었다.
->여기서 medium grid-size는 $m \times m$ feature map의 $m$이 12~20정도인 경우를 말한다.
+>여기서 medium grid-size는 $$m \times m$$ feature map의 $$m$$이 12~20정도인 경우를 말한다.
 
 
 ---
