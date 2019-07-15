@@ -11,14 +11,14 @@ toc: true
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-## Paper Information
+# Paper Information
 
 SZEGEDY, Christian, et al. **"Rethinking the inception architecture for computer vision"**. In: Proceedings of the IEEE conference on computer vision and pattern recognition. 2016. p. 2818-2826.
 > a.k.a. [Inception-v3 paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf)
 
 
 ---
-## Abstract
+# Abstract
 Convolutional network는 다양한 분야에서 state-of-the-art 성능을 가진 computer vision solution들의 핵심이다. 2014년부터 very deep convolutional network가 주류를 이뤘으며, 다양한 벤치마크에서 실질적인 성능 이득을 얻었다. 이 경우 모델의 크기나 계산 비용이 증가하긴 하지만, 충분한 양의 학습 데이터만 제공된다면 대부분의 작업에서 즉각적인 성능 향상이 이루어진다. 또한 convolution의 계산적인 효율성이나 적은 수의 parameter를 사용한다는 특징으로 인해, mobile vision이나 big-data scenario와 같은 다양한 케이스에 적용 가능하게 한다.
 
 이 논문에서는 다음의 두 방법을 통해, 네트워크의 크기를 효율적으로 키우는 방법을 탐색한다.
@@ -35,7 +35,7 @@ Convolutional network는 다양한 분야에서 state-of-the-art 성능을 가�
 - 4가지 모델을 ensemble한 multi-crop evaluation에서 top-1 error가 17.3%이고, top-5 error가 3.5%
 
 ---
-## 1. Introduction
+# 1. Introduction
 
 2012년도 ImageNet 대회에서 우승했던 [AlexNet](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)은, 이후 다양한 종류의 컴퓨터 비전 분야에 성공적으로 적용됐다.
 - [Object detection (R-CNN)](https://arxiv.org/pdf/1311.2524.pdf)
@@ -83,7 +83,7 @@ Inception 구조의 복잡성은 네트워크의 변경을 더욱 어렵게 만�
 또한, 모델의 높은 성능을 유지하기 위해서는 몇 가지 지침 원칙을 준수할 필요가 있으니 주의할 필요가 있다.
 
 ---
-## 2. General Design Principles
+# 2. General Design Principles
 여기에서는 large-sacle 데이터에 대한 실험을 근거하여, CNN의 다양한 구조적인 결정들에 대한 몇 가지 디자인 원칙을 설명한다.
 
 <br/>
@@ -91,7 +91,7 @@ Inception 구조의 복잡성은 네트워크의 변경을 더욱 어렵게 만�
 >이러한 원칙들에서 크게 벗어나면 네트워크의 성능이 저하되는 경향이 있으며, 해당 부분을 수정하면 일반적으로 구조가 개선된다.
 
 <br/>
-### (1) Avoid representational bottlenecks
+## (1) Avoid representational bottlenecks
 Feed-forward 네트워크는 input layer로부터 classifier나 regressor에 이르는 비순환 그래프로 나타낼 수 있으며, 정보가 흐르는 방향을 명확하게 알 수 있다.
 
 <br/>
@@ -106,19 +106,19 @@ Input에서 output까지의 모든 layer의 경우, 각 layer를 통과하는 �
 이론적으로, correlation structure와 같은 중요한 요소를 버리기 때문에, 정보를 dimensionality of representation으로만 평가할 수 없다.
 
 <br/>
-### (2) Higher dimensional representations are easier to process locally within a network
+## (2) Higher dimensional representations are easier to process locally within a network
 CNN에서 activations per tile을 늘리면 disentangled feature를 많이 얻을 수 있으며, 네트워크가 더 빨리 학습하게 될 것이다.
 >Conv layer의 filter map 개수를 늘리면, 다양한 경우의 activated feature map을 탐지할 수 있고, 이를 통해 네트워크의 학습이 빨라질 수 있다는 뜻으로 보인다. (modify)
 
 <br/>
-### (3) Spatial aggregation can be done over lower dimensional embeddings without much or any loss in representational power
+## (3) Spatial aggregation can be done over lower dimensional embeddings without much or any loss in representational power
 이를테면, 더 많은 convolution을 수행하기 전에, 심각한 부작용 없이 input representation의 dimension reduction이 가능하므로, 그 후에 spatial aggregation할 수 있다. 또한, 이러한 signal은 쉽게 압축 할 수 있어야한다는 점을 감안하면, dimension reduction으로 인해 학습 속도가 빨라질 것이다.
 >Convolution 연산을 spatial aggregation이라 표현하는 것으로 보인다. Signal의 압축은, 학습 과정에서 네트워크의 각 layer를 거쳐가며, 원하는 동작을 위한 판단에 필요한 feature를 입력 데이터로부터 추출하는 작업을 signal의 압축 과정으로 생각한다면 쉽게 이해할 수 있다. 즉, **convolution을 다수 수행하는 경우에는 적절한 dimension reduction을 해주는 것이 빠른 학습에 도움 된다**는 것으로 보면 된다.
 >
 >이는 **출력이 spatial aggregation에 사용되는 경우, 인접한 unit 간의 강력한 상관 관계로 인해 dimension reduction 중의 정보 손실이 훨씬 줄어들 것이라는 가설**에 근거한 원칙이다.
 
 <br/>
-### (4) Balance the width and depth of the network
+## (4) Balance the width and depth of the network
 네트워크의 optimal performance는 [ 각 stage의 filter의 개수 / 네트워크의 depth ]의 밸런싱으로 달성 할 수 있다.
 >Width는 각 stage의 filter의 개수에 해당한다.
 
@@ -131,7 +131,7 @@ CNN에서 activations per tile을 늘리면 disentangled feature를 많이 얻�
 이러한 원칙들이 타당하긴 하지만, 이를 활용해서 네트워크의 성능을 향상시키는 것은 간단하지 않다. 따라서, 모호한 상황에서만 이 아이디어들을 고려하도록 하자.
 
 ---
-## 3. Factorizing Convolutions with Large Filter Size
+# 3. Factorizing Convolutions with Large Filter Size
 GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충분히 사용함으로써 발생한 것이다. 이는 계산 효율이 좋은 방식으로 convolution을 factorizing하는 것의 특별한 케이스로 볼 수 있다.
 
 <br/>
@@ -152,7 +152,7 @@ Inception network는 fully convolutional하기 때문에, 각 weight는 activati
 >[이전 포스트](https://sike6054.github.io/blog/paper/second-post/)에서도 알아봤었지만, [GoogleNet](https://arxiv.org/pdf/1409.4842.pdf)에서는 [DistBelief](https://www.cs.toronto.edu/~ranzato/publications/DistBeliefNIPS2012_withAppendix.pdf)라는 이름의 프레임워크로 분산 학습을 수행했었다. 반면, 이 논문에서는 [TensorFlow에서 자체 개발한 분산 학습 시스템](https://arxiv.org/pdf/1603.04467.pdf)을 이용하고 있으며, 실험에서는 50개의 복제본(replica)에 대한 분산 학습을 진행했다고 한다.
 
 <br/>
-### 3.1 Factorization into smaller convolutions
+## 3.1 Factorization into smaller convolutions
 보다 큰 spatial filter를 갖는 convolution은 계산적인 측면에서 불균형하게 비싼 경향이 있다.
 >n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 $$\frac{25}{9}$$로, 약 2.78배 더 비싸다.
 
@@ -219,7 +219,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 저자들은 이러한 이득들이 네트워크가 학습할 수 있는 space of variation을 확대해준다고 보며, 특히 BN을 사용하는 경우에 그런 경향이 강하다고 한다. Dimension reduction에서 linear activation을 사용하는 경우에도 비슷한 효과를 볼 수 있다. (check)
 
 <br/>
-### 3.2 Spatial Factorization into Asymmetric Convolutions
+## 3.2 Spatial Factorization into Asymmetric Convolutions
 3.1절에 따르면, filter의 크기가 3x3보다 큰 convolution은 항상 $$3\times 3$$ convolution의 sequence로 축소될 수 있으므로, 이를 이용하는 것은 보통 효율적이지 않다고 볼 수 있다.
 
 <br/>
@@ -249,7 +249,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 
 
 ---
-## 4. Utility of Auxiliary Classifiers
+# 4. Utility of Auxiliary Classifiers
 [GoogLeNet](https://arxiv.org/pdf/1409.4842.pdf)은 very deep network의 수렴을 개선시키기 위해 보조 분류기(Auxiliary Classifier)를 도입했다.
 
 보조 분류기는 원래 동기는 다음과 같다.
@@ -309,7 +309,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $$(\frac{d}{2})^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $$(\frac{d}{2})^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
 
 ---
-## 6. Inception-v2
+# 6. Inception-v2
 위에서 언급한 것들을 결합하여, 새로운 아키텍처를 제안한다. 이 구조는 ILSVRC 2012 classification benchmark에서 향상된 성능을 보였다. 네트워크의 개요는 Table.1에서 보인다.
 
 <br/>
@@ -352,19 +352,19 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 
 ---
-## 7. Model Regularization via Label Smoothing
+# 7. Model Regularization via Label Smoothing
 
 ---
-## 8. Training Methodology
+# 8. Training Methodology
 
 ---
-## 9. Performance on Lower Resolution Input
+# 9. Performance on Lower Resolution Input
 
 ---
-## 10. Experimental Results and Comparisons
+# 10. Experimental Results and Comparisons
 
 ---
-## 11. Conclusions
+# 11. Conclusions
 
 
 ---
