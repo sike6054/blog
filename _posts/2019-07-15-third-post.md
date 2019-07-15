@@ -136,7 +136,7 @@ GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충
 
 <br/>
 1x1 conv layer 다음에 3x3 conv layer가 오는 경우를 생각해보자. 비전 네트워크에서는 인접한 activation들의 출력 간에 높은 상관 관계가 예상된다. 따라서, aggregation 전에 이들의 activation이 줄어들 수 있으며, 유사한 표현력의 local representation을 가지는 것으로 볼 수 있다.
->상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다.
+>상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다. ???진ㅉ?
 
 <br/>
 이 장에서는 특히 모델의 계산 효율을 높이는 목적을 고려하여, 다양한 환경에서의 convolution factorizing 방법들을 알아본다.
@@ -154,10 +154,10 @@ Inception network는 fully convolutional하기 때문에, 각 weight는 activati
 <br/>
 ### 3.1 Factorization into smaller convolutions
 보다 큰 spatial filter를 갖는 convolution은 계산적인 측면에서 불균형하게 비싼 경향이 있다.
->n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 $$$\frac{25}{9}$$$로, 약 2.78배 더 비싸다.
+>n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 25/9로, 약 2.78배 더 비싸다.
 
 <br/>
-물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다.
+물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다. (check)
 
 <br/>
 Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출력은 입력에 대해 5x5 filter가 sliding하는 형태의 소규모 fully-connected 네트워크처럼 보인다.
@@ -186,11 +186,11 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >**Fig.3** <br/>2장의 원칙 3을 위해, 이 절에서 제안한 inception module
 
 <br/>
-이 구조는 인접한 unit 간의 weight를 공유함으로써 parameter 수를 확실히 줄여준다. 절감되는 계산 비용을 예측 분석하기 위해, 일반적인 상황에 적용 할 수 있는 몇 가지 단순한 가정을 해보자. 우선 $$$n = \alpha m$$$로 가정한다. 즉, activation이나 unit의 개수를 상수 $\alpha$에 따라 결정한다.
->5x5 convolution을 수행하는 경우엔 $$$\alpha$$$가 일반적으로 1보다 약간 크며, GoogLeNet의 경우엔 약 1.5를 사용했었다.
+이 구조는 인접한 unit 간의 weight를 공유함으로써 parameter 수를 확실히 줄여준다. 절감되는 계산 비용을 예측 분석하기 위해, 일반적인 상황에 적용 할 수 있는 몇 가지 단순한 가정을 해보자. 우선 $$n = \alpha m$$로 가정한다. 즉, activation이나 unit의 개수를 상수 $$\alpha$$에 따라 결정한다.
+>5x5 convolution을 수행하는 경우엔 $$\alpha$$가 일반적으로 1보다 약간 크며, GoogLeNet의 경우엔 약 1.5를 사용했었다.
 
 <br/>
-5x5 conv layer를 2-layer로 바꾸는 경우, 두 단계로 확장하는 것이 합리적이다. 여기선 문제를 단순화 하기 위해, 확장을 하지 않는 $\alpha =1$을 고려한다.
+5x5 conv layer를 2-layer로 바꾸는 경우, 두 단계로 확장하는 것이 합리적이다. 여기선 문제를 단순화 하기 위해, 확장을 하지 않는 $$\alpha =1$$을 고려한다.
 >2-layer의 경우, 각 단계에서 filter 수를 $${\sqrt \alpha}$$만큼 증가시키는 방법을 취할 수 있다.
 
 <br/>
@@ -278,17 +278,17 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 ---
 ## 5. Efficient Grid Size Reduction
 전통적으로 CNN은 pooling 연산을 통해서 feature map의 grid size를 줄인다. 이 때, representational bottleneck을 피하기 위해, pooling을 적용하기 전에 activated filter의 dimension이 확장된다.
->예를 들어, $d \times d$ grid에 k개의 filter로부터 시작해서, $\frac{d}{2} \times \frac{d}{2}$ grid와 2k개의 filter에 도달하려면, 먼저 2k개의 filter로 stride가 1인 convolution을 계산한 후에 pooling을 수행한다.
+>예를 들어, $$d \times d$$ grid에 k개의 filter로부터 시작해서, $$\frac{d}{2} \times \frac{d}{2}$$ grid와 2k개의 filter에 도달하려면, 먼저 2k개의 filter로 stride가 1인 convolution을 계산한 후에 pooling을 수행한다.
 >
 >Grid size가 줄어들기만 하는건 grid에 들어있던 정보를 보다 저차원의 데이터로 압축하는 것이기 때문에, 이를 병목 현상으로 볼 수 있다. 이 때문에, filter의 개수를 먼저 늘려준다면 정보의 병목 현상을 완화시키는 효과가 있는 것이다.
 
 <br/>
-하지만, 이는 네트워크의 전체 계산 비용이 pooling 이전의 확장 단계에서 일어나는 $2{d^2}k$ 에 크게 좌우하게 된다는 것을 의미한다.
->논문에서는 $2{d^2}k^2$라고 되어있다. 하지만, stride가 1이라면 각 convolution filter마다 $d^2$번씩 계산하며, filter의 개수인 $2k$개만큼 곱해지면 총 $2{d^2}k$개가 맞는 것으로 보인다.
+하지만, 이는 네트워크의 전체 계산 비용이 pooling 이전의 확장 단계에서 일어나는 $$2{d^2}k$$ 에 크게 좌우하게 된다는 것을 의미한다.
+>논문에서는 $$2{d^2}k^2$$라고 되어있다. 하지만, stride가 1이라면 각 convolution filter마다 $$d^2$$번씩 계산하며, filter의 개수인 $$2k$$개만큼 곱해지면 총 $$2{d^2}k$$개가 맞는 것으로 보인다.
 
 <br/>
-만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $2\frac{d}{2}^2k$가 된다. 하지만, 이는 representation의 전반적인 차원이 $\frac{d}{2}^2k$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
->여기도 마찬가지로, 논문에서는 $2\frac{d}{2}^2k$대신 $2\frac{d}{2}^2k^2$로 나타나 있다. 하지만, $\frac{d}{2}^2k$는 제대로 계산됐다.
+만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $$2{{\frac{d}{2}}^2}k$$가 된다. 하지만, 이는 representation의 전반적인 차원이 $${{\frac{d}{2}}^2}k$$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
+>여기도 마찬가지로, 논문에서는 $$2{{\frac{d}{2}}^2}k$$대신 $$2{{\frac{d}{2}}^2}k^2$$로 나타나 있다. 하지만, $${{\frac{d}{2}}^2}k$$는 제대로 계산됐다.
 
 <br/>
 ![Fig.8](/blog/images/Inception-v3, Fig.9(removed).png )
@@ -302,11 +302,11 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >**Fig.9** <br/>좌측은 filter bank를 확장하면서 grid size를 줄이는 inception module이다. 이는 계산 비용도 저렴하면서도 representational bottleneck을 피하므로, 원칙 1을 준수한다. 우측 다이어그램은 좌측과 같은 솔루션을 나타내지만, grid size의 관점에서 나타냈기 때문에 표현 방식이 다른 것 뿐이다.
 
 <br/>
-그냥 넘어가기 전에, 제안한 방법이 상대적으로 얼마나 저렴해지는지 알아보자. 우선 Fig.9의 우측 다이어그램을 보면, convolution part와 pooling part에 각각 $2k$의 절반인 $k$만큼 할당한다는 것을 알 수 있다.
+그냥 넘어가기 전에, 제안한 방법이 상대적으로 얼마나 저렴해지는지 알아보자. 우선 Fig.9의 우측 다이어그램을 보면, convolution part와 pooling part에 각각 $$2k$$의 절반인 $$k$$만큼 할당한다는 것을 알 수 있다.
 >이 논문에서는 parametric operation만을 비용으로 계산하고 있기 때문에, convolution part만 계산하면 된다.
 
 <br/>
-좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 ${d^2}k$와 ${\frac{d}{2}}^2k$만큼 비용이 발생하며, 1-layer인 branch에서는 ${\frac{d}{2}}^2k$만큼 비용이 발생한다. 이를 다 더하면, **총 $\frac{3}{2} {d^2}k$만큼 비용**이 발생한다. 기존의 $2{d^2}k$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
+좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $${\frac{d}{2}}^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $${\frac{d}{2}}^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
 
 ---
 ## 6. Inception-v2
@@ -350,6 +350,7 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 <br/>
 아무튼 저자들은 2장의 원칙들을 준수하는 한, 구조의 다양한 변화에도 비교적 안정적인 성능을 보인다는 것을 알 수 있었다고 한다. 제안 된 네트워크는 42-layer나 됨에도 불구하고, 계산 비용이 GoogLeNet(22-layer)보다 약 2.5배만 비싸며, VGGNet보다 훨씬 효율적이다.
 
+
 ---
 ## 7. Model Regularization via Label Smoothing
 
@@ -369,5 +370,6 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 ---
 작성 중
 
+<br/>
 <br/>
 {% include disqus.html %}
