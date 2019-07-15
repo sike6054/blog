@@ -136,7 +136,7 @@ GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충
 
 <br/>
 1x1 conv layer 다음에 3x3 conv layer가 오는 경우를 생각해보자. 비전 네트워크에서는 인접한 activation들의 출력 간에 높은 상관 관계가 예상된다. 따라서, aggregation 전에 이들의 activation이 줄어들 수 있으며, 유사한 표현력의 local representation을 가지는 것으로 볼 수 있다.
->상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다. ???진ㅉ?
+>상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다.
 
 <br/>
 이 장에서는 특히 모델의 계산 효율을 높이는 목적을 고려하여, 다양한 환경에서의 convolution factorizing 방법들을 알아본다.
@@ -154,7 +154,7 @@ Inception network는 fully convolutional하기 때문에, 각 weight는 activati
 <br/>
 ### 3.1 Factorization into smaller convolutions
 보다 큰 spatial filter를 갖는 convolution은 계산적인 측면에서 불균형하게 비싼 경향이 있다.
->n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 25/9로, 약 2.78배 더 비싸다.
+>n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 $$\frac{25}{9}$$로, 약 2.78배 더 비싸다.
 
 <br/>
 물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다. (check)
@@ -164,11 +164,11 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 
 <br/>
 ![Fig.1](/blog/images/Inception-v3, Fig.1(removed).png )
->**Fig.1** <br/>Mini-network replacing the 5x5 convolutions.
+>**Fig.1** <br/>Mini-network replacing the $$5\times 5$$ convolutions.
 
 <br/>
 여기선 vision network를 구축하고 있기 때문에, fully-connected component를 2-layer convolution로 대체하여 translation invariance을 다시 이용하는 것이 자연스러워 보인다.
->여기서 말하는 2-layer convolution은 Fig.1에서 보였다. 즉, 첫 번째 layer는 3x3 conv이고, 두 번째 layer는 첫 번째 layer의 3x3 output grid 위에 연결된 fully-connected layer이다. 이와 같이 input activation grid에 sliding하는 filter를 5x5 conv에서 2-layer 3x3 conv로 대체하는 것이 이 절에서 제안하는 factorizing 방법이다. (Fig.2와 Fig.3 비교)
+>여기서 말하는 2-layer convolution은 Fig.1에서 보였다. 즉, 첫 번째 layer는 $$3\times 3$$ conv이고, 두 번째 layer는 첫 번째 layer의 $$3\times 3$$ output grid 위에 연결된 fully-connected layer이다. 이와 같이 input activation grid에 sliding하는 filter를 $$5\times 5$$ conv에서 2-layer $$3\times 3$$ conv로 대체하는 것이 이 절에서 제안하는 factorizing 방법이다. (Fig.2와 Fig.3 비교)
 >
 >Translation invariance는 입력에 shift가 일어난 경우에도 변함 없이 학습한 패턴을 캡처하는 convolution 방식의 특성을 말하는 것이다. 각종 invariance-type은 아래 그림을 참조하자.
 >
@@ -194,7 +194,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >2-layer의 경우, 각 단계에서 filter 수를 $${\sqrt \alpha}$$만큼 증가시키는 방법을 취할 수 있다.
 
 <br/>
-만약 인접한 grid tile 간에 계산 결과를 재사용하지 않으면서, 단순히 5x5 convolution sliding만 하게 된다면 계산 비용이 증가하게 될 것이다. 이 때, 5x5 convolution sliding을 인접한 tile 간의 activation을 재사용하는 형태의 2-layer 3x3 convolution으로 나타낼 수 있으며, 이 경우에는 $$\frac{9+9}{25}=0.72$$배로 계산량이 감소된다.
+만약 인접한 grid tile 간에 계산 결과를 재사용하지 않으면서, 단순히 $$5\times 5$$ convolution sliding만 하게 된다면 계산 비용이 증가하게 될 것이다. 이 때, $$5\times 5$$ convolution sliding을 인접한 tile 간의 activation을 재사용하는 형태의 2-layer $$3\times 3$$ convolution으로 나타낼 수 있으며, 이 경우에는 $$\frac{9+9}{25}=0.72$$배로 계산량이 감소된다.
 >이 경우는 factorizing을 통해 28%의 상대적 이득을 얻는 것에 해당한다.
 
 이 경우에도 parameter들은 각 unit의 activation 계산에서 정확히 한 번씩만 사용되므로, parameter 개수에 대해서도 정확히 동일한 절약이 일어난다.
@@ -220,31 +220,31 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 
 <br/>
 ### 3.2 Spatial Factorization into Asymmetric Convolutions
-3.1절에 따르면, filter의 크기가 3x3보다 큰 convolution은 항상 3x3 convolution의 sequence로 축소될 수 있으므로, 이를 이용하는 것은 보통 효율적이지 않다고 볼 수 있다.
+3.1절에 따르면, filter의 크기가 3x3보다 큰 convolution은 항상 $$3\times 3$$ convolution의 sequence로 축소될 수 있으므로, 이를 이용하는 것은 보통 효율적이지 않다고 볼 수 있다.
 
 <br/>
-물론 2x2 convolution과 같이 더 작은 단위로 factorizing을 할 수도 있지만, $$n\times1$$과과 같은 asymmetric convolution을 사용하는 것이 훨씬 좋은 것으로 밝혀졌다.
+물론 $$2\times 2$$ convolution과 같이 더 작은 단위로 factorizing을 할 수도 있지만, $$n\times1$$과과 같은 asymmetric convolution을 사용하는 것이 훨씬 좋은 것으로 밝혀졌다.
 
 <br/>
-3x1 convolution 뒤에 1x3 convolution을 사용한 2-layer를 sliding 하는 것과, 3x3 convolution의 receptive field는 동일하다. Fig.5 참조.
+3x1 convolution 뒤에 1x3 convolution을 사용한 2-layer를 sliding 하는 것과, $$3\times 3$$ convolution의 receptive field는 동일하다. Fig.5 참조.
 
 <br/>
 ![Fig.5](/blog/images/Inception-v3, Fig.3(removed).png )
->**Fig.5** <br/>Mini-network replacing the 3x3 convolutions.
+>**Fig.5** <br/>Mini-network replacing the $$3\times 3$$ convolutions.
 
 <br/>
 여전히 입출력의 filter 수가 같은 경우에는, 같은 수의 output filter에 대해 2-layer solution이  $$\frac{3+3}{9}=0.66$$배로 계산량이 감소된다.
->3x3 convolution을 두 개의 2x2 convolution으로 나누는 경우에는 계산량이 $$\frac{4+4}{9}=0.89$$배로 절약되어, asymmetric fatorizing보다 효과가 적은 것을 알 수 있다.
+>3x3 convolution을 두 개의 $$2\times 2$$ convolution으로 나누는 경우에는 계산량이 $$\frac{4+4}{9}=0.89$$배로 절약되어, asymmetric fatorizing보다 효과가 적은 것을 알 수 있다.
 
 <br/>
-이론적으로 더 나가보자면, Fig.6과 같이 nxn convolution은 1xn 뒤에 nx1 convolution이 오는 형태로 대체할 수 있으며, 여기서 n이 커짐에 따라 계산 비용 절감이 극적으로 증가한다고 주장할 수 있다.
+이론적으로 더 나가보자면, Fig.6과 같이 nxn convolution은 $$1\times n$$ 뒤에 $$n\times 1$$ convolution이 오는 형태로 대체할 수 있으며, 여기서 $$n$$이 커짐에 따라 계산 비용 절감이 극적으로 증가한다고 주장할 수 있다.
 
 <br/>
 ![Fig.6](/blog/images/Inception-v3, Fig.6(removed).png )
->**Fig.6** <br/>$$n \times n$$ convolution을 factorizing한 inception module이다. 제안 된 구조에서는 $$17 \times 17$$ grid에서 n=7로 적용했다.
+>**Fig.6** <br/>$$n \times n$$ convolution을 factorizing한 inception module이다. 제안 된 구조에서는 $$17 \times 17$$ grid에서 $$n=7$$로 적용했다.
 
 <br/>
-실험을 통해 이와 같은 factorization이 grid-size가 큰 초반부의 layer에서는 잘 동작하지 않지만, medium grid-size인 중후반 layer에서는 7x1 과 1x7 convolution을 사용하여 매우 좋은 결과를 얻을 수 있었다.
+실험을 통해 이와 같은 factorization이 grid-size가 큰 초반부의 layer에서는 잘 동작하지 않지만, medium grid-size인 중후반 layer에서는 $$7\times 1$$ 과 $$1\times 7$$ convolution을 사용하여 매우 좋은 결과를 얻을 수 있었다.
 >여기서 medium grid-size는 $$m \times m$$ feature map의 $$m$$이 12~20정도인 경우를 말한다.
 
 
@@ -269,7 +269,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 
 <br/>
 ![Fig.7](/blog/images/Inception-v3, Fig.8(removed).png )
->**Fig.7** <br/>제안 된 구조에서 사용하는 보조 분류기로, grid size가 17x17인 layer 중 가장 상위에 위치한다. [BN](https://arxiv.org/pdf/1502.03167.pdf)을 사용할 경우에는 top-1 accuracy가 0.4%정도 증가했다.
+>**Fig.7** <br/>제안 된 구조에서 사용하는 보조 분류기로, grid size가 $$17\times 17$$인 layer 중 가장 상위에 위치한다. [BN](https://arxiv.org/pdf/1502.03167.pdf)을 사용할 경우에는 top-1 accuracy가 0.4%정도 증가했다.
 
 <br/>
 이 두 관찰 결과가 의미하는 바는, 원래의 [GoogLeNet](https://arxiv.org/pdf/1409.4842.pdf)에서 세운 가설인 "**보조 분류기가 low-level feature의 발전에 도움이 된다**"는 것이 잘못된 것일 수도 있음을 뜻한다. 그 대신, 저자들은 **이러한 보조 분류기가 regularizer로 동작한다**고 주장한다.
@@ -278,7 +278,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 ---
 ## 5. Efficient Grid Size Reduction
 전통적으로 CNN은 pooling 연산을 통해서 feature map의 grid size를 줄인다. 이 때, representational bottleneck을 피하기 위해, pooling을 적용하기 전에 activated filter의 dimension이 확장된다.
->예를 들어, $$d\timesd$$ grid에 k개의 filter로부터 시작해서, $$\frac{d}{2}\times \frac{d}{2}$$ grid와 2k개의 filter에 도달하려면, 먼저 2k개의 filter로 stride가 1인 convolution을 계산한 후에 pooling을 수행한다.
+>예를 들어, $$d\times d$$ grid에 $$k$$개의 filter로부터 시작해서, $$\frac{d}{2}\times \frac{d}{2}$$ grid와 $$2k$$개의 filter에 도달하려면, 먼저 $$2k$$개의 filter로 stride가 1인 convolution을 계산한 후에 pooling을 수행한다.
 >
 >Grid size가 줄어들기만 하는건 grid에 들어있던 정보를 보다 저차원의 데이터로 압축하는 것이기 때문에, 이를 병목 현상으로 볼 수 있다. 이 때문에, filter의 개수를 먼저 늘려준다면 정보의 병목 현상을 완화시키는 효과가 있는 것이다.
 
@@ -287,8 +287,8 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >논문에서는 $$2{d^2}k^2$$라고 되어있다. 하지만, stride가 1이라면 각 convolution filter마다 $$d^2$$번씩 계산하며, filter의 개수인 $$2k$$개만큼 곱해지면 총 $$2{d^2}k$$개가 맞는 것으로 보인다.
 
 <br/>
-만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $$2\frac{d}{2}^2k$$가 된다. 하지만, 이는 representation의 전반적인 차원이 $$\frac{d}{2}^2k$$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
->여기도 마찬가지로, 논문에서는 $$2\frac{d}{2}^2k$$대신 $$2\frac{d}{2}^2k^2$$로 나타나 있다. 하지만, $$\frac{d}{2}^2k$$는 제대로 계산됐다.
+만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $$2(\frac{d}{2})^2k$$가 된다. 하지만, 이는 representation의 전반적인 차원이 $$(\frac{d}{2})^2k$$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
+>여기도 마찬가지로, 논문에서는 $$2(\frac{d}{2})^2k$$대신 $$2(\frac{d}{2})^2k^2$$로 나타나 있다. 하지만, $$(\frac{d}{2})^2k$$는 제대로 계산됐다.
 
 <br/>
 ![Fig.8](/blog/images/Inception-v3, Fig.9(removed).png )
@@ -306,7 +306,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >이 논문에서는 parametric operation만을 비용으로 계산하고 있기 때문에, convolution part만 계산하면 된다.
 
 <br/>
-좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $$\frac{d}{2}^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $$\frac{d}{2}^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
+좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $$(\frac{d}{2})^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $$(\frac{d}{2})^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
 
 ---
 ## 6. Inception-v2
@@ -326,18 +326,18 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >>각 inception 모듈에 해당하는 Figure 번호는 논문 기준이며, 본 포스팅 기준으로는 파란색 번호인 Fig.3, Fig.6, Fig.10에 해당한다.
 
 <br/>
-3.1절의 아이디어를 기반으로, 기존의 7x7 convolution을 3개의 3x3 convolution으로 factorizing 했다.
+3.1절의 아이디어를 기반으로, 기존의 $$7\times 7$$ convolution을 3개의 $$3\times 3$$ convolution으로 factorizing 했다.
 
 <br/>
-네트워크의 inception part는 기존의 inception 모듈에 3.1절의 factorizing 기법만 사용한 기존의 inception module이 3개 뒤따른다. 이 때, 각 입력 grid는 35x35x288에 해당하며, 마지막에는 5장의 reduction 기법으로 grid가 17x17x768로 축소된다.
+네트워크의 inception part는 기존의 inception 모듈에 3.1절의 factorizing 기법만 사용한 기존의 inception module이 3개 뒤따른다. 이 때, 각 입력 grid는 $$35\times 35\times 288$$에 해당하며, 마지막에는 5장의 reduction 기법으로 grid가 $$17\times 17\times 768$$로 축소된다.
 >두 방법은 각각 Fig.3과 Fig.9의 inception module을 말한다.
 
 <br/>
-다음은 3.2절의 asymmetric fatorizing 기법을 이용한 inception module이 5개 뒤따르며, 마찬가지로 5장의 reduction 기법에 의해 grid가 8x8x1280으로 축소된다.
+다음은 3.2절의 asymmetric fatorizing 기법을 이용한 inception module이 5개 뒤따르며, 마찬가지로 5장의 reduction 기법에 의해 grid가 $$8\times 8\times 1280$$으로 축소된다.
 >두 방법은 각각 Fig.6과 Fig.9의 inception module을 말한다.
 
 <br/>
-Grid size가 8x8로 가장 축소 된 단계에서는 Fig.10의 inception module이 2개 뒤따른다. 각 tile에 대한 출력의 filter bank size는 2048이 된다.
+Grid size가 $$8\times 8$$로 가장 축소 된 단계에서는 Fig.10의 inception module이 2개 뒤따른다. 각 tile에 대한 출력의 filter bank size는 $$2048$$이 된다.
 
 <br/>
 ![Fig.10](/blog/images/Inception-v3, Fig.7(removed).png )
