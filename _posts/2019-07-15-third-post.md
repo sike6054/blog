@@ -416,7 +416,7 @@ Ground-truth label $$y$$를 가진 학습 데이터의 경우, label distributio
 - $$q'(k|x) = (1-\epsilon)\delta_{k,y} + \epsilon u(k)$$
 >Original ground-truth distribution인 $$q(k\mid x)$$와 fixed distribution인 $$u(k)$$에 $$1 - \epsilon$$과 $$\epsilon$$이 각각 가중치로 곱해진 혼합식이다.
 >
->여기서 **$$q(k\mid x) = \delta_{k,y}$$**는 흔히들 알고 있는 **one-hot coded label**이며, **$$q'(k\mid x)$$**는 **label smoothing 기법이 적용 된 새로운 label**이다.
+>여기서 **$$q(k\mid x) = \delta_{k,y}$$**는 흔히들 알고 있는 **one-hot encoded label**이며, **$$q'(k\mid x)$$**는 **label smoothing 기법이 적용 된 새로운 label**이다.
 
 <br/>
 이는 다음의 방법으로 얻어지는 label $$k$$의 distribution으로 볼 수 있다.
