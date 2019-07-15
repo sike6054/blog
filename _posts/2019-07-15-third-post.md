@@ -11,14 +11,14 @@ toc: true
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-# Paper Information
+## Paper Information
 
 SZEGEDY, Christian, et al. **"Rethinking the inception architecture for computer vision"**. In: Proceedings of the IEEE conference on computer vision and pattern recognition. 2016. p. 2818-2826.
 > a.k.a. [Inception-v3 paper](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf)
 
 
 ---
-# Abstract
+## Abstract
 Convolutional network는 다양한 분야에서 state-of-the-art 성능을 가진 computer vision solution들의 핵심이다. 2014년부터 very deep convolutional network가 주류를 이뤘으며, 다양한 벤치마크에서 실질적인 성능 이득을 얻었다. 이 경우 모델의 크기나 계산 비용이 증가하긴 하지만, 충분한 양의 학습 데이터만 제공된다면 대부분의 작업에서 즉각적인 성능 향상이 이루어진다. 또한 convolution의 계산적인 효율성이나 적은 수의 parameter를 사용한다는 특징으로 인해, mobile vision이나 big-data scenario와 같은 다양한 케이스에 적용 가능하게 한다.
 
 이 논문에서는 다음의 두 방법을 통해, 네트워크의 크기를 효율적으로 키우는 방법을 탐색한다.
@@ -35,7 +35,7 @@ Convolutional network는 다양한 분야에서 state-of-the-art 성능을 가�
 - 4가지 모델을 ensemble한 multi-crop evaluation에서 top-1 error가 17.3%이고, top-5 error가 3.5%
 
 ---
-# 1. Introduction
+## 1. Introduction
 
 2012년도 ImageNet 대회에서 우승했던 [AlexNet](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)은, 이후 다양한 종류의 컴퓨터 비전 분야에 성공적으로 적용됐다.
 - [Object detection (R-CNN)](https://arxiv.org/pdf/1311.2524.pdf)
@@ -83,7 +83,7 @@ Inception 구조의 복잡성은 네트워크의 변경을 더욱 어렵게 만�
 또한, 모델의 높은 성능을 유지하기 위해서는 몇 가지 지침 원칙을 준수할 필요가 있으니 주의할 필요가 있다.
 
 ---
-# 2. General Design Principles
+## 2. General Design Principles
 여기에서는 large-sacle 데이터에 대한 실험을 근거하여, CNN의 다양한 구조적인 결정들에 대한 몇 가지 디자인 원칙을 설명한다.
 
 <br/>
@@ -91,7 +91,7 @@ Inception 구조의 복잡성은 네트워크의 변경을 더욱 어렵게 만�
 >이러한 원칙들에서 크게 벗어나면 네트워크의 성능이 저하되는 경향이 있으며, 해당 부분을 수정하면 일반적으로 구조가 개선된다.
 
 <br/>
-## (1) Avoid representational bottlenecks
+### (1) Avoid representational bottlenecks
 Feed-forward 네트워크는 input layer로부터 classifier나 regressor에 이르는 비순환 그래프로 나타낼 수 있으며, 정보가 흐르는 방향을 명확하게 알 수 있다.
 
 <br/>
@@ -106,19 +106,19 @@ Input에서 output까지의 모든 layer의 경우, 각 layer를 통과하는 �
 이론적으로, correlation structure와 같은 중요한 요소를 버리기 때문에, 정보를 dimensionality of representation으로만 평가할 수 없다.
 
 <br/>
-## (2) Higher dimensional representations are easier to process locally within a network
+### (2) Higher dimensional representations are easier to process locally within a network
 CNN에서 activations per tile을 늘리면 disentangled feature를 많이 얻을 수 있으며, 네트워크가 더 빨리 학습하게 될 것이다.
 >Conv layer의 filter map 개수를 늘리면, 다양한 경우의 activated feature map을 탐지할 수 있고, 이를 통해 네트워크의 학습이 빨라질 수 있다는 뜻으로 보인다. (modify)
 
 <br/>
-## (3) Spatial aggregation can be done over lower dimensional embeddings without much or any loss in representational power
+### (3) Spatial aggregation can be done over lower dimensional embeddings without much or any loss in representational power
 이를테면, 더 많은 convolution을 수행하기 전에, 심각한 부작용 없이 input representation의 dimension reduction이 가능하므로, 그 후에 spatial aggregation할 수 있다. 또한, 이러한 signal은 쉽게 압축 할 수 있어야한다는 점을 감안하면, dimension reduction으로 인해 학습 속도가 빨라질 것이다.
 >Convolution 연산을 spatial aggregation이라 표현하는 것으로 보인다. Signal의 압축은, 학습 과정에서 네트워크의 각 layer를 거쳐가며, 원하는 동작을 위한 판단에 필요한 feature를 입력 데이터로부터 추출하는 작업을 signal의 압축 과정으로 생각한다면 쉽게 이해할 수 있다. 즉, **convolution을 다수 수행하는 경우에는 적절한 dimension reduction을 해주는 것이 빠른 학습에 도움 된다**는 것으로 보면 된다.
 >
 >이는 **출력이 spatial aggregation에 사용되는 경우, 인접한 unit 간의 강력한 상관 관계로 인해 dimension reduction 중의 정보 손실이 훨씬 줄어들 것이라는 가설**에 근거한 원칙이다.
 
 <br/>
-## (4) Balance the width and depth of the network
+### (4) Balance the width and depth of the network
 네트워크의 optimal performance는 [ 각 stage의 filter의 개수 / 네트워크의 depth ]의 밸런싱으로 달성 할 수 있다.
 >Width는 각 stage의 filter의 개수에 해당한다.
 
@@ -131,7 +131,7 @@ CNN에서 activations per tile을 늘리면 disentangled feature를 많이 얻�
 이러한 원칙들이 타당하긴 하지만, 이를 활용해서 네트워크의 성능을 향상시키는 것은 간단하지 않다. 따라서, 모호한 상황에서만 이 아이디어들을 고려하도록 하자.
 
 ---
-# 3. Factorizing Convolutions with Large Filter Size
+## 3. Factorizing Convolutions with Large Filter Size
 GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충분히 사용함으로써 발생한 것이다. 이는 계산 효율이 좋은 방식으로 convolution을 factorizing하는 것의 특별한 케이스로 볼 수 있다.
 
 <br/>
@@ -152,7 +152,7 @@ Inception network는 fully convolutional하기 때문에, 각 weight는 activati
 >[이전 포스트](https://sike6054.github.io/blog/paper/second-post/)에서도 알아봤었지만, [GoogleNet](https://arxiv.org/pdf/1409.4842.pdf)에서는 [DistBelief](https://www.cs.toronto.edu/~ranzato/publications/DistBeliefNIPS2012_withAppendix.pdf)라는 이름의 프레임워크로 분산 학습을 수행했었다. 반면, 이 논문에서는 [TensorFlow에서 자체 개발한 분산 학습 시스템](https://arxiv.org/pdf/1603.04467.pdf)을 이용하고 있으며, 실험에서는 50개의 복제본(replica)에 대한 분산 학습을 진행했다고 한다.
 
 <br/>
-## 3.1 Factorization into smaller convolutions
+### 3.1 Factorization into smaller convolutions
 보다 큰 spatial filter를 갖는 convolution은 계산적인 측면에서 불균형하게 비싼 경향이 있다.
 >n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 $$\frac{25}{9}$$로, 약 2.78배 더 비싸다.
 
@@ -219,7 +219,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 저자들은 이러한 이득들이 네트워크가 학습할 수 있는 space of variation을 확대해준다고 보며, 특히 BN을 사용하는 경우에 그런 경향이 강하다고 한다. Dimension reduction에서 linear activation을 사용하는 경우에도 비슷한 효과를 볼 수 있다. (check)
 
 <br/>
-## 3.2 Spatial Factorization into Asymmetric Convolutions
+### 3.2 Spatial Factorization into Asymmetric Convolutions
 3.1절에 따르면, filter의 크기가 3x3보다 큰 convolution은 항상 $$3\times 3$$ convolution의 sequence로 축소될 수 있으므로, 이를 이용하는 것은 보통 효율적이지 않다고 볼 수 있다.
 
 <br/>
@@ -249,12 +249,12 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 
 
 ---
-# 4. Utility of Auxiliary Classifiers
+## 4. Utility of Auxiliary Classifiers
 [GoogLeNet](https://arxiv.org/pdf/1409.4842.pdf)은 very deep network의 수렴을 개선시키기 위해 보조 분류기(Auxiliary Classifier)를 도입했다.
 
 보조 분류기는 원래 동기는 다음과 같다.
 
-1. useful한 gradient를 하위 layer로 밀어 넣어, 즉시 useful하게 만들기 위함
+1. Useful한 gradient를 하위 layer로 밀어 넣어, 즉시 useful하게 만들기 위함
 
 2. Very deep network의 vanishing gradient 문제를 해결하여, 학습 중의 수렴을 개선시키기 위함
 
@@ -309,7 +309,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 좌측 다이어그램에 따르면, convolution part는 두 개의 branch로 이뤄져있음을 알 수 있다. 여기서 두 branch 간의 filter 수의 비율은 언급되지 않았지만, 절반으로 가정하고 계산해보자. 우선 2-layer인 branch에서는 stride가 1인 것과 2인 conv layer에서 각각 $${d^2}k$$와 $$(\frac{d}{2})^2k$$만큼 비용이 발생하며, 1-layer인 branch에서는 $$(\frac{d}{2})^2k$$만큼 비용이 발생한다. 이를 다 더하면, **총 $$\frac{3}{2} {d^2}k$$만큼 비용**이 발생한다. 기존의 $$2{d^2}k$$에 비하면, **제안하는 방법의 계산 비용이 25% 저렴**하다고 볼 수 있다.
 
 ---
-# 6. Inception-v2
+## 6. Inception-v2
 위에서 언급한 것들을 결합하여, 새로운 아키텍처를 제안한다. 이 구조는 ILSVRC 2012 classification benchmark에서 향상된 성능을 보였다. 네트워크의 개요는 Table.1에서 보인다.
 
 <br/>
@@ -352,19 +352,128 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 
 ---
-# 7. Model Regularization via Label Smoothing
+## 7. Model Regularization via Label Smoothing
+이 장에서는 학습 중 label-dropout의 marginalized effect를 추정하여, classifier layer를 regularize하는 메커니즘을 제안한다.
+
+<br/>
+우선 각 학습 데이터 $$x$$에 대해, 각 label $$k$$에 대한 확률을 계산한다.
+- $$k \in {1 ... K}$$
+
+- $$p(k|x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}
+
+- $$z_i$$는 logit 혹은 unnormalized log-probability다.
+
+<br/>
+이 학습 데이터의 label $$q(k|x)$에 대한 ground-truth distribution을 고려하여, $$\sum_{k} q(k|x)=1$$를 normalize 한다.
+
+<br/>
+편의상, 데이터 $$x$$에서 $$p$$와 $$q$$을 독립 확률변수로 생각하자. 학습 데이터에 대한 loss를 cross entropy $$\ell$$로 정의한다.
+- $\ell = -sum_{k=1}^K {\log (p(k))}q(k)
+
+<br/>
+이를 minimize하는 것은 label의 log-likelihood를 maximize하는 것과 동일하다.
+>Label은 ground-truth distribution인 $$q(k)$$에 따라 선택된다.
+
+<br/>
+Cross entropy loss는 logit $$z_k$$에 대해 미분 가능하므로, deep network의 gradient 학습에 사용될 수 있다. Gradient는 다음의 단순한 form을 따른다.
+- $$\frac{\partial \ell}{\partial z_k} = p(k) - q(k)$$
+- Bounded in [-1, 1]
+
+<br/>
+Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1 and q(k) = 0, \forall k \neq y$$ 가 된다. 이 경우에는 cross-entropy를 minimize 하는 것이, 정답 label에 대한 log-likelihood를 maximize하는 것과 같다.
+
+<br/>
+예제 x와 레이블 y가 주어졌을 때, log-likelihoo는 $$q(k) = \delta_{k,y}$$에 대해 maximize 된다.
+>여기서 $$\delta_{k,y}$$는, k=y일 때 1이고, 그렇지 않은 경우에는 0인 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)이다.
+>
+>원문에서는 [Dirac delta](https://en.wikipedia.org/wiki/Dirac_delta_function)라고 되어있으나, 정의에 따르면 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)에 해당한다.
+
+<br/>
+유한한 $$z_k$$에 대해 maximum을 달성 할 수는 없지만, $$z_y \gg z_k, \forall k \neq y$$인 경우에는 maximum에 근접할 수 있다.
+>즉, ground-truth label에 해당하는 logit이, 나머지 모든 logit들보다 훨씬 큰 경우에는 maximum log-likelihood에 근접할 수 있다.
+
+<br/>
+그러나, 이 경우에는 두 가지 문제점이 생길 수 있다.
+
+1. Over-fitting될 수 있다.
+>모델이 각 학습 데이터 x를 ground-truth label에 모든 확률을 할당하도록 학습한다면, 일반화 성능을 보장할 수 없다.
+
+2. Largest logit과 나머지 logit 간의 차이가 매우 커지도록 유도된다.
+>이 특성이 bounded gradient와 결합되면, 모델의 적응력을 감소시킨다.
+
+<br/>
+위 문제들의 원인을 직관적으로 유추해보면, 모델이 prediction에 대한 confidence를 너무 높게 갖기 때문에 발생하는 것으로 볼 수 있다.
+
+<br/>
+이 장에서는 모델의 confidence가 낮아지도록 유도하는 간단한 메커니즘을 제안한다. 만약, 학습 label의 log-likelihood를 maximize하는 것이 목표라면 바람직하지 않은 방법일 수 있지만, 모델의 일반화 및 적응력 향상에 도움이 된다.
+
+<br/>
+방법은 매우 간단하다. 학습 데이터 x와 독립적인 **label distribution $$u(k)$$**과 **smoothing parameter인 $$\epsilon$$**을 고려하자.
+
+<br/>
+Ground-truth label $$y$$를 가진 학습 데이터의 경우, label distribution $$q(k|x) = \delta_{k,y}$$ 을 다음과 같이 바꿀 수 있다.
+
+- $$q'(k|x) = (1-\epsilon)\delta_{k,y} + \epsilon u(k)$$
+>Original ground-truth distribution인 $$q(k|x)$$와 fixed distribution인 $$u(k)$$에 $$1 - \epsilon$$과 $$\epsilon$$이 각각 가중치로 곱해진 혼합식이다.
+>
+>여기서 **$$q(k|x) = \delta_{k,y}$$**는 흔히들 알고 있는 **one-hot coded label**이며, **$$q'(k|x)$$**는 **label smoothing 기법이 적용 된 새로운 label**이다.
+
+<br/>
+이는 다음의 방법으로 얻어지는 label $$k$$의 distribution으로 볼 수 있다.
+
+1. Ground-truth label $$k = y$$를 설정한다.
+
+2. Probability $$\epsilon$$에 대해, $$k$$를 $$u(k)$$에서 추출 된 샘플로 대체한다.
+
+<br/>
+저자들은 $$u(k)$$와 같은 label에 대한 prior distribution의 사용을 제안한다. 실험에서는 uniform distribution $$u(k) = \frac{1}{K}$$를 사용했으므로, 다음의 식과 같다.
+
+- $$q'(k) = (1-\epsilon)\delta_{k, y} + \frac{\epsilon}{K}$$
+
+<br/>
+Ground-truth label distribution에서의 이러한 변형을, **label-smoothing regularization** 또는 **LSR**이라고 칭한다. **LSR**은 **largest logit이 나머지 logit들과의 차이가 매우 커지지 않게** 해준다.
+
+<br/>
+실제로 LSR을 적용하면, single $$q(k)$$는 1에 근접하며, 나머지는 모두 0에 근접한다. 또한, $$q'(k)$$는 큰 cross-entropy 값을 가지게 될 것이다. 그 이유는 $$q'(k)$$가 $$\delta_{k,y}$$ 와는 달리, positive lower bound를 가지기 때문이다.
+
+<br/>
+Cross-entropy를 고려하면, LSR에 대한 또 다른 수식을 얻을 수 있다.
+
+- $$H(q', p) = -\sum_{k=1}^K \log {p(k)q'(k)} = (1-\epsilon)H(q,p) + \epsilon H(u,p)$$
+>즉, LSR은 single cross-entropy loss인 $$H(q,p)$$를, 두 loss $$H(q,p)$$와 $$H(u,p)$$로 대체하는 것과 동일하다.
+
+<br/>
+두 번째 loss인 $$H(u,p)$$는, prior인 **$$u$$로부터 얻어지는** predicted label distribution **$$p$$의 deviation**을 relative weight인 $$\frac{\epsilon}{1-\epsilon}$$에 따라 페널티가 계산된다.
+>$$H(u, p) = D_{KL}(u||p) + H(u)$$와 $$H(u)$$가 고정되어 있기 때문에, deviation이 KL divergence에 따라 동일하게 측정될 수 있음에 유의하자.
+
+<br/>
+$$u$$가 uniform distribution일 때의 $$H(u,p)$$는, predicted distribution인 $$p$$가 uniform하지 않은 정도에 대한 척도이다.
+>이는 negative entropy인 $$-H(p)$$로도 측정할 수 있지만, 동일하진 않다. 논문에서는 이 방법에 대해 실험하지 않았다.
+
+<br/>
+실험은 $$K = 1000$$ class인 ImageNet에 대해 진행했으며, 이 때는 $$u(k) = \frac{1}{1000}과 $$\epsilon = 0.1$$을 사용했다. ILSVRC 2012 dataset에 대한 실험 결과, top-1 error와 top-5 error에 대한 성능이 약 0.2% 향상하는 일관적인 결과를 얻었다. Table.3 참조.
 
 ---
-# 8. Training Methodology
+## 8. Training Methodology
+[TensorFlow 분산 학습 시스템](https://arxiv.org/pdf/1603.04467.pdf)에서 50개의 모델 복제본(replica)이 각각 NVidia Kepler GPU 상에서 stochastic gradient로 학습됐다. 학습은 batch size를 32로 하여, 100 epoch만큼 학습했다.
+
+<br/>
+초반 실험에서는 decay가 0.9인 [momentum](https://www.cs.toronto.edu/~fritz/absps/momentum.pdf)을 사용했었으며, best model은 decay가 0.9인 [RMSProp](https://arxiv.org/pdf/1609.04747.pdf)과, $$\epsilon = 1.0$$을 사용할 때 얻었다.
+
+<br/>
+Learning rate는 0.045에서 시작하여, 두 번의 epoch마다 0.94를 곱했다. 또한, threshold가 2.0인 [gradient clipping](http://proceedings.mlr.press/v28/pascanu13.pdf)이 안정적인 학습에 도움된다는 것을 발견했다.
+
+<br/>
+모델의 평가는, 시간이 지남에 따라 계산 된 parameter의 running average로 이뤄졌다.
 
 ---
-# 9. Performance on Lower Resolution Input
+## 9. Performance on Lower Resolution Input
 
 ---
-# 10. Experimental Results and Comparisons
+## 10. Experimental Results and Comparisons
 
 ---
-# 11. Conclusions
+## 11. Conclusions
 
 
 ---
