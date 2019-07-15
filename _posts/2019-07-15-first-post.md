@@ -285,8 +285,8 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >논문에서는 $2{d^2}k^2$라고 되어있다. 하지만, stride가 1이라면 각 convolution filter마다 $d^2$번씩 계산하며, filter의 개수인 $2k$개만큼 곱해지면 총 $2{d^2}k$개가 맞는 것으로 보인다.
 
 <br/>
-만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $2{{\frac{d}{2}}^2}k$가 된다. 하지만, 이는 representation의 전반적인 차원이 ${{\frac{d}{2}}^2}k$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
->여기도 마찬가지로, 논문에서는 $2{{\frac{d}{2}}^2}k$대신 $2{{\frac{d}{2}}^2}k^2$로 나타나 있다. 하지만, ${{\frac{d}{2}}^2}k$는 제대로 계산됐다.
+만약 convloution과 pooling의 순서를 바꾼다면, 계산 비용이 4분의 1로 감소 된 $2\frac{d}{2}^2k$가 된다. 하지만, 이는 representation의 전반적인 차원이 $\frac{d}{2}^2k$로 낮아져서 표현력이 떨어지게 되고, 이는 곧 representational bottleneck을 야기한다. Fig.8 참조.
+>여기도 마찬가지로, 논문에서는 $2\frac{d}{2}^2k$대신 $2\frac{d}{2}^2k^2$로 나타나 있다. 하지만, $\frac{d}{2}^2k$는 제대로 계산됐다.
 
 <br/>
 ![Fig.8](/blog/images/Inception-v3, Fig.9(removed).png )
