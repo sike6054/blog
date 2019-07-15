@@ -7,6 +7,10 @@ categories:
 toc: true
 ---
 
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 ## Paper Information
 
 SZEGEDY, Christian, et al. **"Rethinking the inception architecture for computer vision"**. In: Proceedings of the IEEE conference on computer vision and pattern recognition. 2016. p. 2818-2826.
