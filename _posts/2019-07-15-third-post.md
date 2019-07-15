@@ -136,7 +136,7 @@ GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충
 
 <br/>
 1x1 conv layer 다음에 3x3 conv layer가 오는 경우를 생각해보자. 비전 네트워크에서는 인접한 activation들의 출력 간에 높은 상관 관계가 예상된다. 따라서, aggregation 전에 이들의 activation이 줄어들 수 있으며, 유사한 표현력의 local representation을 가지는 것으로 볼 수 있다.
->상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다.
+>상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다. 
 
 <br/>
 이 장에서는 특히 모델의 계산 효율을 높이는 목적을 고려하여, 다양한 환경에서의 convolution factorizing 방법들을 알아본다.
@@ -357,18 +357,18 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 <br/>
 우선 각 학습 데이터 $$x$$에 대해, 각 label $$k$$에 대한 확률을 계산한다.
-- $$k \in {1 ... K}$$
+- $$k \in {1 ... K}$$.
 
-- $$p(k|x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}
+- $$p(k|x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}$$.
 
 - $$z_i$$는 logit 혹은 unnormalized log-probability다.
 
 <br/>
-이 학습 데이터의 label $$q(k|x)$에 대한 ground-truth distribution을 고려하여, $$\sum_{k} q(k|x)=1$$를 normalize 한다.
+이 학습 데이터의 label $$q(k|x)$$에 대한 ground-truth distribution을 고려하여, $$\sum_{k} q(k|x)=1$$를 normalize 한다.
 
 <br/>
 편의상, 데이터 $$x$$에서 $$p$$와 $$q$$을 독립 확률변수로 생각하자. 학습 데이터에 대한 loss를 cross entropy $$\ell$$로 정의한다.
-- $\ell = -sum_{k=1}^K {\log (p(k))}q(k)
+- $$\ell = -sum_{k=1}^K {\log (p(k))}q(k)$$
 
 <br/>
 이를 minimize하는 것은 label의 log-likelihood를 maximize하는 것과 동일하다.
@@ -376,15 +376,15 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 <br/>
 Cross entropy loss는 logit $$z_k$$에 대해 미분 가능하므로, deep network의 gradient 학습에 사용될 수 있다. Gradient는 다음의 단순한 form을 따른다.
-- $$\frac{\partial \ell}{\partial z_k} = p(k) - q(k)$$
+- $$\frac{\partial \ell}{\partial z_k} = p(k) - q(k)$$.
 - Bounded in [-1, 1]
 
 <br/>
-Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1 and q(k) = 0, \forall k \neq y$$ 가 된다. 이 경우에는 cross-entropy를 minimize 하는 것이, 정답 label에 대한 log-likelihood를 maximize하는 것과 같다.
+Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1 and q(k) = 0,   \forall k \neq y$$ 가 된다. 이 경우에는 cross-entropy를 minimize 하는 것이, 정답 label에 대한 log-likelihood를 maximize하는 것과 같다.
 
 <br/>
 예제 x와 레이블 y가 주어졌을 때, log-likelihoo는 $$q(k) = \delta_{k,y}$$에 대해 maximize 된다.
->여기서 $$\delta_{k,y}$$는, k=y일 때 1이고, 그렇지 않은 경우에는 0인 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)이다.
+>여기서 $$\delta_{k,y}$$는, $$k=y$$일 때 1이고, 그렇지 않은 경우에는 0인 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)이다.
 >
 >원문에서는 [Dirac delta](https://en.wikipedia.org/wiki/Dirac_delta_function)라고 되어있으나, 정의에 따르면 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)에 해당한다.
 
@@ -396,7 +396,7 @@ Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1 and q
 그러나, 이 경우에는 두 가지 문제점이 생길 수 있다.
 
 1. Over-fitting될 수 있다.
->모델이 각 학습 데이터 x를 ground-truth label에 모든 확률을 할당하도록 학습한다면, 일반화 성능을 보장할 수 없다.
+>모델이 각 학습 데이터 $$x$$를 ground-truth label에 모든 확률을 할당하도록 학습한다면, 일반화 성능을 보장할 수 없다.
 
 2. Largest logit과 나머지 logit 간의 차이가 매우 커지도록 유도된다.
 >이 특성이 bounded gradient와 결합되면, 모델의 적응력을 감소시킨다.
@@ -408,15 +408,15 @@ Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1 and q
 이 장에서는 모델의 confidence가 낮아지도록 유도하는 간단한 메커니즘을 제안한다. 만약, 학습 label의 log-likelihood를 maximize하는 것이 목표라면 바람직하지 않은 방법일 수 있지만, 모델의 일반화 및 적응력 향상에 도움이 된다.
 
 <br/>
-방법은 매우 간단하다. 학습 데이터 x와 독립적인 **label distribution $$u(k)$$**과 **smoothing parameter인 $$\epsilon$$**을 고려하자.
+방법은 매우 간단하다. 학습 데이터 $$x$$와 독립적인 **label distribution $$u(k)$$**과 **smoothing parameter인 $$\epsilon$$**을 고려하자.
 
 <br/>
 Ground-truth label $$y$$를 가진 학습 데이터의 경우, label distribution $$q(k|x) = \delta_{k,y}$$ 을 다음과 같이 바꿀 수 있다.
 
 - $$q'(k|x) = (1-\epsilon)\delta_{k,y} + \epsilon u(k)$$
->Original ground-truth distribution인 $$q(k|x)$$와 fixed distribution인 $$u(k)$$에 $$1 - \epsilon$$과 $$\epsilon$$이 각각 가중치로 곱해진 혼합식이다.
+>Original ground-truth distribution인 $$q(k\mid x)$$와 fixed distribution인 $$u(k)$$에 $$1 - \epsilon$$과 $$\epsilon$$이 각각 가중치로 곱해진 혼합식이다.
 >
->여기서 **$$q(k|x) = \delta_{k,y}$$**는 흔히들 알고 있는 **one-hot coded label**이며, **$$q'(k|x)$$**는 **label smoothing 기법이 적용 된 새로운 label**이다.
+>여기서 **$$q(k\mid x) = \delta_{k,y}$$**는 흔히들 알고 있는 **one-hot coded label**이며, **$$q'(k\mid x)$$**는 **label smoothing 기법이 적용 된 새로운 label**이다.
 
 <br/>
 이는 다음의 방법으로 얻어지는 label $$k$$의 distribution으로 볼 수 있다.
@@ -428,7 +428,7 @@ Ground-truth label $$y$$를 가진 학습 데이터의 경우, label distributio
 <br/>
 저자들은 $$u(k)$$와 같은 label에 대한 prior distribution의 사용을 제안한다. 실험에서는 uniform distribution $$u(k) = \frac{1}{K}$$를 사용했으므로, 다음의 식과 같다.
 
-- $$q'(k) = (1-\epsilon)\delta_{k, y} + \frac{\epsilon}{K}$$
+- $$q'(k) = (1-\epsilon)\delta_{k, y} + \frac{\epsilon}{K}$$.
 
 <br/>
 Ground-truth label distribution에서의 이러한 변형을, **label-smoothing regularization** 또는 **LSR**이라고 칭한다. **LSR**은 **largest logit이 나머지 logit들과의 차이가 매우 커지지 않게** 해준다.
@@ -444,14 +444,14 @@ Cross-entropy를 고려하면, LSR에 대한 또 다른 수식을 얻을 수 있
 
 <br/>
 두 번째 loss인 $$H(u,p)$$는, prior인 **$$u$$로부터 얻어지는** predicted label distribution **$$p$$의 deviation**을 relative weight인 $$\frac{\epsilon}{1-\epsilon}$$에 따라 페널티가 계산된다.
->$$H(u, p) = D_{KL}(u||p) + H(u)$$와 $$H(u)$$가 고정되어 있기 때문에, deviation이 KL divergence에 따라 동일하게 측정될 수 있음에 유의하자.
+>$$H(u, p) = D_{KL}(u\parallel p) + H(u)$$와 $$H(u)$$가 고정되어 있기 때문에, deviation이 KL divergence에 따라 동일하게 측정될 수 있음에 유의하자.
 
 <br/>
 $$u$$가 uniform distribution일 때의 $$H(u,p)$$는, predicted distribution인 $$p$$가 uniform하지 않은 정도에 대한 척도이다.
 >이는 negative entropy인 $$-H(p)$$로도 측정할 수 있지만, 동일하진 않다. 논문에서는 이 방법에 대해 실험하지 않았다.
 
 <br/>
-실험은 $$K = 1000$$ class인 ImageNet에 대해 진행했으며, 이 때는 $$u(k) = \frac{1}{1000}과 $$\epsilon = 0.1$$을 사용했다. ILSVRC 2012 dataset에 대한 실험 결과, top-1 error와 top-5 error에 대한 성능이 약 0.2% 향상하는 일관적인 결과를 얻었다. Table.3 참조.
+실험은 $$K = 1000$$ class인 ImageNet에 대해 진행했으며, 이 때는 $$u(k) = \frac{1}{1000}$$과 $$\epsilon = 0.1$$을 사용했다. ILSVRC 2012 dataset에 대한 실험 결과, top-1 error와 top-5 error에 대한 성능이 약 0.2% 향상하는 일관적인 결과를 얻었다. Table.3 참조.
 
 ---
 ## 8. Training Methodology
