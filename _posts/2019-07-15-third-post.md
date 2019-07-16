@@ -360,7 +360,7 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 우선 각 학습 데이터 $$x$$에 대해, 각 label $$k$$에 대한 확률을 계산한다.
 - $$k \in {1 ... K}$$.
 
-- $$p(k|x) = \frac{e^z_k}{\sum_{i=1}^K e^z_i}$$.
+- $$p(k\mid x) = \frac{e^z_k}{\sum_{i=1}^K e^z_i}$$.
 
 - $$z_i$$는 logit 혹은 unnormalized log-probability다.
 
