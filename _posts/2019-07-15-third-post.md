@@ -360,7 +360,7 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 우선 각 학습 데이터 $$x$$에 대해, 각 label $$k$$에 대한 확률을 계산한다.
 - $$k \in {1 ... K}$$.
 
-- $$p(k|x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}$$.
+- $$p(k|x) = \frac{e^z_k}{\sum_{i=1}^K e^z_i}$$.
 
 - $$z_i$$는 logit 혹은 unnormalized log-probability다.
 
@@ -369,7 +369,7 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 <br/>
 편의상, 데이터 $$x$$에서 $$p$$와 $$q$$을 독립 확률변수로 생각하자. 학습 데이터에 대한 loss를 cross entropy $$\ell$$로 정의한다.
-- $$\ell = -sum_{k=1}^K {\log (p(k))}q(k)$$
+- $$\ell = -\sum_{k=1}^K {\log (p(k))}q(k)$$
 
 <br/>
 이를 minimize하는 것은 label의 log-likelihood를 maximize하는 것과 동일하다.
