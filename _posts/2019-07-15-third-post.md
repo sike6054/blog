@@ -136,7 +136,7 @@ GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충
 
 <br/>
 1x1 conv layer 다음에 3x3 conv layer가 오는 경우를 생각해보자. 비전 네트워크에서는 인접한 activation들의 출력 간에 높은 상관 관계가 예상된다. 따라서, aggregation 전에 이들의 activation이 줄어들 수 있으며, 유사한 표현력의 local representation을 가지는 것으로 볼 수 있다.
->상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다. 
+>상관 관계가 높은 activation 간에는 유사한 표현력을 지니며, 이들의 수가 줄어들더라도 상관없는 것으로 생각된다.
 
 <br/>
 이 장에서는 특히 모델의 계산 효율을 높이는 목적을 고려하여, 다양한 환경에서의 convolution factorizing 방법들을 알아본다.
@@ -145,7 +145,7 @@ GoogLeNet 네트워크의 이득 중 상당 부분은 dimension reduction를 충
 Inception network는 fully convolutional하기 때문에, 각 weight는 activation 당 하나의 곱셈에 해당한다. 따라서, 계산 비용을 줄이면 paramter의 수가 줄어들게 된다.
 
 <br/>
-이는 적절한 factorizing이 이뤄지면 더 많은 disentangled parameter를 얻을 수 있으며, 이에 따라 빠른 학습이 가능하다는 것을 의미한다.(check)
+이는 적절한 factorizing이 이뤄지면 더 많은 disentangled parameter를 얻을 수 있으며, 이에 따라 빠른 학습이 가능하다는 것을 의미한다.
 
 <br/>
 또한 메모리를 포함한 계산 비용의 절감을 통해, single computer에서 모델의 각 복제본들을 학습할 수 있는 능력을 유지하면서 네트워크의 filter-bank size를 늘릴 수 있다.
@@ -157,7 +157,7 @@ Inception network는 fully convolutional하기 때문에, 각 weight는 activati
 >n개의 filter로 이루어진 5x5 convolution 연산의 경우, 같은 수의 filter를 사용하는 3x3의 convolution보다 계산 비용이 $$\frac{25}{9}$$로, 약 2.78배 더 비싸다.
 
 <br/>
-물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다. (check)
+물론, 보다 큰 filter는 이전 layer의 출력에서 더 멀리 떨어진 unit activation 간의 신호 종속성을 포착할 수 있기 때문에, filter의 크기를 줄이면 그만큼 표현력을 위한 비용이 커지게 된다. 그래서 논문의 저자들은 5x5 convolution을 동일한 input size와 output depth를 가지면서, 더 적은 parameter를 가진 multi-layer 네트워크로 대체할 방법에 대해 고민한다.
 
 <br/>
 Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출력은 입력에 대해 5x5 filter가 sliding하는 형태의 소규모 fully-connected 네트워크처럼 보인다.
@@ -216,7 +216,8 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >결과는 3.86 million iteration 후에 top-1 validation accuracy가 각각 76.2%와 77.2%로 측정됐다.
 
 <br/>
-저자들은 이러한 이득들이 네트워크가 학습할 수 있는 space of variation을 확대해준다고 보며, 특히 BN을 사용하는 경우에 그런 경향이 강하다고 한다. Dimension reduction에서 linear activation을 사용하는 경우에도 비슷한 효과를 볼 수 있다. (check)
+저자들은 이러한 이득들이 네트워크가 학습할 수 있는 space of variation을 확대해준다고 보며, 특히 BN을 사용하는 경우에 그런 경향이 강하다고 한다. Dimension reduction에서 linear activation을 사용하는 경우에도 비슷한 효과를 볼 수 있다.
+>네트워크가 학습할 수 있는 space of variation은, 모델의 capacity를 말한다.
 
 <br/>
 ### 3.2 Spatial Factorization into Asymmetric Convolutions
@@ -380,7 +381,7 @@ Cross entropy loss는 logit $$z_k$$에 대해 미분 가능하므로, deep netwo
 - Bounded in [-1, 1]
 
 <br/>
-Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1 and q(k) = 0,   \forall k \neq y$$ 가 된다. 이 경우에는 cross-entropy를 minimize 하는 것이, 정답 label에 대한 log-likelihood를 maximize하는 것과 같다.
+Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1$$  $$and$$  $$q(k) = 0,   \forall k \neq y$$ 가 된다. 이 경우에는 cross-entropy를 minimize 하는 것이, 정답 label에 대한 log-likelihood를 maximize하는 것과 같다.
 
 <br/>
 예제 x와 레이블 y가 주어졌을 때, log-likelihoo는 $$q(k) = \delta_{k,y}$$에 대해 maximize 된다.
@@ -468,16 +469,141 @@ Learning rate는 0.045에서 시작하여, 두 번의 epoch마다 0.94를 곱했
 
 ---
 ## 9. Performance on Lower Resolution Input
+비전 네트워크의 대표적인 use case는, detection의 post-classification을 위한 것이다.
+>Detected object에 대한 classification을 말한다.
+
+<br/>
+[Multibox](https://www.cv-foundation.org/openaccess/content_cvpr_2014/papers/Erhan_Scalable_Object_Detection_2014_CVPR_paper.pdf)에도 post-classification 작업이 포함됐다. 여기서는 single object를 포함하면서 상대적으로 작은 image patch에 대한 분석이 포함된다.
+>Image patch에 대한 분석은 patch의 중앙 부분이 어떤 object에 해당하는지 여부를 결정하고, object가 존재하는 경우엔 class를 결정하는 작업이다.
+
+<br/>
+이러한 use case에서의 문제는 object가 상대적으로 작으면서, low-resolution인 점이다. 따라서, lower resolution input에 대한 적절한 처리 방법이 필요하게 된다.
+
+<br/>
+일반적으로, higher resolution의 receptive field를 사용하는 모델이, recognition 성능이 크게 향상되는 경향이 있다고 알려져 있다.
+
+<br/>
+일단, **첫 번째 layer의 receptive field의 resolution이 증가했을 때의 효과**와, **model이 커짐에 따른 capacitance 및 computation에 대한 효과**를 구별하는 것이 중요하다.
+>Receptive field의 resolution이 커진다는 것은, convolution filter와 input 간의 weighted sum의 계산에 사용되는 pixel의 수가 많아진다는 것이다. Resolution이 커질수록 더 넓은 범위의 인근 pixel들을 고려하여 패턴을 학습할 수 있게 된다.
+>
+>모델의 capacitance가 크다는건 많은 parameter를 가지는 것이며, 그만큼 더 복잡한 관계에 대한 패턴을 학습할 수 있는 여지가 생긴다. 예를 들어, 3-layer를 가지는 CNN으로 MNIST dataset에 대한 학습을 진행하면 우수한 성능을 얻을 수 있지만, ImageNet dataset에 대한 학습을 진행하면 민망한 성능을 얻게 되는 것과 유사한 이치다.
+
+<br/>
+모델을 수정하지 않고, input resolution만 변경할 수도 있다. 이 경우에는 계산 비용이 훨씬 저렴한 모델을 사용하여 더 어려운 작업을 해결하게 되지만, 그만큼 계산량이 줄어들기 때문에 솔루션의 견고함이 떨어지는 것은 당연하다.
+
+<br/>
+정확한 평가를 위해서는, 모델의 세부 사항을 "hallucinate" 할 수 있도록 모호한 징후들을 분석해야한다. 그러나, 이 또한 계산 비용이 많이 든다.
+
+<br/>
+아직도 의문인건, 계산량이 일정하게 유지되면서 input resolution이 높아지는 것이 얼마나 도움되는가 하는 점이다.
+>Receptive field의 resolution를 말하는 것으로 보인다.
+
+<br/>
+일정한 계산량을 유지하는 간단한 방법은, 입력이 lower resolution인 경우엔 처음 두 layer에서 stride를 줄이거나, 네트워크의 첫 번째 pooling layer를 제거하면 된다. 이를 위해 다음 세 가지 실험을 수행했다.
+
+1. stride가 2인 299x299 receptive field를 사용하고, 첫 번째 layer 다음에 max pooling을 사용.
+
+2. stride가 1인 151x151 receptive field를 사용하고, 첫 번째 layer 다음에 max pooling을 사용.
+
+3. stride가 1인 79x79 receptive field를 사용하고, 첫 번째 layer 다음에 pooling layer가 없음.
+
+>입력의 크기가 각각 299x299, 151x151, 79x79고, 첫 번째 conv layer의 stride가 각각 2, 1, 1인 것을 말한다.
+
+<br/>
+위 실험에 해당하는 3개의 네트워크는 거의 동일한 계산 비용을 갖는다.
+>실제로는 3번 네트워크가 약간 저렴하지만, pooling layer의 계산 비용은 총 비용의 1% 이내 수준이기 때문에 무시한다.
+
+<br/>
+각각의 네트워크는 수렴 될 때까지 학습했으며, 성능은 ImageNet ILSVRC 2012 classification benchmark의 validation set에 대해 측정됐다.
+
+<br/>
+결과는 Table.2에서 보인다. lower-resolution 네트워크가 학습하는 데 오래 걸리긴 하지만, 성능은 higher resolution 네트워크에 근접한다.
+
+<br/>
+![Table.2](/blog/images/Inception-v3, Table.2(removed).png )
+>**Table.2** <br/>Receptive field size의 변화에 따른 성능 비교이다. 모든 케이스의 computational cost는 동일하다.
+
+<br/>
+만약, input resolution에 따라 단순하게 네트워크 크기를 줄이게 된다면 성능이 저하된다. 하지만, 이는 어려운 작업에 대해서 16배나 저렴한 모델이기 때문에, 이를 비교하는 것은 불공평하다.
+
+<br/>
+또한 Table.2의 결과들은, [R-CNN](https://arxiv.org/pdf/1311.2524.pdf)의 smaller object에 대해, high-cost low resoluton 네트워크의 사용 가능성을 암시한다.
 
 ---
 ## 10. Experimental Results and Comparisons
+Table.3은 6장에서 제안한 Inception-v2에 대한 실험 결과를 보여준다.
+
+<br/>
+![Table.3](/blog/images/Inception-v3, Table.3(removed).png )
+>**Table.3** <br/>다양한 기법들에 대한 누적 효과를 비교하는 single-crop 성능이다.
+>
+>BN-Inception은 [BN](https://arxiv.org/pdf/1502.03167.pdf)에서 측정된 성능이다.
+>
+>Inception-v2의 적용 기법들은 누적되며, **Inception-v3**는 **Inception-v2에 모든 기법들을 적용한 경우**를 말한다.
+
+<br/>
+각 Inception-v2 행은, 각 기법들이 이전 기법들을 누적한 경우의 결과를 표시한다.
+>예를 들어, **Inception-v2 Label Smoothing** 행은 **Inception-v2**에 **RMSProp**과 **Label Smoothing**을 모두 적용한 결과이다.
+
+<br/>
+- Label Smoothing은 7장에서 설명한 방법이다.
+
+- Factorized 7x7은 첫 번째 7x7 conv layer를 3x3 conv layer의 시퀀스로 factorizing하는 것을 포함한다.
+
+- BN-auxiliary는 보조 분류기에서 conv layer 뿐만 아니라, FC layer에도 [BN](https://arxiv.org/pdf/1502.03167.pdf)이 적용 된 버전이다.
+
+<br/>
+성능은 multi-crop과 ensemble에 대해 평가했다. Table.4 및 Table.5 참조.
+
+<br/>
+![Table.4](/blog/images/Inception-v3, Table.4(removed).png )
+>**Table.4** <br/>Sinle-mode, multi-crop 실험 결과이다. ILSVRC 2012 classification 성능이 가장 잘 나온 Inception-v3의 성능만 비교한다.
+
+<br/>
+![Table.5](/blog/images/Inception-v3, Table.5(removed).png )
+>**Table.5** <br/>Ensemble evaluation results comparing multi-model, multi-crop reported results.
+
+<br/>
+모든 성능은 ILSVRC-2012 validation set의 non-blacklisted example 48238개에 대해 평가됐다.
+>non-blacklisted example은 [이 논문](https://arxiv.org/pdf/1409.0575.pdf)에서 제안했다고 한다.
+
+<br/>
+50000개의 example에 대해 평가했으며, 결과는 top-5 error에서 약 0.1%, top-1 error에서 약 0.2% 떨어졌다.
+>Test set 50000개에 대한 평가이고, validation set에 대한 성능과 비교한 것으로 보인다.
 
 ---
 ## 11. Conclusions
+우리는 CNN을 확장하기 위한 몇 가지 디자인 원칙을 제공하고, inception 구조에서 이에 대한 연구를 진행했다.
 
+<br/>
+제공한 원칙들을 따르면, 단순하고 일체화 된 구조에 비해, 적은 계산 비용을 갖는 고성능 비전 네트워크를 구성할 수 있게 해준다.
+
+<br/>
+가장 성능이 좋았던 Inception-v3의 경우, ILSVR 2012 classification에 대한 single-crop 성능이 top-1 error와 top-5 error에서 각각 21.2%, 5.6%에 도달했다.
+>BN-Inception보다 계산 비용이 2.5배 정도로 적게 증가했다.
+
+<br/>
+제안 된 방법은 denser network를 기반의 모델 중 best인 것보다 훨씬 적은 계산을 사용한다.
+>Table.4와 Table.5의 [PReLU](https://arxiv.org/pdf/1502.01852.pdf) 결과를 말한다. 
+>
+>계산 비용이 6배 저렴하고, 최소 5배는 적은 parameter를 사용하면서도 top-5 error와 top-1 error가 각각 상대적으로 25%와 14% 만큼 낮아졌다.
+
+<br/>
+Inception-v3 모델 4개를 ensemble한 multi-crop 성능은 top-5 error가 3.5%이다.
+>이는 당시의 최고 성능을 25% 이상 줄인 것으로, ILSVRC 2014 GoogLeNet ensemble error에 비해 거의 절반이다.
+
+<br/>
+또한, 79x79의 낮은 receptive field resolution에서도 높은 성능을 얻을 수 있음을 입증했다.
+>이는 상대적으로 작은 object를 탐지하는 시스템에 도움될 수 있다.
+
+<br/>
+이 논문에서는 네트워크 내부에서의 **factorizing convolution 기법**과 **적극적인 dimension reduction**으로, 어떻게 **높은 성능을 유지**하면서도, 비교적 **낮은 계산 비용**이 드는 네트워크를 만들 수 있는지에 대해 알아봤다.
+
+<br/>
+적은 수의 parameter와 BN이 사용 된 보조 분류기, label-smoothing 기법이 함께 사용되면, 크지 않은 규모의 학습 데이터 상에서도, 고성능의 네트워크를 학습 할 수 있다.
 
 ---
-작성 중
+Keras 구현 코드 추가 예정
 
 <br/>
 <br/>
