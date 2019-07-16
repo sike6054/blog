@@ -363,6 +363,7 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 - $$p(k\mid x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}$$.
 
 - $$z_i$$는 *logit* 혹은 *unnormalized log-probability*다.
+>*logit*은 *weighted sum* 정도로 생각하면 된다.
 
 <br/>
 이 학습 데이터의 label $$q(k|x)$$에 대한 ground-truth distribution을 고려하여 정규화하면, $$\sum_{k} q(k|x)=1$$이 된다.
@@ -433,23 +434,25 @@ Ground-truth label이 $$y$$일 때, label distribution $$q(k\mid x) = \delta_{k,
 
 <br/>
 이와 같은 ground-truth label distribution의 변형을, **label-smoothing regularization** 또는 **LSR**이라고 칭한다. 이 **LSR**은 **largest logit이 나머지 logit들과의 차이가 매우 커지지 않게**하려는 목적을 달성할 수 있게 해준다.
+>즉, probability를 극단적인 형태로 나눠갖는 현상을 완화시킨다.
 
 <br/>
-실제로 LSR이 적용되면, $$q'(k)$$는 큰 cross-entropy 값을 가지게 될 것이다. 그 이유는 $$q'(k)$$가 $$\delta_{k,y}$$ 와는 달리, positive lower bound를 가지기 때문이다.
+실제로 LSR이 적용되면, $$q'(k)$$는 큰 cross-entropy 값을 가지게 될 것이다.
+>$$q'(k)$$가 $$\delta_{k,y}$$ 와는 달리, positive lower bound를 가지기 때문이다.
 
 <br/>
-Cross-entropy를 고려하면, LSR에 대한 또 다른 수식을 얻을 수 있다.
+또한, LSR은 cross-entropy에 대해서도 수식화 될 수 있다.
 
 - $$H(q', p) = -\sum_{k=1}^K \log {p(k)q'(k)} = (1-\epsilon)H(q,p) + \epsilon H(u,p)$$
->즉, LSR은 single cross-entropy loss인 $$H(q,p)$$를, 두 loss $$H(q,p)$$와 $$H(u,p)$$로 대체하는 것과 동일하다.
+>즉, LSR은 기존의 single cross-entropy loss인 $$H(q,p)$$를, 두 loss $$H(q,p)$$와 $$H(u,p)$$로 대체하는 것과 동일하다.
 
 <br/>
-두 번째 loss인 $$H(u,p)$$는, prior인 **$$u$$로부터 얻어지는** predicted label distribution **$$p$$의 deviation**을 relative weight인 $$\frac{\epsilon}{1-\epsilon}$$에 따라 페널티가 계산된다.
->$$H(u, p) = D_{KL}(u\parallel p) + H(u)$$와 $$H(u)$$가 고정되어 있기 때문에, deviation이 KL divergence에 따라 동일하게 측정될 수 있음에 유의하자.
+두 번째 loss인 $$H(u,p)$$는, prior인 **$$u$$로부터 얻어지는** predicted label distribution **$$p$$의 deviation**에 대해 계산되며, 첫 번째 loss에 비해 상대적으로 $$\frac{\epsilon}{1-\epsilon}$$만큼 가중된다.
+>이 때, $$H(u, p) = D_{KL}(u\parallel p) + H(u)$$와 $$H(u)$$가 고정되어 있기 때문에, deviation이 KL divergence에 따라 동일하게 측정될 수 있음에 유의하자.
 
 <br/>
-$$u$$가 uniform distribution일 때의 $$H(u,p)$$는, predicted distribution인 $$p$$가 uniform하지 않은 정도에 대한 척도이다.
->이는 negative entropy인 $$-H(p)$$로도 측정할 수 있지만, 동일하진 않다. 논문에서는 이 방법에 대해 실험하지 않았다.
+$$u$$가 uniform distribution일 때의 $$H(u,p)$$는, predicted distribution인 $$p$$가 얼마나 uniform하지 않은지에 대한 척도이다.
+>이는 negative entropy인 $$-H(p)$$로도 측정될 수 있지만, 동일한 값은 아니다.
 
 <br/>
 실험은 $$K = 1000$$ class인 ImageNet에 대해 진행했으며, 이 때는 $$u(k) = \frac{1}{1000}$$과 $$\epsilon = 0.1$$을 사용했다. ILSVRC 2012 dataset에 대한 실험 결과, top-1 error와 top-5 error에 대한 성능이 약 0.2% 향상하는 일관적인 결과를 얻었다. Table.3 참조.
@@ -489,10 +492,11 @@ Learning rate는 0.045에서 시작하여, 두 번의 epoch마다 0.94를 곱했
 >모델의 capacitance가 크다는건 많은 parameter를 가지는 것이며, 그만큼 더 복잡한 관계에 대한 패턴을 학습할 수 있는 여지가 생긴다. 예를 들어, 3-layer를 가지는 CNN으로 MNIST dataset에 대한 학습을 진행하면 우수한 성능을 얻을 수 있지만, ImageNet dataset에 대한 학습을 진행하면 민망한 성능을 얻게 되는 것과 유사한 이치다.
 
 <br/>
-모델을 수정하지 않고, input resolution만 변경할 수도 있다. 이 경우에는 계산 비용이 훨씬 저렴한 모델을 사용하여 더 어려운 작업을 해결하게 되지만, 그만큼 계산량이 줄어들기 때문에 솔루션의 견고함이 떨어지는 것은 당연하다.
+만약, 모델을 수정하지 않고 input resolution만 변경한다면, 계산 비용이 훨씬 저렴한 모델로, 보다 어려운 작업에 대한 학습을 하게 된다. 이 경우, 계산량이 줄어드는만큼 솔루션의 견고함도 떨어지게 된다.
 
 <br/>
-정확한 평가를 위해서는, 모델의 세부 사항을 "hallucinate" 할 수 있도록 모호한 징후들을 분석해야한다. 그러나, 이 또한 계산 비용이 많이 든다.
+정확한 평가를 위해서는, 모델의 세부 사항을 "hallucinate" 할 수 있도록 모호한 징후들을 분석해야한다.
+>이 또한 계산 비용이 많이 드는 작업이다.
 
 <br/>
 아직도 의문인건, 계산량이 일정하게 유지되면서 input resolution이 높아지는 것이 얼마나 도움되는가 하는 점이다.
@@ -603,7 +607,6 @@ Inception-v3 모델 4개를 ensemble한 multi-crop 성능은 top-5 error가 3.5%
 적은 수의 parameter와 BN이 사용 된 보조 분류기, label-smoothing 기법이 함께 사용되면, 크지 않은 규모의 학습 데이터 상에서도, 고성능의 네트워크를 학습 할 수 있다.
 
 ---
-
 Keras 구현 코드 추가 예정
 
 <br/>
