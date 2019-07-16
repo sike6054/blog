@@ -542,7 +542,7 @@ Table.3은 6장에서 제안한 Inception-v2에 대한 실험 결과를 보여�
 >Inception-v2의 적용 기법들은 누적되며, **Inception-v3**는 **Inception-v2에 모든 기법들을 적용한 경우**를 말한다.
 
 <br/>
-각 Inception-v2 행은, 각 기법들이 이전 기법들을 누적한 경우의 결과를 표시한다.
+각 Inception-v2 행은, 각 기법에 이전 기법들을 누적 적용한 학습 결과를 표시한다.
 >예를 들어, **Inception-v2 Label Smoothing** 행은 **Inception-v2**에 **RMSProp**과 **Label Smoothing**을 모두 적용한 결과이다.
 
 <br/>
