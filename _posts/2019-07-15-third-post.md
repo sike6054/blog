@@ -362,30 +362,27 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 
 - $$p(k\mid x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}$$.
 
-- $$z_i$$는 logit 혹은 unnormalized log-probability다.
+- $$z_i$$는 *logit* 혹은 *unnormalized log-probability*다.
 
 <br/>
-이 학습 데이터의 label $$q(k|x)$$에 대한 ground-truth distribution을 고려하여, $$\sum_{k} q(k|x)=1$$를 normalize 한다.
+이 학습 데이터의 label $$q(k|x)$$에 대한 ground-truth distribution을 고려하여 정규화하면, $$\sum_{k} q(k|x)=1$$이 된다.
 
 <br/>
-편의상, 데이터 $$x$$에서 $$p$$와 $$q$$을 독립 확률변수로 생각하자. 학습 데이터에 대한 loss를 cross entropy $$\ell$$로 정의한다.
+편의상, $$p$$와 $$q$$를 데이터 $$x$$와 독립인 것으로 생각하자. 학습 데이터에 대한 loss는 cross entropy $$\ell$$로 정의된다.
 - $$\ell = -\sum_{k=1}^K {\log (p(k))}q(k)$$.
 
 <br/>
-이를 minimize하는 것은 label의 log-likelihood를 maximize하는 것과 동일하다.
+위의 $$\ell$$을 minimize하는 것은, label의 log-likelihood를 maximize하는 것과 동일하다.
 >Label은 ground-truth distribution인 $$q(k)$$에 따라 선택된다.
 
 <br/>
 Cross entropy loss는 logit $$z_k$$에 대해 미분 가능하므로, deep network의 gradient 학습에 사용될 수 있다. Gradient는 다음의 단순한 form을 따른다.
 - $$\frac{\partial \ell}{\partial z_k} = p(k) - q(k)$$.
-- Bounded in [-1, 1]
+- Bounded in $$[-1, 1]$$
 
 <br/>
-Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1$$  $$and$$  $$q(k) = 0,   \forall k \neq y$$ 가 된다. 이 경우에는 cross-entropy를 minimize 하는 것이, 정답 label에 대한 log-likelihood를 maximize하는 것과 같다.
-
-<br/>
-예제 x와 레이블 y가 주어졌을 때, log-likelihoo는 $$q(k) = \delta_{k,y}$$에 대해 maximize 된다.
->여기서 $$\delta_{k,y}$$는, $$k=y$$일 때 1이고, 그렇지 않은 경우에는 0인 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)이다.
+예제 x와 레이블 y가 주어지면, log-likelihood는 $$q(k) = \delta_{k,y}$$에 대해 maximize 된다.
+>여기서 $$\delta_{k,y}$$는, $$k=y$$일 때 1이고, 그렇지 않은 경우에는 0인 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)이다. 즉, **one-hot encoded label**.
 >
 >원문에서는 [Dirac delta](https://en.wikipedia.org/wiki/Dirac_delta_function)라고 되어있으나, 정의에 따르면 [Kronecker delta](https://en.wikipedia.org/wiki/Kronecker_delta)에 해당한다.
 
@@ -396,28 +393,30 @@ Ground-truth가 single label인 $$y$$를 고려하면, label이 $$q(y) = 1$$  $$
 <br/>
 그러나, 이 경우에는 두 가지 문제점이 생길 수 있다.
 
-1. Over-fitting될 수 있다.
+1. 학습 데이터에 over-fitting 될 수도 있다.
 >모델이 각 학습 데이터 $$x$$를 ground-truth label에 모든 확률을 할당하도록 학습한다면, 일반화 성능을 보장할 수 없다.
 
 2. Largest logit과 나머지 logit 간의 차이가 매우 커지도록 유도된다.
->이 특성이 bounded gradient와 결합되면, 모델의 적응력을 감소시킨다.
+>이 특성이 $$[-1, 1]$$의 값인 bounded gradient $$\frac{\partial \ell}{\partial z_k}$$와 함께 쓰이게 되면 모델의 적응력을 감소시킨다.
 
 <br/>
 위 문제들의 원인을 직관적으로 유추해보면, 모델이 prediction에 대한 confidence를 너무 높게 갖기 때문에 발생하는 것으로 볼 수 있다.
 
 <br/>
-이 장에서는 모델의 confidence가 낮아지도록 유도하는 간단한 메커니즘을 제안한다. 만약, 학습 label의 log-likelihood를 maximize하는 것이 목표라면 바람직하지 않은 방법일 수 있지만, 모델의 일반화 및 적응력 향상에 도움이 된다.
+이 장에서는 모델의 confidence가 낮아지도록 유도하는 간단한 메커니즘을 제안한다. 만약, 학습 label의 log-likelihood를 maximize하는 것이 목표라면 바람직하지 않은 방법일 수도 있지만, 이는 **모델의 일반화 성능 및 적응력 향상**에 도움되는 기법이다.
 
 <br/>
-방법은 매우 간단하다. 학습 데이터 $$x$$와 독립적인 **label distribution $$u(k)$$**과 **smoothing parameter인 $$\epsilon$$**을 고려하자.
+방법은 매우 간단하다. 학습 데이터 $$x$$에 독립인 **label distribution $$u(k)$$**와 **smoothing parameter인 $$\epsilon$$**을 고려하자.
 
 <br/>
-Ground-truth label $$y$$를 가진 학습 데이터의 경우, label distribution $$q(k|x) = \delta_{k,y}$$ 을 다음과 같이 바꿀 수 있다.
+Ground-truth label이 $$y$$일 때, label distribution $$q(k\mid x) = \delta_{k,y}$$ 를 다음과 같이 바꿀 수 있다.
 
-- $$q'(k|x) = (1-\epsilon)\delta_{k,y} + \epsilon u(k)$$
+- $$q'(k\mid x) = (1-\epsilon)\delta_{k,y} + \epsilon u(k)$$
 >Original ground-truth distribution인 $$q(k\mid x)$$와 fixed distribution인 $$u(k)$$에 $$1 - \epsilon$$과 $$\epsilon$$이 각각 가중치로 곱해진 혼합식이다.
 >
 >여기서 **$$q(k\mid x) = \delta_{k,y}$$**는 흔히들 알고 있는 **one-hot encoded label**이며, **$$q'(k\mid x)$$**는 **label smoothing 기법이 적용 된 새로운 label**이다.
+>
+>결국, 기존의 label인 $$q(k\mid x)$$가 $$y=k$$일 경우에 1, 나머지는 0으로 채워지는 one-hot encoded 형태면, **새로운 label인 $$q'(k\mid x)$$는 $$y=k$$일 경우에 $$1-\epsilon$$, 나머지는 $$\epsilon u(k)$$ 값으로 채워지는 형태**이다.
 
 <br/>
 이는 다음의 방법으로 얻어지는 label $$k$$의 distribution으로 볼 수 있다.
@@ -427,15 +426,16 @@ Ground-truth label $$y$$를 가진 학습 데이터의 경우, label distributio
 2. Probability $$\epsilon$$에 대해, $$k$$를 $$u(k)$$에서 추출 된 샘플로 대체한다.
 
 <br/>
-저자들은 $$u(k)$$와 같은 label에 대한 prior distribution의 사용을 제안한다. 실험에서는 uniform distribution $$u(k) = \frac{1}{K}$$를 사용했으므로, 다음의 식과 같다.
+저자들은 $$u(k)$$에 prior distribution을 사용하라고 언급했다. 실험에서는 uniform distribution $$u(k) = \frac{1}{K}$$를 사용하고 있으며, 이는 다음의 식과 동일하다.
 
 - $$q'(k) = (1-\epsilon)\delta_{k, y} + \frac{\epsilon}{K}$$.
+>여기서 $$K$$는 class 개수다. ImageNet classification의 경우에는 $$K=1000$$.
 
 <br/>
-Ground-truth label distribution에서의 이러한 변형을, **label-smoothing regularization** 또는 **LSR**이라고 칭한다. **LSR**은 **largest logit이 나머지 logit들과의 차이가 매우 커지지 않게** 해준다.
+이와 같은 ground-truth label distribution의 변형을, **label-smoothing regularization** 또는 **LSR**이라고 칭한다. 이 **LSR**은 **largest logit이 나머지 logit들과의 차이가 매우 커지지 않게**하려는 목적을 달성할 수 있게 해준다.
 
 <br/>
-실제로 LSR을 적용하면, single $$q(k)$$는 1에 근접하며, 나머지는 모두 0에 근접한다. 또한, $$q'(k)$$는 큰 cross-entropy 값을 가지게 될 것이다. 그 이유는 $$q'(k)$$가 $$\delta_{k,y}$$ 와는 달리, positive lower bound를 가지기 때문이다.
+실제로 LSR이 적용되면, $$q'(k)$$는 큰 cross-entropy 값을 가지게 될 것이다. 그 이유는 $$q'(k)$$가 $$\delta_{k,y}$$ 와는 달리, positive lower bound를 가지기 때문이다.
 
 <br/>
 Cross-entropy를 고려하면, LSR에 대한 또 다른 수식을 얻을 수 있다.
@@ -573,7 +573,7 @@ Table.3은 6장에서 제안한 Inception-v2에 대한 실험 결과를 보여�
 
 ---
 ## 11. Conclusions
- CNN을 확장하기 위한 몇 가지 디자인 원칙을 제공하고, inception 구조에서 이에 대한 연구를 진행했다.
+이 논문에서는 CNN을 확장하기 위한 몇 가지 디자인 원칙을 제공하고, inception 구조에서 이에 대한 연구를 진행했다.
 
 <br/>
 제공한 원칙들을 따르면, 단순하고 일체화 된 구조에 비해, 적은 계산 비용을 갖는 고성능 비전 네트워크를 구성할 수 있게 해준다.
@@ -603,8 +603,6 @@ Inception-v3 모델 4개를 ensemble한 multi-crop 성능은 top-5 error가 3.5%
 적은 수의 parameter와 BN이 사용 된 보조 분류기, label-smoothing 기법이 함께 사용되면, 크지 않은 규모의 학습 데이터 상에서도, 고성능의 네트워크를 학습 할 수 있다.
 
 ---
-
-교정 중
 
 Keras 구현 코드 추가 예정
 
