@@ -603,6 +603,9 @@ Inception-v3 모델 4개를 ensemble한 multi-crop 성능은 top-5 error가 3.5%
 적은 수의 parameter와 BN이 사용 된 보조 분류기, label-smoothing 기법이 함께 사용되면, 크지 않은 규모의 학습 데이터 상에서도, 고성능의 네트워크를 학습 할 수 있다.
 
 ---
+
+교정 중
+
 Keras 구현 코드 추가 예정
 
 <br/>
