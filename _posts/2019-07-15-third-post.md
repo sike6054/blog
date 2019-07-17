@@ -607,8 +607,6 @@ Table.3은 6장에서 제안한 Inception-v2에 대한 실험 결과를 보여�
 
 <br/>
 우선 Fig.3, Fig.6, Fig.10의 각 inception module과 Fig.9의 reduction module을 구현하면 다음과 같다.
-
-<br/>
 ``` python
 def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu'):
     x = Conv2D(filters, (kernel_size[0], kernel_size[1]), padding=padding, strides=strides)(x)    
@@ -753,8 +751,6 @@ def Inception_v3(model_input):
 
 <br/>
 다음은 7장의 label smoothing과 8장의 learning rate 정책을 적용한다.
-
-<br/>
 ``` python
 classes = 10
 smoothing_param = 0.1
@@ -776,8 +772,6 @@ class LearningRateSchedule(Callback):
 
 <br/>
 위 코드들을 통합하여 학습하는 코드는 다음과 같다.
-
-<br/>
 ``` python
 from keras.models import Model, Input
 from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Activation, Dropout, Dense, Flatten, BatchNormalization, AveragePooling2D
