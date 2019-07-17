@@ -216,7 +216,7 @@ Fig.1은 5x5 convolution의 computational graph를 확대한 것이다. 각 출�
 >결과는 3.86 million iteration 후에 top-1 validation accuracy가 각각 76.2%와 77.2%로 측정됐다.
 
 <br/>
-저자들은 이러한 이득들이 네트워크가 학습할 수 있는 space of variation을 확대해준다고 보며, 특히 BN을 사용하는 경우에 그런 경향이 강하다고 한다. Dimension reduction에서 linear activation을 사용하는 경우에도 비슷한 효과를 볼 수 있다.
+저자들은 이러한 이득들이 네트워크가 학습할 수 있는 space of variation을 확대해준다고 보며, 특히 output activation을 [batch-normalize](https://arxiv.org/pdf/1502.03167.pdf)하는 경우에 그런 경향이 강하다고 한다. Dimension reduction에 linear activation을 사용하는 경우에도 비슷한 효과를 볼 수 있다고 한다.
 >네트워크가 학습할 수 있는 space of variation은, 모델의 capacity를 말한다.
 
 <br/>
@@ -463,6 +463,7 @@ $$u$$가 uniform distribution일 때의 $$H(u,p)$$는, predicted distribution인
 
 <br/>
 초반 실험에서는 decay가 0.9인 [momentum](https://www.cs.toronto.edu/~fritz/absps/momentum.pdf)을 사용했었으며, best model은 decay가 0.9인 [RMSProp](https://arxiv.org/pdf/1609.04747.pdf)과, $$\epsilon = 1.0$$을 사용할 때 얻었다.
+>여기서 $$\epsilon$$은 optimizer인 [RMSProp](https://arxiv.org/pdf/1609.04747.pdf)의 hyperparameter를 말한다.
 
 <br/>
 Learning rate는 0.045에서 시작하여, 두 번의 epoch마다 0.94를 곱했다. 또한, threshold가 2.0인 [gradient clipping](http://proceedings.mlr.press/v28/pascanu13.pdf)이 안정적인 학습에 도움된다는 것을 발견했다.
@@ -575,6 +576,284 @@ Table.3은 6장에서 제안한 Inception-v2에 대한 실험 결과를 보여�
 50000개의 example에 대해 평가했으며, 결과는 top-5 error에서 약 0.1%, top-1 error에서 약 0.2% 떨어졌다.
 >Test set 50000개에 대한 평가이고, validation set에 대한 성능과 비교한 것으로 보인다.
 
+<br/>
+대충 다 나왔으니, inception-v3를 keras로 구현해보자. 논문에서는 모델에 대한 자세한 설명이나, 도식이 따로 제공되지 않았다. [Tensorflow github](https://github.com/tensorflow/models/tree/master/research/inception)에 제공되는 모델의 도식은 아래와 같다.
+
+<br/>
+![Extra.2](/blog/images/Inception-v3, Extra.2(removed).png )
+>**Inception-v3 구조**
+
+<br/>
+위 구조는 논문의 설명과 다른 부분이 있다.
+
+- 네트워크 초반의 6번 째 layer
+>Table.3에 따르면, conv layer가 있을 자리다.
+
+- Inception module 안에서의 pooling method
+>논문에서는 따로 언급이 없었으므로, GoogLeNet에서와 같은 MaxPooling을 기본 pooling method로 고려한다.
+
+- 두 번째 inception block의 개수
+>Table.1에 따르면 5개가 와야하는데 4개만 있다.
+
+- Dimension reduction module의 형태
+>논문의 Fig.9와 다르며, 둘 끼리도 형태가 상이하다.
+
+<br/>
+이 외에도 [Tensorflow github](https://github.com/tensorflow/models/tree/master/research/inception)이나 [Keras github](https://github.com/keras-team/keras-applications/blob/master/keras_applications/inception_v3.py)에서 제공되는 코드는, 위 구조에 따라 작성됐다.
+
+<br/>
+아래의 keras 구현 코드는 논문의 구조에 맞춰서 구현했으며, 논문에 제공되지 않은 각종 hyperparameter는 위의 두 페이지에서 적당히 참조했다.
+>Inception module 내부의 각 conv filter 개수, dropout rate, loss weight 등을 포함한다.
+
+<br/>
+우선 Fig.3, Fig.6, Fig.10의 각 inception module과 Fig.9의 reduction module을 구현하면 다음과 같다.
+
+<br/>
+``` python
+def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu'):
+    x = Conv2D(filters, (kernel_size[0], kernel_size[1]), padding=padding, strides=strides)(x)    
+    x = BatchNormalization()(x)
+    
+    if activation:
+        x = Activation(activation='relu')(x)
+    
+    return x
+
+def inception_f3(input_tensor, filter_channels, name=None):
+    filter_b1, filter_b2, filter_b3, filter_b4 = filter_channels
+    
+    branch_1 = conv2d_bn(input_tensor, filter_b1[0], (1, 1))
+    branch_1 = conv2d_bn(branch_1, filter_b1[1], (3, 3))
+    branch_1 = conv2d_bn(branch_1, filter_b1[2], (3, 3))
+    
+    branch_2 = conv2d_bn(input_tensor, filter_b2[0], (1, 1))
+    branch_2 = conv2d_bn(branch_2, filter_b2[1], (3, 3))
+    
+    branch_3 = MaxPooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_3 = conv2d_bn(branch_3, filter_b3, (1, 1))
+    
+    branch_4 = conv2d_bn(input_tensor, filter_b4, (1, 1))
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if not name==None else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return filter_concat
+
+def inception_f6(input_tensor, filter_channels, n=7, name=None):
+    filter_b1, filter_b2, filter_b3, filter_b4 = filter_channels
+    
+    branch_1 = conv2d_bn(input_tensor, filter_b1[0], (1, 1))
+    branch_1 = conv2d_bn(branch_1, filter_b1[1], (1, n))
+    branch_1 = conv2d_bn(branch_1, filter_b1[2], (n, 1))
+    branch_1 = conv2d_bn(branch_1, filter_b1[3], (1, n))
+    branch_1 = conv2d_bn(branch_1, filter_b1[4], (n, 1))
+    
+    branch_2 = conv2d_bn(input_tensor, filter_b2[0], (1, 1))
+    branch_2 = conv2d_bn(branch_2, filter_b2[1], (1, n))
+    branch_2 = conv2d_bn(branch_2, filter_b2[2], (n, 1))
+    
+    branch_3 = MaxPooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_3 = conv2d_bn(branch_3, filter_b3, (1, 1))
+    
+    branch_4 = conv2d_bn(input_tensor, filter_b4, (1, 1))
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if not name==None else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return filter_concat
+
+def inception_f10(input_tensor, filter_channels, name=None):
+    filter_b1, filter_b2, filter_b3, filter_b4 = filter_channels
+    
+    branch_1 = conv2d_bn(input_tensor, filter_b1[0], (1, 1))
+    branch_1 = conv2d_bn(branch_1, filter_b1[1], (3, 3))
+    branch_1a = conv2d_bn(branch_1, filter_b1[2][0], (1, 3))
+    branch_1b = conv2d_bn(branch_1, filter_b1[2][1], (3, 1))
+    branch_1 = Concatenate()([branch_1a, branch_1b])
+    
+    branch_2 = conv2d_bn(input_tensor, filter_b2[0], (1, 1))
+    branch_2a = conv2d_bn(branch_2, filter_b2[1][0], (1, 3))
+    branch_2b = conv2d_bn(branch_2, filter_b2[1][1], (3, 1))
+    branch_2 = Concatenate()([branch_2a, branch_2b])
+    
+    branch_3 = MaxPooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_3 = conv2d_bn(branch_3, filter_b3, (1, 1))
+    
+    branch_4 = conv2d_bn(input_tensor, filter_b4, (1, 1))
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if not name==None else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return filter_concat
+    
+def inception_dim_reduction(input_tensor, filter_channels, name=None):
+    filter_b1, filter_b2 = filter_channels
+    
+    branch_1 = conv2d_bn(input_tensor, filter_b1[0], (1, 1))
+    branch_1 = conv2d_bn(branch_1, filter_b1[1], (3, 3))
+    branch_1 = conv2d_bn(branch_1, filter_b1[2], (3, 3), strides=2)
+    
+    branch_2 = conv2d_bn(input_tensor, filter_b2[0], (1, 1))
+    branch_2 = conv2d_bn(branch_2, filter_b2[1], (3, 3), strides=2)
+    
+    branch_3 = MaxPooling2D((3, 3), strides=2, padding='same')(input_tensor)
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3]) if not name==None else Concatenate()([branch_1, branch_2, branch_3])
+    
+    return filter_concat
+```
+
+<br/>
+다음은 위 module들을 이용해서 inception-v3 구조를 만든다.
+``` python
+def Inception_v3(model_input):
+    x = conv2d_bn(model_input, 32, (3, 3), padding='valid', strides=2) # (299, 299, 3) -> (149, 149, 32)
+    x = conv2d_bn(x, 32, (3, 3), padding='valid') # (147, 147, 32) -> (147, 147, 32)
+    x = conv2d_bn(x, 64, (3, 3), padding='same') # (147, 147, 32) -> (147, 147, 64)
+    
+    x = MaxPooling2D((3, 3), strides=2, padding='valid')(x) # (147, 147, 64) -> (73, 73, 64)
+    
+    x = conv2d_bn(x, 80, (3, 3), padding='valid') # (73, 73, 64) -> (71, 71, 80)
+    x = conv2d_bn(x, 192, (3, 3), padding='valid', strides=2) # (71, 71, 80) -> (35, 35, 192)
+    x = conv2d_bn(x, 288, (3, 3), padding='same') # (35, 35, 192) -> (35, 35, 288)
+    
+    x = inception_f3(x, [[64, 96, 96], [48, 64], 64 , 64]) # (35, 35, 288)
+    x = inception_f3(x, [[64, 96, 96], [48, 64], 64 , 64]) # (35, 35, 288)
+    x = inception_f3(x, [[64, 96, 96], [48, 64], 64 , 64], name='block_inception_f3') # (35, 35, 288)
+    
+    x = inception_dim_reduction(x, [[64, 96, 96], [256, 384]], name='block_reduction_1') # (35, 35, 288) -> (17, 17, 768)
+    
+    x = inception_f6(x, [[128, 128, 128, 128, 192], [128, 128, 192], 192, 192]) # (17, 17, 768)
+    x = inception_f6(x, [[160, 160, 160, 160, 192], [160, 160, 192], 192, 192]) # (17, 17, 768)
+    x = inception_f6(x, [[160, 160, 160, 160, 192], [160, 160, 192], 192, 192]) # (17, 17, 768)
+    x = inception_f6(x, [[192, 192, 192, 192, 192], [192, 192, 192], 192, 192]) # (17, 17, 768)
+    x_a = inception_f6(x, [[192, 192, 192, 192, 192], [192, 192, 192], 192, 192], name='block_inception_f6') # (17, 17, 768)
+    
+    x = inception_dim_reduction(x_a, [[128, 192, 192], [192, 320]], name='block_reduction_2') # (17, 17, 768) -> (8, 8, 1280)
+    
+    x = inception_f10(x, [[448, 384, [384, 384]], [384, [384, 384]], 192, 320]) # (8, 8, 1280) -> (8, 8, 2048)
+    x = inception_f10(x, [[448, 384, [384, 384]], [384, [384, 384]], 192, 320], name='block_inception_f10') # (8, 8, 2048)
+    
+    x = GlobalAveragePooling2D()(x)
+    x = Dropout(0.8)(x)
+    
+    x = Dense(classes, activation=None)(x)
+    
+    model_output = Dense(classes, activation='softmax', name='main_classifier')(x) # 'softmax'
+    
+    # Auxiliary Classifier
+    auxiliary = AveragePooling2D((5, 5), strides=3, padding='valid')(x_a) # (17, 17, 768) -> (5, 5, 768)
+    auxiliary = conv2d_bn(auxiliary, 128, (1, 1)) # (5, 5, 768) -> (5, 5, 128)
+    
+    auxiliary = conv2d_bn(auxiliary, 1024, K.int_shape(auxiliary)[1:3], activation=None) # (5, 5, 768) -> (1, 1, 1024)
+    auxiliary = Flatten()(auxiliary) # (1, 1, 1024)
+    auxiliary_output = Dense(classes, activation='softmax', name='auxiliary_classifier')(auxiliary)
+    
+    model = Model(model_input, [model_output, auxiliary_output])
+    
+    return model
+```
+
+<br/>
+다음은 7장의 label smoothing과 8장의 learning rate 정책을 적용한다.
+
+<br/>
+``` python
+classes = 10
+smoothing_param = 0.1
+
+def smoothed_categorical_crossentropy(y_true, y_pred): 
+    if smoothing_param > 0:
+        smooth_positives = 1.0 - smoothing_param 
+        smooth_negatives = smoothing_param / classes 
+        y_true = y_true * smooth_positives + smooth_negatives 
+
+    return K.categorical_crossentropy(y_true, y_pred)
+
+class LearningRateSchedule(Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        if (epoch+1)%2 == 0:
+            lr = K.get_value(self.model.optimizer.lr)
+            K.set_value(self.model.optimizer.lr, lr*0.94)
+```
+
+<br/>
+위 코드들을 통합하여 학습하는 코드는 다음과 같다.
+
+<br/>
+``` python
+from keras.models import Model, Input
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Activation, Dropout, Dense, Flatten, BatchNormalization, AveragePooling2D
+from keras.layers import Concatenate
+from keras.utils import to_categorical
+from keras.callbacks import Callback, ModelCheckpoint, CSVLogger
+from keras.optimizers import RMSprop
+from keras.datasets import cifar10
+
+import keras.backend as K
+import numpy as np
+
+classes = 10
+smoothing_param = 0.1
+
+def Upscaling_Data(data_list, reshape_dim):
+    ...
+
+def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu'):
+    ...
+
+def inception_f3(input_tensor, filter_channels, name=None):
+    ...
+
+def inception_f6(input_tensor, filter_channels, n=7, name=None):
+    ...
+
+def inception_f10(input_tensor, filter_channels, name=None):
+    ...
+
+def inception_dim_reduction(input_tensor, filter_channels, name=None):
+    ...
+
+def Inception_v3(model_input):
+    ...
+
+def smoothed_categorical_crossentropy(y_true, y_pred): 
+    ...
+
+class LearningRateSchedule(Callback):
+    ...
+
+input_shape = (299, 299, 3)
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+x_train = Upscaling_Data(x_train, input_shape)
+x_test = Upscaling_Data(x_test, input_shape)
+
+x_train = x_train.astype('float32')/255.
+x_test = x_test.astype('float32')/255.
+
+y_train = to_categorical(y_train, num_classes=classes)
+y_test = to_categorical(y_test, num_classes=classes)
+
+model_input = Input( shape=input_shape )
+
+model = Inception_v3(model_input)
+
+optimizer = RMSprop(lr=0.045, epsilon=1.0, decay=0.9)
+filepath = 'weights/' + model.name + '.h5'
+callbacks_list = [ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_weights_only=True, save_best_only=True, mode='auto', period=1),
+                  CSVLogger(model.name + '.log'),
+                  LearningRateSchedule()]
+
+model.compile(optimizer, 
+        	loss={'main_classifier' : smoothed_categorical_crossentropy,
+               'auxiliary_classifier' : smoothed_categorical_crossentropy},
+                loss_weights={'main_classifier' : 1.0, 
+                              'auxiliary_classifier' : 0.4},
+                metrics=['acc'])
+
+history = model.fit(x_train, [y_train, y_train], batch_size=32, epochs=100, validation_split=0.2, callbacks=callbacks_list)
+```
+>물론, 이번에도 CIFAR-10 데이터를 $$299\times 299\times 3$$로 upscaling하여 학습하는 코드다.
+
+
 ---
 ## 11. Conclusions
 이 논문에서는 CNN을 확장하기 위한 몇 가지 디자인 원칙을 제공하고, inception 구조에서 이에 대한 연구를 진행했다.
@@ -607,7 +886,6 @@ Inception-v3 모델 4개를 ensemble한 multi-crop 성능은 top-5 error가 3.5%
 적은 수의 parameter와 BN이 사용 된 보조 분류기, label-smoothing 기법이 함께 사용되면, 크지 않은 규모의 학습 데이터 상에서도, 고성능의 네트워크를 학습 할 수 있다.
 
 ---
-Keras 구현 코드 추가 예정
 
 <br/>
 <br/>
