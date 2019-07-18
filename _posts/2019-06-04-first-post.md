@@ -1,5 +1,5 @@
 ---
-title: "ResNet 논문 정리"
+title: "(ResNet) Deep residual learning for image recognition 번역 및 추가 설명과 Keras 구현"
 date: 2019-06-04 07:31:11 -0400
 tags: AI ComputerVision Paper ResNet
 categories: 
