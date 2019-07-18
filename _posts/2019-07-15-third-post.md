@@ -1,5 +1,5 @@
 ---
-title: "Inception-v3 논문 정리"
+title: "(Inception-v3) Rethinking the inception architecture for computer vision 번역 및 추가 설명과 Keras 구현"
 date: 2019-07-01 08:31:11 -0400
 tags: AI ComputerVision Paper Inception-v3
 categories:
