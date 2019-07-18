@@ -1,5 +1,5 @@
 ---
-title: "GoogLeNet 논문 정리"
+title: "(GoogLeNet) Going deeper with convolutions 번역 및 추가 설명과 Keras 구현"
 date: 2019-06-18 17:22:11 -0400
 tags: AI ComputerVision Paper GoogLeNet
 categories: 
