@@ -1,5 +1,5 @@
 ---
-title: "Inception-v4 논문 정리"
+title: "(Inception-v4) Inception-v4, inception-resnet and the impact of residual connections on learning 번역 및 추가 설명과 Keras 구현"
 date: 2019-07-18 08:29:11 -0400
 tags: AI ComputerVision Paper Inception-v4
 categories:
