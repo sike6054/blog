@@ -186,7 +186,7 @@ Inception 구조는 고도로 튜닝될 수 있다. 즉, 학습 후의 네트워
 
 <br/>
 ![Fig.7](/blog/images/Inception-v4, Fig.6(removed).png )
->**Fig.7** <br/>**Inception-v4**에서 grid size가 $$18\times 8$$일 때 사용되는 Inception block이다. Fig.3의 **Inception-C**에 해당한다.
+>**Fig.7** <br/>**Inception-v4**에서 grid size가 $$8\times 8$$일 때 사용되는 Inception block이다. Fig.3의 **Inception-C**에 해당한다.
 
 <br/>
 ![Fig.8](/blog/images/Inception-v4, Fig.7(removed).png )
