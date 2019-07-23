@@ -16,7 +16,7 @@ keras 코드 삽입 예정
 
 ## Paper Information
 
-SZEGEDY, Christian, et al. "Inception-v4, inception-resnet and the impact of residual connections on learning". In: Thirty-First AAAI Conference on Artificial Intelligence. 2017.
+SZEGEDY, Christian, et al. **"Inception-v4, inception-resnet and the impact of residual connections on learning"**. In: Thirty-First AAAI Conference on Artificial Intelligence. 2017.
 > a.k.a. [Inception-v4 paper](https://arxiv.org/pdf/1602.07261.pdf)
 
 
