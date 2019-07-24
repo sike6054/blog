@@ -11,9 +11,6 @@ toc: true
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-<br/>
-keras 코드 삽입 예정
-
 ## Paper Information
 
 SZEGEDY, Christian, et al. **"Inception-v4, inception-resnet and the impact of residual connections on learning"**. In: Thirty-First AAAI Conference on Artificial Intelligence. 2017.
@@ -201,6 +198,224 @@ Inception 구조는 고도로 튜닝될 수 있다. 즉, 학습 후의 네트워
 >**Fig.9** <br/>**Inception-v4**에서 grid size를 $$17\times 17$$에서 $$8\times 8$$로 줄일 때 사용하는 reduction module이며, Fig.3의 **Reduction-B**에 해당한다.
 
 <br/>
+이번에는 **Inception-v4**를 Keras로 구현해보자. **Fig.4**의 **Stem**은 다음과 같이 구현하면 다음과 같다.
+```python
+def Stem(input_tensor, version=None, name=None):
+    if version == 'Inception-v4' or version == 'Inception-ResNet-v2':
+        x = conv2d_bn(input_tensor, 32, (3, 3), padding='valid', strides=2) # 299x299x3 -> 149x149x32
+        x = conv2d_bn(x, 32, (3, 3), padding='valid') # 149x149x32 -> 147x147x32
+        x = conv2d_bn(x, 64, (3, 3)) # 147x147x32 -> 147x147x64
+        
+        branch_1 = MaxPooling2D((3, 3), padding='valid', strides=2)(x)
+        branch_2 = conv2d_bn(x, 96, (3, 3), padding='valid', strides=2)
+        x = Concatenate()([branch_1, branch_2]) # 73x73x160
+        
+        branch_1 = conv2d_bn(x, 64, (1, 1))
+        branch_1 = conv2d_bn(branch_1, 96, (3, 3), padding='valid')
+        branch_2 = conv2d_bn(x, 64, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 64, (7, 1))
+        branch_2 = conv2d_bn(branch_2, 64, (1, 7))
+        branch_2 = conv2d_bn(branch_2, 96, (3, 3), padding='valid')
+        x = Concatenate()([branch_1, branch_2]) # 71x71x192
+        
+        branch_1 = conv2d_bn(x, 192, (3, 3), padding='valid', strides=2) # Fig.4 is wrong
+        branch_2 = MaxPooling2D((3, 3), padding='valid', strides=2)(x)
+        x = Concatenate(name=name)([branch_1, branch_2]) if name else Concatenate()([branch_1, branch_2]) # 35x35x384
+        
+    elif version == 'Inception-ResNet-v1':
+        x = conv2d_bn(input_tensor, 32, (3, 3), padding='valid', strides=2) # 299x299x3 -> 149x149x32
+        x = conv2d_bn(x, 32, (3, 3), padding='valid') # 149x149x32 -> 147x147x32
+        x = conv2d_bn(x, 64, (3, 3)) # 147x147x32 -> 147x147x64
+        
+        x = MaxPooling2D((3, 3), strides=2, padding='valid')(x) # 147x147x64 -> 73x73x64
+        
+        x = conv2d_bn(x, 80, (1, 1)) # 73x73x64 -> 73x73x80
+        x = conv2d_bn(x, 192, (3, 3), padding='valid') # 73x73x80 -> 71x71x192U
+        x = conv2d_bn(x, 256, (3, 3), padding='valid', strides=2, name=name) # 71x71x192 -> 35x35x256
+        
+    else:
+        return None # Kill ^^
+    
+    return x
+```
+>**Stem**의 경우에는 **Inception-v4**와 **Inception-ResNet-v2**가 구조를 공유하고, **Inception-ResNet-v1**은 다른 구조를 사용한다. 3.2절의 residual 버전의 구현에서도 위의 Stem 함수를 사용한다.
+>
+>Fig.4의 **Stem** 구조에는 잘못된 부분이 있으며, 해당 코드의 후방에 주석으로 표시했다.
+>>Fig.4의 $$3\times 3$$ conv layer에서 **192 V**라고 나와있지만, 이렇게 수행되면 grid size에 차이가 생긴다. 다음 layer인 Filter concat의 shape에 맞춘다면 **192 stride 2 V**가 맞다.
+
+<br/>
+**Inception-v4**에서 사용하는 Inception module인 **Fig.5 ~ Fig.7**을 구현하면 다음과 같다.
+``` python
+def Inception_A(input_tensor, name=None):
+    branch_1 = AveragePooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_1 = conv2d_bn(branch_1, 96, (1, 1))
+    
+    branch_2 = conv2d_bn(input_tensor, 96, (1, 1))
+
+    branch_3 = conv2d_bn(input_tensor, 64, (1, 1))
+    branch_3 = conv2d_bn(branch_3, 96, (3, 3))
+    
+    branch_4 = conv2d_bn(input_tensor, 64, (1, 1))
+    branch_4 = conv2d_bn(branch_4, 96, (3, 3))
+    branch_4 = conv2d_bn(branch_4, 96, (3, 3))
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if name else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return filter_concat
+
+def Inception_B(input_tensor, name=None):
+    branch_1 = AveragePooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_1 = conv2d_bn(branch_1, 128, (1, 1))
+    
+    branch_2 = conv2d_bn(input_tensor, 384, (1, 1))
+    
+    branch_3 = conv2d_bn(input_tensor, 192, (1, 1))
+    branch_3 = conv2d_bn(branch_3, 224, (1, 7))
+    branch_3 = conv2d_bn(branch_3, 256, (7, 1)) # Fig.6 is wrong
+    
+    branch_4 = conv2d_bn(input_tensor, 192, (1, 1))
+    branch_4 = conv2d_bn(branch_4, 192, (1, 7))
+    branch_4 = conv2d_bn(branch_4, 224, (7, 1))
+    branch_4 = conv2d_bn(branch_4, 224, (1, 7))
+    branch_4 = conv2d_bn(branch_4, 256, (7, 1))
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if name else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return filter_concat
+
+def Inception_C(input_tensor, name=None):
+    branch_1 = AveragePooling2D((3, 3), strides=1, padding='same')(input_tensor)
+    branch_1 = conv2d_bn(branch_1, 256, (1, 1))
+    
+    branch_2 = conv2d_bn(input_tensor, 256, (1, 1))
+
+    branch_3 = conv2d_bn(input_tensor, 384, (1, 1))
+    branch_3a = conv2d_bn(branch_3, 256, (1, 3))
+    branch_3b = conv2d_bn(branch_3, 256, (3, 1))
+    branch_3 = Concatenate()([branch_3a, branch_3b])
+    
+    branch_4 = conv2d_bn(input_tensor, 384, (1, 1))
+    branch_4 = conv2d_bn(branch_4, 448, (1, 3))
+    branch_4 = conv2d_bn(branch_4, 512, (3, 1))
+    branch_4a = conv2d_bn(branch_4, 256, (1, 3))
+    branch_4b = conv2d_bn(branch_4, 256, (3, 1))
+    branch_4 = Concatenate()([branch_4a, branch_4b])
+    
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if name else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    return filter_concat
+```
+>**Fig.6**의 **Inception-B** 구조에도 잘못된 부분이 있으며, 해당 코드의 후방에 주석으로 표시했다.
+>>3번째 branch에서 $$1\times 1$$ conv layer 뒤에는 $$1\times 7$$ conv layer와 $$7\times 1$$ conv layer가 순서대로 와야하지만, **Fig.6**에는 $$1\times 7$$ 다음에도 $$1\times 7$$ conv layer가 오고있다.
+
+<br/>
+**Inception-v4**에서 사용하는 reduction module인 **Fig.8 ~ Fig.9**를 구현하면 다음과 같다.
+``` python
+reduction_table = {'Inception-v4' : [192, 224, 256, 384],
+                   'Inception-ResNet-v1' : [192, 192, 256, 384],
+                   'Inception-ResNet-v2' : [256, 256, 384, 384]}
+
+def Reduction_A(input_tensor, version=None, name=None):
+    k, l, m, n = reduction_table[version]
+
+    branch_1 = MaxPooling2D((3, 3), padding='valid', strides=2)(input_tensor)
+
+    branch_2 = conv2d_bn(input_tensor, n, (3, 3), padding='valid', strides=2)
+
+    branch_3 = conv2d_bn(input_tensor, k, (1, 1))
+    branch_3 = conv2d_bn(branch_3, l, (3, 3))
+    branch_3 = conv2d_bn(branch_3, m, (3, 3), padding='valid', strides=2)
+
+    filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3]) if name else Concatenate()([branch_1, branch_2, branch_3])
+
+    return filter_concat
+
+def Reduction_B(input_tensor, version=None, name=None):
+    if version == 'Inception-v4':
+        branch_1 = MaxPooling2D((3, 3), padding='valid', strides=2)(input_tensor)
+    
+        branch_2 = conv2d_bn(input_tensor, 192, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 192, (3, 3), padding='valid', strides=2)
+    
+        branch_3 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_3 = conv2d_bn(branch_3, 256, (1, 7))
+        branch_3 = conv2d_bn(branch_3, 320, (7, 1))
+        branch_3 = conv2d_bn(branch_3, 320, (3, 3), padding='valid', strides=2)
+    
+        filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3]) if name else Concatenate()([branch_1, branch_2, branch_3])
+
+    elif version == 'Inception-ResNet-v1':
+        branch_1 = MaxPooling2D((3, 3), padding='valid', strides=2)(input_tensor)
+    
+        branch_2 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 384, (3, 3), padding='valid', strides=2)
+    
+        branch_3 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_3 = conv2d_bn(branch_3, 256, (3, 3), padding='valid', strides=2)
+        
+        branch_4 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_4 = conv2d_bn(branch_4, 256, (3, 3))
+        branch_4 = conv2d_bn(branch_4, 256, (3, 3), padding='valid', strides=2)
+    
+        filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if name else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+
+    elif version == 'Inception-ResNet-v2':
+        branch_1 = MaxPooling2D((3, 3), padding='valid', strides=2)(input_tensor)
+    
+        branch_2 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 384, (3, 3), padding='valid', strides=2)
+    
+        branch_3 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_3 = conv2d_bn(branch_3, 288, (3, 3), padding='valid', strides=2)
+        
+        branch_4 = conv2d_bn(input_tensor, 256, (1, 1))
+        branch_4 = conv2d_bn(branch_4, 288, (3, 3))
+        branch_4 = conv2d_bn(branch_4, 320, (3, 3), padding='valid', strides=2)
+    
+        filter_concat = Concatenate(name=name)([branch_1, branch_2, branch_3, branch_4]) if name else Concatenate()([branch_1, branch_2, branch_3, branch_4])
+    
+    else:
+        return None # Kill ^^
+    
+    return filter_concat
+```
+>**Reduction-A**의 경우에는 **Inception-v4**와 **Inception-ResNet-v1**, **Inception-ResNet-v2**가 모두 구조를 공유하며, filter의 개수만 Table.1을 따른다. 이는 `reduction_table`이라는 이름으로 딕셔너리 변수를 선언해서 사용하고 있다.
+>
+>**Reduction-B**의 경우에는 각 모델이 다른 구조를 사용하지만, 블록의 이름이 같기 때문에 하나의 함수로 구현했다.
+>>**Inception-ResNet-v1**과 **Inception-ResNet-v2**의 경우에는 구조가 동일하지만, filter의 개수에 차이가 있다.
+
+<br/>
+위의 모듈들을 이용하는 **Inception-v4** 구조인 **Fig.3**을 구현하면 다음과 같다.
+``` python
+def Inception_v4(model_input, classes=1000):
+    version = 'Inception-v4'
+    
+    x = Stem(model_input, version=version, name='Stem') # (299, 299, 3) -> (35, 35, 384)
+    
+    for i in range(4):
+        x = Inception_A(x, name='Inception-A-'+str(i+1)) # (35, 35, 384)
+    
+    x = Reduction_A(x, version=version, name='Reduction-A') # (35, 35, 384) -> (17, 17, 1024)
+    
+    for i in range(7):
+        x = Inception_B(x, name='Inception-B-'+str(i+1)) # (17, 17, 1024)
+
+    x = Reduction_B(x, version=version, name='Reduction-B') # (17, 17, 1024) -> (8, 8, 1536)
+    
+    for i in range(3):
+        x = Inception_C(x, name='Inception-C-'+str(i+1)) # (8, 8, 1536)
+    
+    x = GlobalAveragePooling2D()(x) # (1536)
+    x = Dropout(0.8)(x)
+    
+    model_output = Dense(classes, activation='softmax', name='output')(x)
+
+    model = Model(model_input, model_output, name='Inception-v4')
+    
+    return model
+```
+
+<br/>
 ### 3.2 Residual Inception Blocks
 Residual 버전의 Inception network에서는, 기존의 Inception에서 사용된 것보다 더 저렴한 비용의 Inception block을 사용한다.
 
@@ -219,6 +434,8 @@ Residual Inception에 대한 여러 버전을 시도했으며, 그 중 2가지�
 <br/>
 ![Fig.10](/blog/images/Inception-v4, Fig.15(removed).png )
 >**Fig.10** <br/>**Inception-ResNet-v1**과 **Inception-ResNet-v2**의 전체 구조에 대한 개요다.
+>
+>각 block의 우측에 표시된 shape은 **Inception-ResNet-v1** 기준이다.
 
 <br/>
 **Inception-ResNet-v1**에서 사용 된 각 모듈의 자세한 구조는 다음과 같다.
@@ -301,6 +518,168 @@ Residual을 누적 된 layer activation에 추가하기 전에 **scaling down**�
 
 <br/>
 저자들은 또한, 이 방법 대신 residual을 scaling하는 것이 훨씬 더 안정적이라는 것을 알아냈다.이러한 scaling이 엄밀히 꼭 필요한 것은 아니며, 최종 성능에 해를 끼치지 않으면서 학습의 안정화에 도움이 되는 것이라 한다.
+
+<br/>
+이번에는 **Inception-ResNet-v1**과 **Inception-ResNet-v2**에서 사용하는 Inception module을 차례대로 구현해보자. 단순 구현이므로, 3.2절의 마지막에서 언급한 trade-off를 가볍게 무시하고 [BN](https://arxiv.org/pdf/1502.03167.pdf)을 사용하도록 한다.
+
+<br/>
+우선 residual 버전에서 사용하는 **scaling down**인 **Fig.20**을 구현하면 다음과 같다.
+```python
+def Scaling_Residual(Inception, scale):
+    x = Lambda(lambda Inception, scale: Inception * scale, arguments={'scale': scale})(Inception)
+    x = Activation(activation='relu')(x)
+    
+    return x
+```
+>Connection을 위한 addition 연산 전에 수행된다.
+
+<br/>
+**Inception-ResNet-v1**과 **Inception-ResNet-v2**에서 사용하는 Inception module인 **{Fig.12 ~ Fig.19} - {Fig.14, Fig.18}**를 구현하면 다음과 같다.
+``` python
+def Inception_ResNet_A(input_tensor, scale=0.1, version=None, name=None):   
+    if version == 'Inception-ResNet-v1':
+        branch_1 = conv2d_bn(input_tensor, 32, (1, 1))
+    
+        branch_2 = conv2d_bn(input_tensor, 32, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 32, (3, 3))
+        
+        branch_3 = conv2d_bn(input_tensor, 32, (1, 1))
+        branch_3 = conv2d_bn(branch_3, 32, (3, 3))
+        branch_3 = conv2d_bn(branch_3, 32, (3, 3))
+        
+        branches = Concatenate()([branch_1, branch_2, branch_3])
+        Inception = conv2d_bn(branches, 256, (1, 1), activation=None)
+    
+    elif version == 'Inception-ResNet-v2':
+        branch_1 = conv2d_bn(input_tensor, 32, (1, 1))
+    
+        branch_2 = conv2d_bn(input_tensor, 32, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 32, (3, 3))
+        
+        branch_3 = conv2d_bn(input_tensor, 32, (1, 1))
+        branch_3 = conv2d_bn(branch_3, 48, (3, 3))
+        branch_3 = conv2d_bn(branch_3, 64, (3, 3))
+        
+        branches = Concatenate()([branch_1, branch_2, branch_3])
+        Inception = conv2d_bn(branches, 384, (1, 1), activation=None)
+    
+    else:
+        return None # Kill ^^
+    
+    scaled_activation = Scaling_Residual(Inception, scale=scale)
+    
+    residual_connection = Add(name=name)([input_tensor, scaled_activation]) if name else Add()([input_tensor, scaled_activation])
+    
+    return residual_connection
+
+def Inception_ResNet_B(input_tensor, scale=0.1, version=None, name=None):
+    if version == 'Inception-ResNet-v1':
+        branch_1 = conv2d_bn(input_tensor, 128, (1, 1))
+        
+        branch_2 = conv2d_bn(input_tensor, 128, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 128, (1, 7))
+        branch_2 = conv2d_bn(branch_2, 128, (7, 1))
+        
+        branches = Concatenate()([branch_1, branch_2])
+        Inception = conv2d_bn(branches, 896, (1, 1), activation=None)
+    
+    elif version == 'Inception-ResNet-v2':
+        branch_1 = conv2d_bn(input_tensor, 192, (1, 1))
+        
+        branch_2 = conv2d_bn(input_tensor, 128, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 160, (1, 7))
+        branch_2 = conv2d_bn(branch_2, 192, (7, 1))
+        
+        branches = Concatenate()([branch_1, branch_2])
+        Inception = conv2d_bn(branches, 1152, (1, 1), activation=None) # Fig.17 is wrong
+    
+    else:
+        return None # Kill ^^
+    
+    scaled_activation = Scaling_Residual(Inception, scale=scale)
+    
+    residual_connection = Add(name=name)([input_tensor, scaled_activation]) if name else Add()([input_tensor, scaled_activation])
+    
+    return residual_connection
+
+def Inception_ResNet_C(input_tensor, scale=0.1, version=None, name=None):    
+    if version == 'Inception-ResNet-v1':
+        branch_1 = conv2d_bn(input_tensor, 192, (1, 1))
+        
+        branch_2 = conv2d_bn(input_tensor, 192, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 192, (1, 3))
+        branch_2 = conv2d_bn(branch_2, 192, (3, 1))
+        
+        branches = Concatenate()([branch_1, branch_2])
+        Inception = conv2d_bn(branches, 1792, (1, 1), activation=None)
+    
+    elif version == 'Inception-ResNet-v2':
+        branch_1 = conv2d_bn(input_tensor, 192, (1, 1))
+        
+        branch_2 = conv2d_bn(input_tensor, 192, (1, 1))
+        branch_2 = conv2d_bn(branch_2, 224, (1, 3))
+        branch_2 = conv2d_bn(branch_2, 256, (3, 1))
+        
+        branches = Concatenate()([branch_1, branch_2])
+        Inception = conv2d_bn(branches, 2144, (1, 1), activation=None) # Fig.19 is wrong
+    
+    else:
+        return None # Kill ^^
+    
+    scaled_activation = Scaling_Residual(Inception, scale=scale)
+    
+    residual_connection = Add(name=name)([input_tensor, scaled_activation]) if name else Add()([input_tensor, scaled_activation])
+    
+    return residual_connection
+```
+>이번에도 **Inception_ResNet_v2**의 **Inception_ResNet_B**와 **Inception_ResNet_C**인 **Fig.17**과 **Fig.19**에 잘못된 부분이 있다. 입력과 출력의 shape을 고려하면 위의 구현이 맞다.
+
+<br/>
+위의 모듈들을 이용하는 **Inception-ResNet-v1**과 **Inception-ResNet-v2**의 구조인 **Fig.10**을 구현하면 다음과 같다.
+``` python
+def Inception_ResNet(model_input, version='Inception-ResNet-v2', classes=1000):    
+    x = Stem(model_input, version=version, name='Stem')
+    # Inception-ResNet-v1 : (299, 299, 3) -> (35, 35, 256)
+    # Inception-ResNet-v2 : (299, 299, 3) -> (35, 35, 384)
+    
+    for i in range(5):
+        x = Inception_ResNet_A(x, scale=0.17, version=version, name='Inception-ResNet-A-'+str(i+1))
+        # Inception-ResNet-v1 : (35, 35, 256)
+        # Inception-ResNet-v2 : (35, 35, 384)
+        
+    x = Reduction_A(x, version=version, name='Reduction-A')
+    # Inception-ResNet-v1 : (35, 35, 256) -> (17, 17, 896)
+    # Inception-ResNet-v2 : (35, 35, 384) -> (17, 17, 1152)
+    
+    for i in range(10):
+        x = Inception_ResNet_B(x, scale=0.1, version=version, name='Inception-ResNet-B-'+str(i+1))
+        # Inception-ResNet-v1 : (17, 17, 896)
+        # Inception-ResNet-v2 : (17, 17, 1152)
+
+    x = Reduction_B(x, version=version, name='Reduction-B') # (17, 17, 1024) -> (8, 8, 1536)
+    # Inception-ResNet-v1 : (17, 17, 896) -> (8, 8, 1792)
+    # Inception-ResNet-v2 : (17, 17, 1152) -> (8, 8, 2144)
+    
+    for i in range(5):
+        x = Inception_ResNet_C(x, scale=0.2, version=version, name='Inception-ResNet-C-'+str(i+1))
+        # Inception-ResNet-v1 : (8, 8, 1792)
+        # Inception-ResNet-v2 : (8, 8, 2144)
+    
+    x = GlobalAveragePooling2D()(x)
+    # Inception-ResNet-v1 : (1792)
+    # Inception-ResNet-v2 : (2144)
+    
+    x = Dropout(0.8)(x)
+    
+    model_output = Dense(classes, activation='softmax', name='output')(x)
+
+    model = Model(model_input, model_output, name=version)
+    
+    return model
+```
+>학습 코드는 [이전 포스트](https://sike6054.github.io/blog/paper/third-post/#8-training-methodology)의 Inception-v3 학습 코드에서, label smoothing과 auxiliary_classifier 부분만 제외하면 동일하기 때문에 생략한다.
+>
+>Scaling factor는 [Keras github](https://github.com/keras-team/keras-applications/blob/master/keras_applications/inception_resnet_v2.py)을 참조했다. 여기에 구현 된 **Inception-ResNet-v2**는 논문과는 다른 구조로 구현되어 있다.
 
 ---
 ## 4. Training Methodology
