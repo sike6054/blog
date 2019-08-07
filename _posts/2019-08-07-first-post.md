@@ -1,7 +1,7 @@
 ---
 title: "대용량 데이터를 빠르게 받아보자."
 date: 2019-08-07 15:42:11 -0400
-tags: AI Install Environment
+tags: AI Install Environment Axel
 categories:
   - etc
 comments: true
