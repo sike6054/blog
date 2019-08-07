@@ -62,11 +62,11 @@ toc: true
 비교에 사용 된 데이터는 ILSVRC 2012 classification dataset 중 validation set으로, 용량은 6.3GB 이다.
 
 <br/>
-![Fig.1](/blog/images/1.Axel, wget.PNG)
+![Fig.1](/blog/images/2.Axel, wget.PNG)
 >**wget**의 다운로드 속도는 최대 3.02MB/s 정도로 측정됐다.
 
 <br/>
-![Fig.2](/blog/images/1.Axel, axel.PNG)
+![Fig.2](/blog/images/2.Axel, axel.PNG)
 >**axel**의 다운로드 속도는 한도 끝도 없이 올라가더니, 최대 15.79MB/s 정도로 측정됐다.
 
 <br/>
@@ -76,17 +76,17 @@ ImageNet 데이터를 다운로드한다고 몇 차례 사용했었는데, 통�
 <br/>
 다운로드가 완료될 때는 다음과 같다.
 
-![Fig.3](/blog/images/1.Axel, result.PNG)
+![Fig.3](/blog/images/2.Axel, result.PNG)
 >각 connection들의 다운로드가 비동기적으로 완료된다.
 
 <br/>
 이후에 GUI로 사이트에서 직접 다운로드도 테스트 해봤을 때, 측정 된 속도는 다음과 같았다.
 
- - (GUI) 200~400KB/s
+ - (**GUI**) 200~400KB/s
  
- - (wget) 340KB/s
+ - (**wget**) 340KB/s
 
- - (axel) 1MB/s
+ - (**axel**) 1MB/s
 
 >마찬가지로 ImageNet에 대한 다운로드 속도이므로, 비교에 대한 100% 신뢰는 못한다. 어찌됐건, **axel**이 가장 빠른 것만은 눈에 보일 정도였다.
 
@@ -101,8 +101,9 @@ ImageNet 데이터를 다운로드한다고 몇 차례 사용했었는데, 통�
 # 3. 참고 자료
 <br/>
 [Link-1](http://manpages.ubuntu.com/manpages/trusty/man1/axel.1.html)
-[Link-2](https://deviantcj.tistory.com/290)
-[Link-3](https://zetawiki.com/wiki/%EC%9A%B0%EB%B6%84%ED%88%AC_axel_%EC%84%A4%EC%B9%98)
+<br/>[Link-2](https://deviantcj.tistory.com/290)
+<br/>[Link-3](https://zetawiki.com/wiki/%EC%9A%B0%EB%B6%84%ED%88%AC_axel_%EC%84%A4%EC%B9%98)
+
 
 <br/>
 <br/>
