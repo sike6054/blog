@@ -107,21 +107,18 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.Error)
 ![Fig.6](/blog/images/Warning, 2.Result.png )
 
 <br/>
-ERROR 메시지는 출력하도록 작성되어 있는데, 이는 GPU 관련 에러가 발생 시에는 중지되지 않고 CPU로 수행하는 경우가 있기 때문이다.
+각 해결 방법들이 ERROR 메시지는 출력하도록 작성되어 있는데, 이는 GPU 관련 에러가 발생 시에는 중지되지 않고 CPU로 수행하는 경우가 있기 때문이다.
 
 <br/>
-물론 Warning이라는 의미를 생각한다면, 무작정 무시하기보다는 어떤 내용이 있는지 가끔씩 체크해주는 것이 좋다.
+물론 Warning이 가지는 의미를 생각한다면, 무작정 무시하기보다는 어떤 내용이 있는지 가끔씩 체크해주는 것이 좋다.
 
 <br/>
 ---
 # 3. 참고 자료
-[Link-1](https://stackoverflow.com/questions/35911252/disable-tensorflow-debugging-information)
-
-[Link-2](https://stackoverflow.com/questions/35869137/avoid-tensorflow-print-on-standard-error)
-
-[Link-3](https://insightcampus.co.kr/tensorflow15/)
-
-[Link-4](https://unix.stackexchange.com/questions/369361/downgrading-numpy-1-12-1-to-1-10-1)
+[Link-1](https://stackoverflow.com/questions/35911252/disable-tensorflow-debugging-information)<br/>
+[Link-2](https://stackoverflow.com/questions/35869137/avoid-tensorflow-print-on-standard-error)<br/>
+[Link-3](https://insightcampus.co.kr/tensorflow15/)<br/>
+[Link-4](https://unix.stackexchange.com/questions/369361/downgrading-numpy-1-12-1-to-1-10-1)<br/>
 
 <br/>
 <br/>
