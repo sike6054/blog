@@ -305,19 +305,18 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 필자가 현재까지 설치한 패키지 목록은 다음과 같다.
 
 <br/>
-```
-conda install pandas
-conda install scikit-learn
-conda install Pillow
-conda install tqdm
-conda install opencv
-conda install scikit-image
-
-conda install -c conda-forge bdw-gc
-conda install -c conda-forge geos
-conda install -c conda-forge imgaug 
-```
+`conda install pandas`
+`conda install scikit-learn`
+`conda install Pillow`
+`conda install tqdm`
 >**tqdm** 설치 시에 **ImportError: IntProgress not found. Please update jupyter and ipywidgets** 에러가 나온다면, `conda install -c conda-forge ipywidgets`를 먼저 수행하면 된다.
+
+`conda install opencv`
+`conda install scikit-image`
+`conda install -c conda-forge bdw-gc`
+`conda install -c conda-forge geos`
+`conda install -c conda-forge imgaug `
+
 
 
 <br/>
