@@ -9,8 +9,10 @@ toc: true
 
 ---
 
+<br/>
 # 0. Intro
 Keras를 설치하고 코드를 수행하면 아래와 같은 끔찍한 메시지를 볼 수 있다.
+
 ![Fig.1](/blog/images/Warning, 0.Warnings.png )
 >매우 끔찍하다. 물론 사용자의 환경이나 코드에 따라, 메시지의 종류나 양이 다를 수 있다.
 >
@@ -36,8 +38,6 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 <br/>
 ---
 # 1. Warning 제거 방법
-
-<br/>
 ## 1.1 Information
 아래와 같은 메시지들은 거의 Warning이 아닌 기본 정보들이다.
 
