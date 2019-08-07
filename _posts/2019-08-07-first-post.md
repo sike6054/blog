@@ -62,11 +62,11 @@ toc: true
 비교에 사용 된 데이터는 ILSVRC 2012 classification dataset 중 validation set으로, 용량은 6.3GB 이다.
 
 <br/>
-![Fig.1](/blog/images/2.Axel, wget.PNG)
+![Fig.1](/blog/images/Axel, 2.wget.PNG)
 >**wget**의 다운로드 속도는 최대 3.02MB/s 정도로 측정됐다.
 
 <br/>
-![Fig.2](/blog/images/2.Axel, axel.PNG)
+![Fig.2](/blog/images/Axel, 2.axel.PNG)
 >**axel**의 다운로드 속도는 한도 끝도 없이 올라가더니, 최대 15.79MB/s 정도로 측정됐다.
 
 <br/>
@@ -76,7 +76,7 @@ ImageNet 데이터를 다운로드한다고 몇 차례 사용했었는데, 통�
 <br/>
 다운로드가 완료될 때는 다음과 같다.
 
-![Fig.3](/blog/images/2.Axel, result.PNG)
+![Fig.3](/blog/images/Axel, 2.result.PNG)
 >각 connection들의 다운로드가 비동기적으로 완료된다.
 
 <br/>
