@@ -276,22 +276,50 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 `(your_name) python test_resnet.py`
 
 <br/>
-최신 버전을 설치하다 보면, 각종 warning을 마주하게 된다.
-- **successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero**
->[링크](https://hiseon.me/data-analytics/tensorflow/tensorflow-numa-node-error/)를 참조하면 간단히 해결할 수 있다.
-
-<br/>
-- **The name tf.is_variable_initialized is deprecated. Please use tf.compat.v1.is_variable_initialized instead.**류의 Warning
->비슷한 Warning이 다수 목격될 수도 있다. 무시하도록 하는 방법도 있지만, 손이 빠르다면 직접 소스파일을 수정하는 무식한 방법도 약이 된다.
-
-<br/>
 ![Fig.7](/blog/images/Keras_Instll, 2-7.Example.PNG )
 >예제 실행 결과다.
 
 <br/>
-# 3. 끝
+# 3. 추가 사항
+
+<br/>
+## 3.1 CPU로 동작하는 경우
+코드 실행 시, 아래의 그림과 같은 메시지가 출력되면 CPU로 동작하고 있는 것이다.
+
+<br/>
+![Fig.8](/blog/images/Keras_Instll, 3-1.CPU_running.PNG )
+>CPU로 학습할 땐 OpenMP로 동작한다.
+
+<br/>
+다음의 명령어를 수행하면, Anaconda 패키지에서 제공되는 가장 최신 버전의 tensorflow로 설치된다.
+
+<br/>
+`(your name) conda install -c anaconda tensorflow-gpu`
+>CPU로만 학습한다면 `tensorflow-gpu` 대신 `tensorflow`를 쓰면 된다.
+
+<br/>
+## 3.2 패키지 설치
+작업을 하다보면 설치하게 될 패키지가 많다. 매번 마주할 때마다 설치해줘도 되지만, 자주 사용되는건 미리 설치하면 편하다.
+
+<br/>
+필자가 현재까지 설치한 패키지 목록은 다음과 같다.
+
+<br/>
+```
+conda install pandas
+conda install scikit-learn
+conda install Pillow
+conda install tqdm
+conda install opencv
+conda install scikit-image
+
+conda install -c conda-forge bdw-gc
+conda install -c conda-forge geos
+conda install -c conda-forge imgaug 
+```
+>**tqdm** 설치 시에 **ImportError: IntProgress not found. Please update jupyter and ipywidgets** 에러가 나온다면, `conda install -c conda-forge ipywidgets`를 먼저 수행하면 된다.
+
 
 <br/>
 <br/>
 {% include disqus.html %}
-
