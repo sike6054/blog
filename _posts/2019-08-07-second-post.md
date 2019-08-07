@@ -11,8 +11,6 @@ toc: true
 
 # 0. Intro
 Keras를 설치하고 코드를 수행하면 아래와 같은 끔찍한 메시지를 볼 수 있다.
-
-<br/>
 ![Fig.1](/blog/images/Warning, 0.Warnings.png )
 >매우 끔찍하다. 물론 사용자의 환경이나 코드에 따라, 메시지의 종류나 양이 다를 수 있다.
 >
@@ -27,21 +25,20 @@ Keras를 설치하고 코드를 수행하면 아래와 같은 끔찍한 메시�
 <br/>
 짧게 요약하자면, 아래의 커맨드 한 줄 수행과 코드 삽입이 해결 방법이다.
 
+<br/>
 `export TF_CPP_MIN_LOG_LEVEL=2`
 
-<br/>
 ``` python
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 ```
 
+---
 # 1. Warning 제거 방법
 
 <br/>
 ## 1.1 Information
 아래와 같은 메시지들은 거의 Warning이 아닌 기본 정보들이다.
-
-<br/>
 ![Fig.2](/blog/images/Warning, 1.1.Info.png )
 
 <br/>
@@ -52,14 +49,11 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 <br/>
 각 레벨에 대한 정보는 아래의 그림을 참조하자.
-
-<br/>
 ![Fig.3](/blog/images/Warning, 1.1.Level.png )
 
 <br/>
 아래의 코드로도 해결할 수 있지만 매번 코드에 삽입해야한다. Parameter로 받아서 제어하고 싶다면 이를 사용하자.
 
-<br/>
 ``` python
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -68,8 +62,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 <br/>
 ## 1.2 Tensorflow
 아래와 같은 메시지들은 Tensorflow 버전이 바뀌면서 발생하는 Future Warning 류이다. 
-
-<br/>
 ![Fig.4](/blog/images/Warning, 1.2.Tensorflow.png )
 
 <br/>
@@ -84,20 +76,14 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.Error)
 <br/>
 ## 1.3 Numpy
 아래와 같은 메시지는 설치된 Tensorflow에서 권장하는 것보다 상위 버전의 numpy를 사용하는 경우에 생기는 메시지라고 한다.
-
-<br/>
 ![Fig.5](/blog/images/Warning, 1.3.Numpy_future_warning.png )
 
 <br/>
 이 때의 numpy 버전은 다음과 같다.
-
-<br/>
 ![Fig.6](/blog/images/Warning, 1.3.Numpy_version.png )
 
 <br/>
 반면, 위 메시지가 출력되지 않는 numpy의 버전을 확인하면 다음과 같다.
-
-<br/>
 ![Fig.6](/blog/images/Warning, 1.3.Numpy_version_conda.png )
 
 <br/>
@@ -106,6 +92,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.Error)
 `pip3 install --upgrade numpy==1.16.4`
 >Anaconda에서는 다운그레이드 명령어가 다를 수 있다.
 
+---
 # 2. Warning 제거 결과
 
 <br/>
@@ -117,6 +104,12 @@ ERROR 메시지는 출력하도록 작성되어 있는데, 이는 GPU 관련 에
 <br/>
 물론 Warning이라는 의미를 생각한다면, 무작정 무시하기보다는 어떤 내용이 있는지 가끔씩 체크해주는 것이 좋다.
 
+---
+# 3. 참고 자료
+[Link-1](https://stackoverflow.com/questions/35911252/disable-tensorflow-debugging-information)
+[Link-2](https://stackoverflow.com/questions/35869137/avoid-tensorflow-print-on-standard-error)
+[Link-3](https://insightcampus.co.kr/tensorflow15/)
+[Link-4](https://unix.stackexchange.com/questions/369361/downgrading-numpy-1-12-1-to-1-10-1)
 
 <br/>
 <br/>
