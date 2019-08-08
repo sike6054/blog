@@ -21,7 +21,7 @@ Anaconda의 가상 환경에다가 세팅을 한 탓인지, CLI 환경으로 접
 자동 활성화를 해제하려면, 다음의 명령어를 수행하면 된다.
 
 `conda activate base`
-<br/>`conda config --set auto_activate_base false`
+<br/>`(base) conda config --set auto_activate_base false`
 
 <br/>
 ---
