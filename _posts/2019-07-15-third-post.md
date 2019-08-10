@@ -5,6 +5,8 @@ tags: AI ComputerVision Paper Inception-v3
 categories:
   - Paper
 toc: true
+sitemap :
+  priority : 1.0
 ---
 
 <script type="text/javascript" async
