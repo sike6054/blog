@@ -110,7 +110,7 @@ Input에서 output까지의 모든 layer의 경우, 각 layer를 통과하는 �
 <br/>
 ### (2) Higher dimensional representations are easier to process locally within a network
 CNN에서 activations per tile을 늘리면 disentangled feature를 많이 얻을 수 있으며, 네트워크가 더 빨리 학습하게 될 것이다.
->Conv layer의 filter map 개수를 늘리면, 다양한 경우의 activated feature map을 탐지할 수 있고, 이를 통해 네트워크의 학습이 빨라질 수 있다는 뜻으로 보인다. (modify)
+>Conv layer의 filter map 개수를 늘리면, 다양한 경우의 activated feature map을 탐지할 수 있고, 이를 통해 네트워크의 학습이 빨라질 수 있다는 뜻으로 보인다.
 
 <br/>
 ### (3) Spatial aggregation can be done over lower dimensional embeddings without much or any loss in representational power
