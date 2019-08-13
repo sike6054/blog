@@ -742,7 +742,7 @@ def Inception_v3(model_input):
     auxiliary = AveragePooling2D((5, 5), strides=3, padding='valid')(x_a) # (17, 17, 768) -> (5, 5, 768)
     auxiliary = conv2d_bn(auxiliary, 128, (1, 1)) # (5, 5, 768) -> (5, 5, 128)
     
-    auxiliary = conv2d_bn(auxiliary, 1024, K.int_shape(auxiliary)[1:3], activation=None) # (5, 5, 768) -> (1, 1, 1024)
+    auxiliary = conv2d_bn(auxiliary, 1024, K.int_shape(auxiliary)[1:3], padding='valid') # (5, 5, 768) -> (1, 1, 1024)
     auxiliary = Flatten()(auxiliary) # (1, 1, 1024)
     auxiliary_output = Dense(classes, activation='softmax', name='auxiliary_classifier')(auxiliary)
     
