@@ -491,6 +491,33 @@ def bottleneck_projection(input_tensor, filter_sizes, strides=2):
 def ResNet50(model_input, classes=10):
 	...
 
+
+class stop_on_iteration(Callback):   
+    def __init__(self, iteration=1):
+        self.cnt_batch = 0
+        self.iteration = iteration
+        super(Callback, self).__init__()
+        
+    def on_batch_end(self, batch, logs={}):
+        self.cnt_batch += 1
+        if self.cnt_batch == self.iteration:
+            self.model.stop_training = True
+            
+    def on_epoch_end(self, epoch, logs={}):
+        if self.model.stop_training:
+            if len(self.validation_data):
+                import keras.backend as K
+                from keras.losses import categorical_crossentropy
+                from keras.metrics import categorical_accuracy
+                x_val = self.validation_data[0]
+                y_val = self.validation_data[1]
+                pred = self.model.predict(x_val)
+
+                val_loss = np.mean(K.eval(categorical_crossentropy(K.constant(y_val), K.constant(pred))))
+                val_acc = np.sum(K.eval(categorical_accuracy(K.constant(y_val), K.constant(pred))))/len(x_val)
+            
+            print('\n\nloss: %.4f - acc: %.4f - val_loss: %.4f - val_acc: %.4f' % (logs['loss'], logs['acc'], val_loss, val_acc))
+
 input_shape = (224, 224, 3)
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
@@ -509,14 +536,20 @@ model = plain18(model_input, 10)
 #model = ResNet18(model_input, 10)
 #model = ResNet50(model_input, 10)
 
+validation_split = 0.2
+batch_size = 256
+iteration = 600000
+epochs = round( (batch_size*iteration) / (len(x_train)*(1-validation_split)) )
 optimizer = SGD(lr=0.1, decay=0.0001, momentum=0.9)
-callbacks_list = [ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=1)]
+callbacks_list = [stop_on_iteration(iteration)]
 
 model.compile(optimizer, 'categorical_crossentropy', ['acc'])
 
-model.fit(x_train, y_train, batch_size=256, epochs=600000, validation_split=0.2, callbacks=callbacks_list)
+model.fit(x_train, y_train, batch_size=256, epochs=epochs, validation_split=validation_split, callbacks=callbacks_list)
 ```
->물론 실험 PC의 스펙이 좋지 않은 이상, 이 크기의 입력을 *batch_size=256*으로 돌리려 한다면 **OOM**을 보게 될 것이다.
+>Keras의 iteration 단위로 구현하려면 train_on_batch() 함수를 사용하는게 정석이지만, 귀찮기 때문에 callback으로 구현했다.
+>
+>물론 실험 PC의 스펙이 좋지 않은 이상, 이 크기의 입력을 `batch_size=256`으로 돌리려 한다면 **OOM**을 보게 될 것이다.
 
 <br/>
 
@@ -597,6 +630,12 @@ ResNet의 경우, 이 분석에서 residual function의 response 강도가 드�
 또한, 이 논문에서는 [maxout](https://arxiv.org/pdf/1302.4389.pdf)이나 [dropout](https://arxiv.org/pdf/1207.0580.pdf)과 같은 강력한 regularization 기법을 사용하지 않았으며, 이와 같은 기법을 결합한다면 향상된 결과를 얻어낼 수 있을거라 생각된다.
 
 
+---
+
+### 2019-08-14 수정
+Keras 구현에서 60K iteration만큼 동작하는 정상적인 코드로 수정
+
+<br/>
 ---
 
 <br/>
