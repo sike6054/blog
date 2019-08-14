@@ -541,7 +541,7 @@ batch_size = 256
 iteration = 600000
 epochs = round( (batch_size*iteration) / (len(x_train)*(1-validation_split)) )
 optimizer = SGD(lr=0.1, decay=0.0001, momentum=0.9)
-callbacks_list = [stop_on_iteration(iteration)]
+callbacks_list = [stop_on_iteration(iteration), ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=1)]
 
 model.compile(optimizer, 'categorical_crossentropy', ['acc'])
 
@@ -633,7 +633,7 @@ ResNet의 경우, 이 분석에서 residual function의 response 강도가 드�
 ---
 
 ### 2019-08-14 수정
-Keras 구현에서 60K iteration만큼 동작하도록 수정
+Keras 구현에서 60K iteration만큼 동작하도록 callback 함수 구현
 
 <br/>
 ---
