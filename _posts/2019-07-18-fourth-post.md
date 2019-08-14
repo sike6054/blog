@@ -656,7 +656,7 @@ def Inception_ResNet(model_input, version='Inception-ResNet-v2', classes=1000):
         # Inception-ResNet-v1 : (17, 17, 896)
         # Inception-ResNet-v2 : (17, 17, 1152)
 
-    x = Reduction_B(x, version=version, name='Reduction-B') # (17, 17, 1024) -> (8, 8, 1536)
+    x = Reduction_B(x, version=version, name='Reduction-B')
     # Inception-ResNet-v1 : (17, 17, 896) -> (8, 8, 1792)
     # Inception-ResNet-v2 : (17, 17, 1152) -> (8, 8, 2144)
     
