@@ -633,7 +633,7 @@ ResNet의 경우, 이 분석에서 residual function의 response 강도가 드�
 ---
 
 ### 2019-08-14 수정
-Keras 구현에서 60K iteration만큼 동작하는 정상적인 코드로 수정
+Keras 구현에서 60K iteration만큼 동작하도록 수정
 
 <br/>
 ---
