@@ -307,21 +307,21 @@ ImageNet과 JFT에서는 서로 다른 optimization configuration을 사용했�
 <br/>
 ### 4.3. Regularization configuration
 
-#### Weight decay
+### Weight decay
 Inception-v3은 rate가 4e-5인 weight decay(L2 regularization)를 사용하여, ImageNet의 성능에 맞게 신중하게 조정됐다. Xception에서는 이 rate가 매우 부적합하기 때문에, 1e-5를 사용한다.
 
 <br/>
 Optimal weight decay rate에 대한 광범위한 탐색은 하지 않았으며, ImageNet과 JFT에 대한 실험 모두에서 동일한 weight decay rate가 사용됐다.
 
 <br/>
-#### Dropout
+### Dropout
 ImageNet 실험의 경우, 두 모델 모두 rate가 0.5인 dropout layer를 logistic regression layer의 앞에 포함한다.
 
 <br/>
 JFT 실험의 경우, dataset의 크기를 고려하면 적절한 시간 내에 overfitting 될 수가 없으므로 dropout이 포함되지 않는다.
 
 <br/>
-#### Auxiliary loss tower
+### Auxiliary loss tower
 Inception-v3 아키텍처에서는 네트워크의 초반부에 classification loss를 역전파하여, 추가적인 regularization 메커니즘으로 사용하기 위한 auxiliary loss tower를 선택적으로 포함할 수 있다.
 
 <br/>
@@ -492,7 +492,7 @@ model.fit(x_train, y_train, batch_size=32, epochs=100, validation_split=0.2, cal
 <br/>
 ### 4.5. Comparison with Inception V3
 
-#### 4.5.1 Classification performance
+### 4.5.1 Classification performance
 모든 평가는 single crop과 single model에 대해 수행됐다.
 
 <br/>
@@ -549,7 +549,7 @@ Xception 아키텍처는 ImageNet dataset보다 JFT dataset에 대해 더 큰 �
 즉, ImageNet dataset에 더 적합한 hyperparameter를 찾는다면 상당한 추가적 성능 향상을 얻을 수 있을거라 볼 수 있다.
 
 <br/>
-#### 4.5.2 Size and speed
+### 4.5.2 Size and speed
 **Table.3**에서는 Inception-v3와 Xception의 크기 및 속도를 비교한다.
 >크기는 trainable parameter의 개수로 측정된다.
 
