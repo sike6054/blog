@@ -56,7 +56,7 @@ CNN 설계의 역사는 feature extraction을 위한 간단한 **convolution**�
 >2014년의 [GoogLeNet](https://arxiv.org/pdf/1409.4842.pdf)(Inception V1)을 시작으로, [Inception-v2](https://arxiv.org/pdf/1502.03167.pdf)와 [Inception-v3](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf), 가장 최근에는 [Inception-ResNet](https://arxiv.org/pdf/1602.07261.pdf)으로 개선됐다.
 
 <br/>
-Inception은 처음 소개 된 이후로 [ImageNet dataset](https://arxiv.org/pdf/1409.0575.pdf)과 Google에서 사용하는 internal dataset에 대해 가장 성능이 우수한 모델 군 중 하나였다.
+Inception은 처음 소개 된 이후로 [ImageNet dataset](https://arxiv.org/pdf/1409.0575.pdf)과 Google에서 사용하는 internal dataset(JFT)에 대해 가장 성능이 우수한 모델 군 중 하나였다.
 >특히 [JFT](https://arxiv.org/pdf/1503.02531.pdf)에서 성능이 좋았다고 함.
 
 <br/>
