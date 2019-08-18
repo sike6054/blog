@@ -334,7 +334,7 @@ JFT에 대해 학습 된 모델의 성능 평가를 위해, 보조 dataset인 **
 ### 4.2. Optimization configuration
 ImageNet과 JFT에서는 서로 다른 optimization configuration을 사용했다.
 
-### On ImageNet**
+### On ImageNet
  - Optimizer : SGD
 
  - Momentum : 0.9
@@ -342,6 +342,7 @@ ImageNet과 JFT에서는 서로 다른 optimization configuration을 사용했�
  - Initial learning rate : 0.045
  
  - Learning rate decay : decay of rate 0.94 every 2 epochs
+
 <br/>
 ### On JFT
  - Optimizer : RMSprop
