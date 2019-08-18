@@ -343,7 +343,6 @@ ImageNet과 JFT에서는 서로 다른 optimization configuration을 사용했�
  
  - Learning rate decay : decay of rate 0.94 every 2 epochs
 
-<br/>
 ### On JFT
  - Optimizer : RMSprop
 
