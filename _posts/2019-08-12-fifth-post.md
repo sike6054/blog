@@ -138,6 +138,22 @@ spatial convolution per output channel of the 1x1 convolution.
 >**Inception**에서는 두 operation 모두 non-linearity로 ReLU가 뒤따르는 반면, **separable convolution**은 일반적으로 non-linearity 없이 구현된다.
 
 <br/>
+이 둘을 Keras code로 비교를 하면 다음과 같다.
+``` python
+## Extreme version of an Inception module
+x = Conv2D(32, (1, 1), use_bias=False)(x)
+x = DepthwiseConv2D(3, activation='relu')(x)
+
+## Separable convolution
+x = DepthwiseConv2D(3, use_bias=False)(x)
+x = Conv2D(32, (1, 1), activation='relu')(x)
+
+```
+>Conv2D에서 (1, 1) convolution filter를 사용하면 pointwise convolution이 된다.
+>
+>본 절의 후반에 있는 코드에서 설명하겠지만, 선행하는 layer에서는 bias를 사용하지 않는다.
+
+<br/>
 첫 번째 차이점은 중요하지 않지만, 두 번째 차이점은 중요할 수 있으므로 실험 파트에서 조사한다. (**Fig.10** 참조)
 >저자들은 이러한 operation들이 stacked setting에서 사용되기 때문에, 첫 번째 차이점은 중요하지 않다고 주장한다.
 
@@ -165,8 +181,48 @@ spatial convolution per output channel of the 1x1 convolution.
 >즉, depthwise separable convolution을 stacking한 모델이 된다.
 
 <br/>
-이는 TensorFlow에서 사용할 수 있는 효율적인 depthwise separable convolution으로 실현된다.
->당연히 Keras에서도 **SeparableConv2D**라는 이름의 layer로 제공된다.
+이는 TensorFlow에서 사용할 수 있는 효율적인 depthwise separable convolution으로 실현되며, Keras에서도 **SeparableConv2D**라는 이름의 layer로 제공된다.
+
+<br/>
+아까 separable convolution의 선행하는 layer가 bias를 사용하지 않는다고 언급했는데, Kears code로 정확히 알아보자. 우선 **separable convolution layer**를 사용하는 방법은 다음과 같다.
+``` python
+# Separable Convolution
+x = DepthwiseConv2D(3, use_bias=False)(x)
+x = Conv2D(32, (1, 1), activation='relu')(x)
+
+# Separable Convolution using SeparableConv2D
+x = SeparableConv2D(32, 3, activation='relu')(x)
+```
+>Random seed와 weight를 고정하여, 둘의 동작이 완전히 동일함을 직접 확인했다.
+
+<br/>
+이번에는 선행하는 layer가 bias를 사용하지 않는다는 것을 weight dimension으로 확인해보자. d우선 다음과 같이 간단한 모델을 구현한다.
+``` python
+model_input = Input( shape=input_shape )
+
+x = Conv2D(16, 3, activation='relu')(model_input)
+x = SeparableConv2D(24, 3, activation='relu')(x)
+x = SeparableConv2D(32, 3, activation='relu')(x)
+x = SeparableConv2D(32, 3, activation='relu')(x)
+x = SeparableConv2D(48, 3, activation='relu')(x)
+x = SeparableConv2D(64, 3, activation='relu')(x)
+
+x = GlobalAveragePooling2D()(x)
+x = Dense(10, activation='softmax')(x)
+
+model = Model(model_input, x)
+```
+>목적 달성만을 위해 기능 활용을 최소화 한 모델이다.
+
+<br/>
+위의 모델에서 **SeparableConv2D**의 weight를 찍어서 확인해보면 다음과 같다.
+
+<br/>
+![Extra.1](/blog/images/Xception, Extra.1(removed).png )
+>SeparableConv2D layer의 weight dimensions
+>
+>왼쪽에서부터 depthwise convolution, pointwise convolution, bias 순서이다. 확인해보면 bias는 하나 뿐이며, dimension이 pointwise convolution에 맞춰져 있음을 알 수 있다.
+
 
 <br/>
 다음은 이 아이디어를 기반으로하면서, Inception-v3과 비슷한 수의 parameter를 사용하는 CNN 구조를 제시하고, 두 개의 large-scale image classification 작업에서 성능을 평가한다.
@@ -488,6 +544,28 @@ model.fit(x_train, y_train, batch_size=32, epochs=100, validation_split=0.2, cal
 >논문에 설명되지 않은 paramter 값은 적당히 설정했다.
 >
 >역시 CIFAR-10 dataset을 resize하여 학습하는 코드다.
+
+<br/>
+여기서 **depth multiplier**가 1이라는 것이 뭔지 알아보기 위해, 아래와 같이 정의한 모델에서 각 SeparableConv2D의 weight dimension을 출력해보자.
+``` python
+model_input = Input( shape=input_shape )
+
+x = Conv2D(16, 3, activation='relu')(model_input)
+x = SeparableConv2D(24, 3, activation='relu')(x)
+x = SeparableConv2D(32, 3, depth_multiplier=2, activation='relu')(x)
+x = SeparableConv2D(32, 3, activation='relu')(x)
+x = SeparableConv2D(48, 3, depth_multiplier=3, activation='relu')(x)
+x = SeparableConv2D(64, 3, activation='relu')(x)
+
+x = GlobalAveragePooling2D()(x)
+x = Dense(10, activation='softmax')(x)
+
+model = Model(model_input, x)
+```
+
+<br/>
+![Extra.2](/blog/images/Xception, Extra.2(removed).png )
+>확인해보면 depth_multiplier 값에 따라 depthwise convolution에 사용되는 filter의 개수가 달라지며, 이에 따라 pointwise convolution의 input channel도 달라지는 것을 알 수 있다.
 
 <br/>
 ### 4.5. Comparison with Inception V3
