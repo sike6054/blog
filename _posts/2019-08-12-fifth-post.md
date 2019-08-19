@@ -142,10 +142,10 @@ spatial convolution per output channel of the 1x1 convolution.
 ``` python
 ## Extreme version of an Inception module
 x = Conv2D(32, (1, 1), use_bias=False)(x)
-x = DepthwiseConv2D(3, activation='relu')(x)
+x = DepthwiseConv2D((3, 3), activation='relu')(x)
 
 ## Separable convolution
-x = DepthwiseConv2D(3, use_bias=False)(x)
+x = DepthwiseConv2D((3, 3), use_bias=False)(x)
 x = Conv2D(32, (1, 1), activation='relu')(x)
 
 ```
@@ -187,11 +187,11 @@ x = Conv2D(32, (1, 1), activation='relu')(x)
 아까 separable convolution의 선행하는 layer가 bias를 사용하지 않는다고 언급했는데, Kears code로 정확히 알아보자. 우선 **separable convolution layer**를 사용하는 방법은 다음과 같다.
 ``` python
 # Separable Convolution
-x = DepthwiseConv2D(3, use_bias=False)(x)
+x = DepthwiseConv2D((3, 3), use_bias=False)(x)
 x = Conv2D(32, (1, 1), activation='relu')(x)
 
 # Separable Convolution using SeparableConv2D
-x = SeparableConv2D(32, 3, activation='relu')(x)
+x = SeparableConv2D(32, (3, 3), activation='relu')(x)
 ```
 >Random seed와 weight를 고정하여, 둘의 동작이 완전히 동일함을 직접 확인했다.
 
@@ -200,12 +200,12 @@ x = SeparableConv2D(32, 3, activation='relu')(x)
 ``` python
 model_input = Input( shape=input_shape )
 
-x = Conv2D(16, 3, activation='relu')(model_input)
-x = SeparableConv2D(24, 3, activation='relu')(x)
-x = SeparableConv2D(32, 3, activation='relu')(x)
-x = SeparableConv2D(32, 3, activation='relu')(x)
-x = SeparableConv2D(48, 3, activation='relu')(x)
-x = SeparableConv2D(64, 3, activation='relu')(x)
+x = Conv2D(16, (3, 3), activation='relu')(model_input)
+x = SeparableConv2D(24, (3, 3), activation='relu')(x)
+x = SeparableConv2D(32, (3, 3), activation='relu')(x)
+x = SeparableConv2D(32, (3, 3), activation='relu')(x)
+x = SeparableConv2D(48, (3, 3), activation='relu')(x)
+x = SeparableConv2D(64, (3, 3), activation='relu')(x)
 
 x = GlobalAveragePooling2D()(x)
 x = Dense(10, activation='softmax')(x)
@@ -550,12 +550,12 @@ model.fit(x_train, y_train, batch_size=32, epochs=100, validation_split=0.2, cal
 ``` python
 model_input = Input( shape=input_shape )
 
-x = Conv2D(16, 3, activation='relu')(model_input)
-x = SeparableConv2D(24, 3, activation='relu')(x)
-x = SeparableConv2D(32, 3, depth_multiplier=2, activation='relu')(x)
-x = SeparableConv2D(32, 3, activation='relu')(x)
-x = SeparableConv2D(48, 3, depth_multiplier=3, activation='relu')(x)
-x = SeparableConv2D(64, 3, activation='relu')(x)
+x = Conv2D(16, (3, 3), activation='relu')(model_input)
+x = SeparableConv2D(24, (3, 3), activation='relu')(x)
+x = SeparableConv2D(32, (3, 3), depth_multiplier=2, activation='relu')(x)
+x = SeparableConv2D(32, (3, 3), activation='relu')(x)
+x = SeparableConv2D(48, (3, 3), depth_multiplier=3, activation='relu')(x)
+x = SeparableConv2D(64, (3, 3), activation='relu')(x)
 
 x = GlobalAveragePooling2D()(x)
 x = Dense(10, activation='softmax')(x)
