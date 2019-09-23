@@ -34,11 +34,11 @@
 
     @include breakpoint($large) {
       float: right;
-      width: span(10 of 12);
+      width: span(11 of 12); // span(10 of 12);
     }
 
     @include breakpoint($x-large) {
-      padding-left: gutter(0.5 of 12);
+      padding-left: gutter(0.5 of 12); // gutter(0.5 of 12);
     }
   }
 
