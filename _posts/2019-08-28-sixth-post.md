@@ -224,12 +224,12 @@ Convolutional network를 통과하는 single image $$x_0$$를 고려하자.
 여기서 $$H_{\ell}(\cdot)$$는 [BN](https://arxiv.org/pdf/1502.03167.pdf), ReLU, Pooling, Convolution과 같은 연산의 복합 함수가 될 수 있다.
 
 <br/>
-또한, $$\ell^{th}$$ layer의 출력을 $$x_{\ell}로 표시한다.
+또한, $$\ell^{th}$$ layer의 출력을 $$x_{\ell}$$로 표시한다.
 
 <br/>
 ### ResNets
 Traditional concolutional feed-forward network는 $$\ell^{th}$$ layer의 출력을 $$(\ell+1)^{th}$$ layer의 입력으로 연결하여, 다음과 같은 layer transition을 발생시킨다.
->**$$x_{\ell} = H_{\ell}(x_{\ell-1})**
+>**$$x_{\ell} = H_{\ell}(x_{\ell-1})$$**
 
 <br/>
 [ResNet](https://arxiv.org/pdf/1512.03385.pdf)은 identity function으로 non-linear transformation을 우회하는 skip-connection을 추가한다. (**Eqn.1** 참조)
@@ -364,19 +364,19 @@ ImageNet을 제외한 모든 dataset에 대한 실험에는, 각각 동일한 �
 
 <br/>
 **Basic DenseNet**
-- $${L = 40, k = 12}$$
+- $${L = 40, k = 12}$$.
 
-- $${L = 100, k = 12}$$
+- $${L = 100, k = 12}$$.
 
-- $${L = 100, k = 24}$$
+- $${L = 100, k = 24}$$.
 
 <br/>
 **DenseNet-BC**
-- $${L = 100, k = 12}$$
+- $${L = 100, k = 12}$$.
 
-- $${L = 250, k = 24}$$
+- $${L = 250, k = 24}$$.
 
-- $${L = 190, k = 40}$$
+- $${L = 190, k = 40}$$.
 
 <br/>
 ImageNet에 대한 실험에서는 224x224 크기의 input image에 4개의 dense block이 있는 DenseNet-BC 구조를 사용한다.
