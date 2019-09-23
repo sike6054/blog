@@ -39,7 +39,8 @@
     }
 
     @include breakpoint($x-large) {
-      padding-left: gutter(0.5 of 12); // gutter(0.5 of 12);
+      float: right;
+      width: span(11 of 12); //padding-left: gutter(0.5 of 12); // gutter(0.5 of 12);
     }
   }
 
