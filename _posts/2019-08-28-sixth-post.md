@@ -21,7 +21,7 @@ Keras 구현 코드 삽입 예정.
 
 ---
 ## Abstract
-입력에 가까운 layer와 출력에 가까운 layer 사이에 shorter connection이 포함되면, 더 깊고 정확하면서 효율적으로 학습할 수 있다. (check)
+입력에 가까운 layer와 출력에 가까운 layer 사이에 shorter connection이 포함되면, 더 깊고 정확하면서 효율적으로 학습할 수 있다.
 
 <br/>
 이 논문에서는 이러한 관찰을 받아들여, feed-forward 방식으로 각 layer를 다른 모든 layer에 연결한 **DenseNet**을 소개한다.
@@ -125,7 +125,29 @@ Dense connectivity pattern에서 중복되는 feature-map은 다시 학습할 �
 - **DenseNet**은 네트워크에 추가 된 정보와 보존 된 정보를 명시적으로 구분한다.
 
 <br/>
-DenseNet의 layer는 very narrow(e.g. 12 filters per layer)하며 네트워크의 "collective knowledge"에 작은 feature-map set만 추가하고, 나머지 feature-map은 변경하지 않는다. 또한, 최종 classifier는 네트워크의 모든 feature-map에 기반하여 결정한다.(check)
+DenseNet의 layer는 very narrow(e.g. 12 filters per layer)하며 네트워크의 "collective knowledge"에 적은 수의 feature-map set만 추가하고, 나머지 feature-map은 변경하지 않는다. 또한, 최종 classifier는 네트워크의 모든 feature-map에 기반하여 결정한다.
+>Feature-map의 concatenation과 feature reuse에 관련한 내용이다.
+
+<br/>
+더 나은 parameter efficiency 외에도, DenseNet의 큰 장점 중 하나는 네트워크 전체에서 개선 된 information flow와 gradient를 통해 쉽게 학습할 수 있다는 것이다.
+
+<br/>
+각 layer는 loss function과 original input signal로부터의 gradient에 직접 액세스 할 수 있으므로, 유사 deep supervision이 이루어진다. 이는 deeper network architecture의 학습에 도움된다.
+>[Deeply Supervised Network(DSN)](https://arxiv.org/pdf/1409.5185.pdf)에 대한 내용, 포스트 후반부 참조.
+
+<br/>
+또한, dense connection은 regularizing effect를 포함하므로, 더 작은 training set에 대한 overfitting을 줄인다.
+>[stochastic depth](https://arxiv.org/pdf/1603.09382.pdf)에 대한 내용, 포스트 후반부 참조.
+
+<br/>
+경쟁이 치열한 4가지 benchmark dataset에서 DenseNet의 성능을 평가한다.
+>**CIFAR-10, CIFAR-100, SVHN, ImageNet**에 해당
+
+<br/>
+DenseNet은 기존의 알고리즘보다 훨씬 적은 수의 parameter를 요구하는 경향이 있다.
+
+<br/>
+또한, DenseNet은 대부분의 benchmark에서 state-of-the-art 성능을 능가한다.
 
 ---
 ## 2. Related Work
@@ -349,7 +371,7 @@ Bottleneck layer와 $$\theta \lt 1$$ 인 transition layer를 모두 사용하는
 ### Implementation Details
 ImageNet을 제외한 모든 dataset에 대한 실험에는, 각각 동일한 수의 layer를 가진 3개의 dense block으로 구성 된 DenseNet을 사용한다.
 
-- 첫 번째 dense block에 들어가기 전에, input image를 입력으로 하며, 16개(혹은 DenseNet-BC growth rate의 2배)의 feature-map을 출력으로 하는 convolution이 수행된다. (check)
+- 첫 번째 dense block에 들어가기 전에, input image를 입력으로 하며, 16개(DenseNet-BC는 growth rate의 2배)의 feature-map을 출력으로 하는 convolution이 수행된다.
 
 - Kernel size가 3x3인 conv layer의 경우, feature-map의 크기를 고정하기 위해 zero-padding을 사용한다.
 
@@ -722,7 +744,7 @@ $$(\ell, s)$$ 위치의 pixel이 빨간색인 것은, $$\ell$$이 평균적으�
 >이는 information이 몇 개의 간접적인 방향을 통해 first-to-last layer로 이동 함을 나타낸다.
 
 - 두 번째 및 세 번째 dense block 내의 layer는 transition layer의 출력(첫 번째 행)에 최소한의 weight만 일관되게 할당한다.
->Transition layer가 중복된 feature(평균 weight가 낮은)를 많이 출력한다는 것을 나타내며, 이는 이러한 출력이 compression되는 DenseNet-BC의 결과와 정확하게 일치한다. (check)
+>Transition layer가 중복된 feature(평균 weight가 낮은)를 많이 출력한다는 것을 나타내며, 이는 이러한 출력이 compression되는 DenseNet-BC의 결과와 정확하게 일치한다.
 
 - 맨 오른쪽에 표시된 final classification layer도 전체 dense block의 weight를 사용하긴 하지만, 최종 feature-map에 집중하는 것으로 보인다.
 >이는 네트워크에서 늦게 생성되는 high-level feature들이 더 있을 수 있음을 나타낸다.
