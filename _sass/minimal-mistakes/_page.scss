@@ -13,10 +13,12 @@
   max-width: 100%;
   -webkit-animation-delay: 0.15s;
   animation-delay: 0.15s;
-
+  
+  /*
   @include breakpoint($x-large) {
     max-width: $max-width;
   }
+  */
 }
 
 .page {
@@ -154,9 +156,9 @@
       padding-left: 1em;
       padding-right: 1em;
 
-      @include breakpoint($x-large) {
+      /*@include breakpoint($x-large) {
         max-width: $x-large;
-      }
+      }*/
     }
 
     .page__title,
@@ -450,10 +452,7 @@
   @include breakpoint($large) {
     width: calc(100% - 100px);
   }
-  
-  @include breakpoint($x-large) {
-    width: calc(100% - 100px);
-  }
+
 }
 
 .comment__author {
