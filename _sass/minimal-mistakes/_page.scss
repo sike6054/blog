@@ -13,12 +13,10 @@
   max-width: 100%;
   -webkit-animation-delay: 0.15s;
   animation-delay: 0.15s;
-  
-  
+
   @include breakpoint($x-large) {
     max-width: $max-width;
   }
-  
 }
 
 .page {
@@ -29,8 +27,8 @@
   }
 
   @include breakpoint($x-large) {
-    width: calc(100% - #{$right-sidebar-width});  // -narrow
-    padding-right: $right-sidebar-width; // -narrow
+    width: calc(100% - #{$right-sidebar-width-narrow});  // -narrow
+    padding-right: $right-sidebar-width-narrow; // -narrow
   }
 
   .page__inner-wrap {
@@ -444,7 +442,6 @@
   @include breakpoint($large) {
     width: calc(100% - 100px);
   }
-
 }
 
 .comment__author {
@@ -478,6 +475,10 @@
   @include breakpoint($large) {
     float: right;
     width: calc(100% - #{$right-sidebar-width-narrow});
+  }
+
+  @include breakpoint($x-large) {
+    width: calc(100% - #{$right-sidebar-width});
   }
 
   a {
