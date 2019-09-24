@@ -446,10 +446,6 @@
   @include breakpoint($large) {
     width: calc(100% - 100px);
   }
-  
-  @include breakpoint($x-large) {
-    width: calc(100% - 100px);
-  }
 }
 
 .comment__author {
