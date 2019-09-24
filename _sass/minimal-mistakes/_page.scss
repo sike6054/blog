@@ -14,11 +14,11 @@
   -webkit-animation-delay: 0.15s;
   animation-delay: 0.15s;
   
-  /*
+  
   @include breakpoint($x-large) {
     max-width: $max-width;
   }
-  */
+  
 }
 
 .page {
@@ -156,9 +156,9 @@
       padding-left: 1em;
       padding-right: 1em;
 
-      /*@include breakpoint($x-large) {
+      @include breakpoint($x-large) {
         max-width: $x-large;
-      }*/
+      }
     }
 
     .page__title,
@@ -205,10 +205,6 @@
   border-radius: $border-radius 0 0 0;
 
   @include breakpoint($large) {
-    padding: 5px 10px;
-  }
-  
-  @include breakpoint($x-large) {
     padding: 5px 10px;
   }
 
