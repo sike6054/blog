@@ -340,10 +340,6 @@
   @include breakpoint($large) {
     grid-template-columns: repeat(3, 1fr);
   }
-  
-  @include breakpoint($x-large) {
-    grid-template-columns: repeat(3, 1fr);
-  }
 
   a {
     display: -webkit-box;
