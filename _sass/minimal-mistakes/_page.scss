@@ -338,6 +338,10 @@
   @include breakpoint($large) {
     grid-template-columns: repeat(3, 1fr);
   }
+  
+  @include breakpoint($x-large) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
   a {
     display: -webkit-box;
@@ -442,6 +446,10 @@
   @include breakpoint($large) {
     width: calc(100% - 100px);
   }
+  
+  @include breakpoint($x-large) {
+    width: calc(100% - 100px);
+  }
 }
 
 .comment__author {
@@ -478,7 +486,7 @@
   }
 
   @include breakpoint($x-large) {
-    width: calc(100% - #{$right-sidebar-width});
+    width: calc(100% - #{$right-sidebar-width-narrow}); // -narrow
   }
 
   a {
