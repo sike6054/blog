@@ -27,8 +27,8 @@
   }
 
   @include breakpoint($x-large) {
-    width: calc(100% - #{$right-sidebar-width});  // -narrow
-    padding-right: $right-sidebar-width; // -narrow
+    width: calc(100% - #{$right-sidebar-width-narrow});  // -narrow
+    padding-right: $right-sidebar-width-narrow; // -narrow
   }
 
   .page__inner-wrap {
