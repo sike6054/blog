@@ -46,7 +46,7 @@ Deep network는 low/mid/high-level feature와 classifier를 end-to-end multi-lay
 >논문이 작성될 당시 기준으로 16~30 layer(ILSVRC 2014)는 그 이전(~8 layer, ~ILSVRC 2013)에 비해 상당히 깊어진 모델이다.
 
 <br/>
-Depth의 중요성이 부각되며, _'Is learning better networks as easy as stacking more layers?'_와 같은 궁금증이 생겨났다. 여기에는 초기 단계에서부터 수렴을 방해하는 vanishing/exploding gradient라는 문제가 있었지만, 'normalized initialization'과 'intermediate normalization' 기법의 연구를 통해 대부분 해결됐다.
+Depth의 중요성이 부각되며, *'Is learning better networks as easy as stacking more layers?'*와 같은 궁금증이 생겨났다. 여기에는 초기 단계에서부터 수렴을 방해하는 vanishing/exploding gradient라는 문제가 있었지만, 'normalized initialization'과 'intermediate normalization' 기법의 연구를 통해 대부분 해결됐다.
 >두 기법 중, 전자는 xavier/he initialization 등으로 잘 알려진 'weight initialization' 기법으로 생각하면 되고, 후자는 'batch normalization'을 생각하면 된다.
 
 <br/>
