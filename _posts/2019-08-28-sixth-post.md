@@ -250,7 +250,7 @@ Convolutional network를 통과하는 single image $$x_0$$를 고려하자.
 
 <br/>
 ### ResNets
-Traditional concolutional feed-forward network는 $$\ell^{th}$$ layer의 출력을 $$(\ell+1)^{th}$$ layer의 입력으로 연결하여, 다음과 같은 layer transition을 발생시킨다.
+Traditional convolutional feed-forward network는 $$\ell^{th}$$ layer의 출력을 $$(\ell+1)^{th}$$ layer의 입력으로 연결하여, 다음과 같은 layer transition을 발생시킨다.
 >**$$x_{\ell} = H_{\ell}(x_{\ell-1})$$**
 
 <br/>
