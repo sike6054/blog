@@ -470,7 +470,6 @@ def Xception(model_input, classes):
     '''
     
     x = Dropout(0.5)(x)
-    x = Dense(classes, activation=None)(x)
     
     model_output = Dense(classes, activation='softmax')(x)
 
