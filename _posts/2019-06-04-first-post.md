@@ -320,7 +320,7 @@ def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='re
     x = Conv2D(filters, kernel_size, kernel_initializer='he_normal', padding=padding, strides=strides)(x)
     x = BatchNormalization()(x)
     if activation:
-        x = Activation(activation='relu')(x)
+        x = Activation(activation)(x)
     
     return x
     
