@@ -288,11 +288,22 @@ Layer 간의 information flow를 개선시키기 위한 새로운 connectivity p
 
 <br/>
 구현의 편의를 위해, **Eqn.2**의 $$H_{\ell}(\cdot)$$에 들어가는 multiple input을 single tensor로 연결한다.
+>Concatenate layer를 이용한다.
 
 <br/>
 ### Composite function
 [ResNet-v2](https://arxiv.org/pdf/1603.05027.pdf)에 따라, $$H_{\ell}(\cdot)$$는 세 개의 연속 연산으로 이루어진 복합 함수로 정의된다.
 - [BN](https://arxiv.org/pdf/1502.03167.pdf), ReLU, 3x3 conv layer가 뒤따르는 복합 함수다.
+
+<br/>
+[ResNet-v2](https://arxiv.org/pdf/1603.05027.pdf)에 대한 포스팅은 다루지 않았는데, skip-connection 시의 conv layer, BN, activation 순서에 대한 연구로 생각하면 된다.
+
+<br/>
+결론은 간단하게 다음의 한 장으로 설명할 수 있다.
+
+<br/>
+![Extra.1](/blog/images/DenseNet, Extra.1(removed).png )>
+>DenseNet에서 사용하는 **pre-activation**은 (e)에 해당하며, **Xception**에서 사용한 것은 엄밀히 따지면 (d)에 해당한다.
 
 <br/>
 ### Pooling layers
@@ -345,27 +356,34 @@ Growth rate는 각 layer가 global state에 기여하는 new information의 양�
 [ResNet](https://arxiv.org/pdf/1512.03385.pdf)과 [Inception](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf)에서는 각 3x3 convolution 전에 1x1 convolution을 bottleneck layer로 도입하여, 입력 feature-map의 개수를 줄이고 계산 효율을 향상시킬 수 있음을 알 수 있다.
 
 <br/>
-이 디자인은 DenseNet에 특히 효과적이며, 이러한 bottleneck layer를 이용한다. 즉, BN-ReLU-Conv(1x1)-BN-ReLU-Conv(3x3)으로 이루어진 $$H_{\ell}$$을 이용하며, 이를 DenseNet-B 라고 칭한다.
+이 디자인은 DenseNet에 특히 효과적이며, 이러한 bottleneck layer를 이용한다. 즉, BN-ReLU-Conv(1x1)-BN-ReLU-Conv(3x3)으로 이루어진 $$H_{\ell}$$을 이용하며, 이를 **DenseNet-B**라고 칭한다.
 
 <br/>
 실험에서는 각각의 1x1 convolution이 $$4k$$개의 feature-map을 생성하도록 한다.
+>이전 dense block의 출력인 feature-map의 개수가 256개이고, 이를 입력으로 사용하는 dense block의 경우, bottleneck layer의 사용 여부에 따른 parameter 차이는 다음과 같이 계산된다. Growth rate $$k$$는 32로 계산한다.
+>
+>**Bottleneck - X** : (3x3x256x32) = **73728**
+>
+>**Bottleneck - O** : (1x1x256x128) + (3x3x128x32) = **69632**
+>
+>Dense block의 개수와 $$k$$에 따라 bottleneck layer의 효율성이 달라지지만, concatenation으로 이루어진 dense connectivity 특성상 일반적인 효율성이 상당할 것으로 기대된다.
 
 <br/>
 ### Compression
 모델을 보다 소형으로 만들기 위해, transition layer에서 feature-map의 개수를 줄일 수 있다.
 
 <br/>
-Dense block이 $$m$$개의 feature-map을 포함하는 경우, 뒤따르는 transition layer에서 출력 feature-map을 $$\lfloor{\theta m}$$개 생성한다.
+Dense block이 $$m$$개의 feature-map을 포함하는 경우, 뒤따르는 transition layer에서 출력 feature-map을 $$\lfloor{\theta m}\rfloor$$개 생성한다.
 
 <br/>
 여기서 $$0\lt \theta \lt 1$$은 **compression factor**라고 한다.
 >$$\theta = 1$$ 인 경우, transition layer의 feature-map 개수는 변경되지 않는다.
 
 <br/>
-$$\theta \lt 1$$ 인 DenseNet을 DenseNet-C라고 칭하며, 실험에서는 $$\theta = 0.5$$로 설정한다.
+$$\theta \lt 1$$ 인 DenseNet을 **DenseNet-C**라고 칭하며, 실험에서는 $$\theta = 0.5$$로 설정한다.
 
 <br/>
-Bottleneck layer와 $$\theta \lt 1$$ 인 transition layer를 모두 사용하는 모델을 DenseNet-BC라고 칭한다.
+또한, bottleneck layer와 $$\theta \lt 1$$ 인 transition layer를 모두 사용하는 모델은 **DenseNet-BC**라고 칭한다.
 
 <br/>
 ### Implementation Details
@@ -495,6 +513,162 @@ DenseNet의 naive implementation에는 memory inefficiency가 포함될 수 있�
 >GPU의 memory consumption을 줄이려면, DenseNet의 memory-efficient implementation에 대한 [technical report](https://arxiv.org/pdf/1707.06990.pdf)를 참조하자.
 
 <br/>
+이제 대충 다 나왔으니, Keras로 구현해보자. 우선 3장에서 설명한 주요 모듈들을 구현하면 다음과 같다.
+
+``` python
+def Conv_Block(x, growth_rate, activation='relu'):
+    x_l = BatchNormalization()(x)
+    x_l = Activation(activation)(x_l)
+    x_l = Conv2D(growth_rate*4, (1, 1), padding='same', kernel_initializer='he_normal')(x_l)
+    
+    x_l = BatchNormalization()(x_l)
+    x_l = Activation(activation)(x_l)
+    x_l = Conv2D(growth_rate, (3, 3), padding='same', kernel_initializer='he_normal')(x_l)
+    
+    x = Concatenate()([x, x_l])
+    
+    return x
+
+def Dense_Block(x, layers, growth_rate=32):
+    for i in range(layers):
+        x = Conv_Block(x, growth_rate)
+    return x
+
+def Transition_Layer(x, compression_factor=0.5, activation='relu'):
+    reduced_filters = int(K.int_shape(x)[-1] * compression_factor)
+    
+    x = BatchNormalization()(x)
+    x = Activation(activation)(x)
+    x = Conv2D(reduced_filters, (1, 1), padding='same', kernel_initializer='he_normal')(x)
+    
+    x = AveragePooling2D((2, 2), padding='same', strides=2)(x)
+    
+    return x
+
+```
+>Conv_Block은 Table.1에 나와있지 않지만, pre-activation 기반의 dense connectivity 구조의 구현 편의상 정의한 모듈이다. ResNet에서 채택한 formulation인 **Eqn.1** 대신, **Eqn.2** 방식의 dense connectivity를 위해 `Concatenate`로 이어주고 있다.
+>
+>Feature-map의 개수는 Conv_Block이 호출될 때마다 parameter로 넘겨준 growth_rate만큼 누적되며, Transition_Layer가 호출될 때마다 parameter로 넘겨준 compression_factor의 비율로 감소된다.
+
+<br/>
+다음은 DenseNet 모델 정의 함수다.
+``` python
+layers_in_block = {'DenseNet-121' : [6, 12, 24, 16],
+                   'DenseNet-169' : [6, 12, 32, 32],
+                   'DenseNet-201' : [6, 12, 48, 32],
+                   'DenseNet-265' : [6, 12, 64, 48]}
+
+base_growth_rate = 32
+
+def DenseNet(model_input, classes, densenet_type='DenseNet-121'):
+    x = Conv2D(base_growth_rate*2, (7, 7), padding='same', strides=2, kernel_initializer='he_normal')(model_input) # (224, 224, 3) -> (112, 112, 64)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    
+    x = MaxPooling2D((3, 3), padding='same', strides=2)(x) # (112, 112, 64) -> (56, 56, 64)
+    
+    x = Dense_Block(x, layers_in_block[densenet_type][0], base_growth_rate)
+    x = Transition_Layer(x, compression_factor=0.5)
+    x = Dense_Block(x, layers_in_block[densenet_type][1], base_growth_rate)
+    x = Transition_Layer(x, compression_factor=0.5)
+    x = Dense_Block(x, layers_in_block[densenet_type][2], base_growth_rate)
+    x = Transition_Layer(x, compression_factor=0.5)
+    x = Dense_Block(x, layers_in_block[densenet_type][3], base_growth_rate)
+    
+    x = GlobalAveragePooling2D()(x)
+    
+    model_output = Dense(classes, activation='softmax', kernel_initializer='he_normal')(x)
+
+    model = Model(model_input, model_output, name=densenet_type)
+    
+    return model
+
+```
+>본문의 실험에서는 growth rate와 compression factor를 고정시켜놓고 사용하지만, 확장성을 위해 첫 번째 conv layer 외에는 Dense_Block과 Transition_Layer 호출 시에 넘겨준 parameter에 따라 구성되도록 해뒀다.
+
+<br/>
+다음은 4.2절의 ImageNet 실험 환경에 맞춘 학습 코드다. 물론 이번에도 dataset은 편의상 CIFAR-10을 resize한 코드다.
+``` python
+
+from keras.models import Model, Input
+from keras.layers import Conv2D, Dense, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D
+from keras.layers import Activation, BatchNormalization
+from keras.layers import Concatenate
+from keras.utils import to_categorical
+from keras.callbacks import Callback
+from keras.optimizers import SGD
+
+import numpy as np
+import keras.backend as K
+
+layers_in_block = {'DenseNet-121' : [6, 12, 24, 16],
+                   'DenseNet-169' : [6, 12, 32, 32],
+                   'DenseNet-201' : [6, 12, 48, 32],
+                   'DenseNet-265' : [6, 12, 64, 48]}
+
+base_growth_rate = 32
+
+def Conv_Block(x, growth_rate, activation='relu'):
+    ...
+
+def Dense_Block(x, layers, growth_rate=32):
+    ...
+
+def Transition_Layer(x, compression_factor=0.5, activation='relu'):
+    ...
+    
+def DenseNet(model_input, classes, densenet_type='DenseNet-121'):
+    ...
+
+class LearningRateSchedule(Callback):
+    def __init__(self, selected_epochs=[]):
+        self.selected_epochs = selected_epochs
+        
+    def on_epoch_end(self, epoch, logs=None):
+        if (epoch+1) in self.selected_epochs:
+            lr = K.get_value(self.model.optimizer.lr)
+            K.set_value(self.model.optimizer.lr, lr*0.1)
+
+input_shape = (224, 224, 3)
+
+from keras.datasets import cifar10
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+x_train = Upscaling_Data(x_train, input_shape)
+x_train = x_train.astype('float32')/255.
+y_train = to_categorical(y_train, num_classes=10)
+
+classes = 10
+
+model_input = Input( shape=input_shape )
+
+model = DenseNet(model_input, 10, 'DenseNet-201')
+
+optimizer = SGD(lr=0.1, decay=1e-3, momentum=0.9, nesterov=True)
+
+callbacks_list = [LearningRateSchedule([30, 60])]
+
+model.compile(optimizer, loss='categorical_crossentropy', metrics=['acc'])
+
+
+history = model.fit(x_train, y_train, batch_size=256, epochs=90, validation_split=0.2, callbacks=callbacks_list)
+```
+>Nesterov momentum은 SGD 호출 시에 flag만 True로 주면 간단하게 적용된다.
+
+<br/>
+그냥 넘어가기 전에, 본 논문에서 $$L$$로 정의한 layer 개수에 대해 간단하게 알아보자. 당연히 trainable parameter가 있는 layer만 취급한다.
+
+<br/>눈썰미가 좋다면 눈치챘겠지만, 위 코드에서는 Table.1과 다르게 DenseNet-264가 아닌 DenseNet-265로 정의되어 있다. Table.1을 살펴보면, DenseNet-$$L$$ 타입에서 $$L$$은 다음과 같은 계산식을 따른다.
+
+<br/>
+$$L = (layers_in_all_Dense_Block)\times 2 + num_of_Transition_Layer + 2$$.
+>각 DenseBlock의 각 layer들은 bottleneck layer(1x1, 3x3 conv layer)이므로, 2개의 layer로 계산 된다. Transition_Layer는 1x1 conv layer만 있으며, 뒤에 더해진 2개는 첫 번째 conv layer와 softmax classifier에 해당한다.
+
+<br/>
+CIFAR나 SVHN의 경우에는 3개의 dense block이 있으며, 각 block은 모두 동일한 수의 layer로 이루어져 있다고 한다. 이 경우의 transition layer는 3개의 block 사이에 존재하므로, 2개에 해당한다.
+>즉, $$L=100$$인 CIFAR/SVHN의 경우에는 각 dense block에 16($$((100-(2+2))/2)/3$$)개의 layer가 할당된다. 같은 원리로 $$L=190$$이나 $$L=250$$인 경우에는 각각 31개와 41개씩 할당된다.
+
+<br/>
 ### 4.3. Classification Results on CIFAR and SVHN
 이 장에서는 CIFAR 및 SVHN에 대한 DenseNet 실험 결과를 알아본다.
 
@@ -535,7 +709,7 @@ SVHN에서 Dropout을 사용한 $$L = 100$$, $$k = 24$$ 인 DenseNet도 [Wide Re
 
 <br/>
 ### Capacity
-Compression 또는 bottle layer가 없으면, $$L$$과 $$k$$가 증가함에 따라 DenseNet의 성능이 향상되는 경향이 있다.
+Compression 또는 bottleneck layer가 없으면, $$L$$과 $$k$$가 증가함에 따라 DenseNet의 성능이 향상되는 경향이 있다.
 
 <br/>
 이는 주로 model capacity의 증가로 인한 것이며, C10+와 C100+에 대한 결과에서 잘 설명된다.
