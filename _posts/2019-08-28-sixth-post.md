@@ -302,7 +302,7 @@ Layer 간의 information flow를 개선시키기 위한 새로운 connectivity p
 결론은 간단하게 다음의 한 장으로 설명할 수 있다.
 
 <br/>
-![Extra.1](/blog/images/DenseNet, Extra.1(removed).png )>
+![Extra.1](/blog/images/DenseNet, Extra.1(removed).png )
 >DenseNet에서 사용하는 **pre-activation**은 (e)에 해당하며, **Xception**에서 사용한 것은 엄밀히 따지면 (d)에 해당한다.
 
 <br/>
