@@ -661,7 +661,7 @@ history = model.fit(x_train, y_train, batch_size=256, epochs=90, validation_spli
 <br/>눈썰미가 좋다면 눈치챘겠지만, 위 코드에서는 Table.1과 다르게 DenseNet-264가 아닌 DenseNet-265로 정의되어 있다. Table.1을 살펴보면, DenseNet-$$L$$ 타입에서 $$L$$은 다음과 같은 계산식을 따른다.
 
 <br/>
-$$L = (layers in all Dense Block)\times 2 + (num of Transition Layer) + 2$$.
+$$L = $$(layers in all Dense Block)$$\times 2 + $$(num of Transition Layer)$$ $$+ 2$$.
 >각 DenseBlock의 각 layer들은 bottleneck layer(1x1, 3x3 conv layer)이므로, 2개의 layer로 계산 된다. Transition_Layer는 1x1 conv layer만 있으며, 뒤에 더해진 2개는 첫 번째 conv layer와 softmax classifier에 해당한다.
 
 <br/>
