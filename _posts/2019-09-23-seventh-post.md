@@ -166,7 +166,7 @@ Multi-branch convolution을 사용하면 operator를 보다 유연하게 구성�
 
 <br/>
 이전 연구에서, cross-channal correlation은 일반적으로 spatial structure에 독립적이거나, 1x1 convolution를 함께 사용한 새로운 feature 조합으로 mapping 된다.
->[Speeding up convolutional neural networks with low rank expansions] [Xception] [NIN](https://arxiv.org/pdf/1312.4400.pdf)
+>[[1](https://arxiv.org/pdf/1405.3866.pdf)], [Xception](https://arxiv.org/pdf/1610.02357.pdf), [NIN](https://arxiv.org/pdf/1312.4400.pdf)
 
 <br/>
 본 연구의 대부분은 model/computational complexity를 줄이는 것에 집중했으며, channel relationship이 local receptive field를 가진 instance-agnostic function으로 formulation 될 수 있다는 가정을 반영했다.
@@ -189,9 +189,9 @@ Multi-branch convolution을 사용하면 operator를 보다 유연하게 구성�
 
 <br/>
 진화론적인 탐색은 계산적 부담이 큰 경우가 많지만, sequence model에 좋은 memory cell을 찾는 것과 largescale image classification을 위한 정교한 아키텍처의 학습 등에서 주목할만한 결과를 얻었다.
->Sequence model [Evolving memory cell structures for sequence learning] [An empirical exploration of recurrent network architectures,]
+>Sequence model [[1](http://julian.togelius.com/Bayer2009Evolving.pdf)] [[2](http://proceedings.mlr.press/v37/jozefowicz15.pdf)]
 >
->Largescale image classification [Genetic CNN][Large-scale evolution of image classifiers][Regularized evolution for image classifier architecture search]
+>Largescale image classification [[1](http://openaccess.thecvf.com/content_ICCV_2017/papers/Xie_Genetic_CNN_ICCV_2017_paper.pdf)] [[2](https://arxiv.org/pdf/1802.01548.pdf)]
 
 <br/>
 이러한 방법들의 계산적 부담을 줄이기 위한 효율적인 대안으로, [Lamarckian inheritance](Efficient multi-objective neural architecture search via lamarckian evolution)과 [differentiable architecture search](DARTS: Differentiable architecture search) 기반의 방법들이 제안됐다.
@@ -204,11 +204,11 @@ Architecture search는 hyperparameter optimization을 공식화하고, [random s
 
 <br/>
 가능한 네트워크 구조들로부터의 [topology selection]이나 [direct architecture prediction]은 추가로 수행 가능한 architecture search tool로써 제안되어 왔으며, 이들은 특히 reinforcement learning으로부터 상당한 결과를 얻어냈다.
->Topology selection 37
+>Topology selection [37]
 >
->Direct architecture prediction 38 39
+>Direct architecture prediction [38] [39]
 >
->From reinforcement learning 40 41 42 43 44
+>From reinforcement learning [40] [41] [42] [43] [44]
 
 <br/>
 SE 블록은 이러한 검색 알고리즘을위한 원자 적 빌딩 블록으로 사용될 수 있으며, 동시 작업에서이 용량에서 매우 효과적인 것으로 입증되었습니다 [45].
@@ -236,10 +236,8 @@ Attention 메커니즘은 다음의 분야를 포함한 많은 분야에서 유�
 >[58], [59]
 
 <br/>
-Deep residual network의 내부에 삽입되는 [hourglass module]에 기반한, 강력한 trunk-and-mask attention 메커니즘을 도입했다.
+Deep residual network의 내부에 삽입되는 [hourglass module](8)에 기반한, 강력한 trunk-and-mask attention 메커니즘을 도입했다.
 >[58]
->
->hour glass [8]
 
 <br/>
 이와 대조적으로, 제안하는 **SE block**은 **computationally efficient한 channel-wise relationship을 모델링**하여, **네트워크의 representational power를 향상**시키는 것에 중점을 둔 **lightweight gating 메커니즘**으로 구성된다.
