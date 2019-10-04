@@ -388,7 +388,7 @@ SE block의 최종 출력은 activation $$s$$로 $$U$$를 rescaling하여 얻는
 <br/>
 **(Discussion)**
 - Excitation operator는 input-specific descriptor인 $$z$$를 channel weight set에 mapping한다.
->여기서 input-specific descriptor ** $$z$$ **는 **squeeze** operation의 결과에 해당한다. 즉, GAP를 통과한 ** $$z$$ **를 channel-wise weight로써 사용할 수 있게 해주는 것이 **excitation** operation으로 볼 수 있다.
+>여기서 input-specific descriptor $$z$$는 **squeeze** operation의 결과에 해당한다. 즉, GAP를 통과한 $$z$$를 channel-wise weight로써 사용할 수 있게 해주는 것이 **excitation** operation으로 볼 수 있다.
 
 <br/>
 - SE block은 본질적으로 입력에 따라 조절되는 dynamic한 성질을 도입하는데, 이는 convolution filter가 동작되는 local receptive field에만 국한되지 않은 relationship을 갖는 channel 상에서의 self-attention 동작으로 볼 수 있다.
