@@ -16,7 +16,7 @@ toc: true
 HU, Jie; SHEN, Li; SUN, Gang. **"Squeeze-and-excitation networks"**. In: Proceedings of the IEEE conference on computer vision and pattern recognition. 2018. p. 7132-7141.
 > a.k.a. [SENet paper](https://arxiv.org/pdf/1709.01507.pdf)
 
-Reference link 수정 및 keras 코드 삽입 예정
+Reference link 수정 예정
 
 ---
 ## Abstract
@@ -444,6 +444,91 @@ SE block의 flexible한 특성에 따른 하나의 결과는, 이러한 아키�
 <br/>
 따라서 SE block을 아키텍처에 통합할 때 사용하는 통합 전략(integration strategy)의 sensitivity를 평가하기 위해, SE block의 포함을 위한 다양한 디자인 탐색의 ablation experiment도 제공한다. (6.5절 참조)
 
+<br/>
+이번엔 **SE-ResNet-50**을 **keras**로 구현해본다.
+
+``` python
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Activation, Dense, BatchNormalization
+from keras.layers import Add, Reshape, Multiply
+import keras.backend as K
+
+def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu'):
+    x = Conv2D(filters, kernel_size, kernel_initializer='he_normal', padding=padding, strides=strides)(x)
+    x = BatchNormalization()(x)
+    if activation:
+        x = Activation(activation)(x)
+    
+    return x
+
+
+def SE_block(input_tensor, reduction_ratio=16):
+    ch_input = K.int_shape(input_tensor)[-1]
+    ch_reduced = ch_input//reduction_ratio
+    
+    # Squeeze
+    x = GlobalAveragePooling2D()(input_tensor) # Eqn.2
+    
+    # Excitation
+    x = Dense(ch_reduced, kernel_initializer='he_normal', activation='relu', use_bias=False)(x) # Eqn.3
+    x = Dense(ch_input, kernel_initializer='he_normal', activation='sigmoid', use_bias=False)(x) # Eqn.3
+    
+    x = Reshape( (1, 1, ch_input) )(x)
+    x = Multiply()([input_tensor, x]) # Eqn.4
+    
+    return x
+   
+
+def SE_residual_block(input_tensor, filter_sizes, strides=1, reduction_ratio=16):
+    filter_1, filter_2, filter_3 = filter_sizes
+    
+    x = conv2d_bn(input_tensor, filter_1, (1, 1), strides=strides)
+    x = conv2d_bn(x, filter_2, (3, 3))
+    x = conv2d_bn(x, filter_3, (1, 1), activation=None)
+    
+    x = SE_block(x, reduction_ratio)
+    
+    projected_input = conv2d_bn(input_tensor, filter_3, (1, 1), strides=strides, activation=None) if K.int_shape(input_tensor)[-1] != filter_3 else input_tensor
+    shortcut = Add()([projected_input, x])
+    shortcut = Activation(activation='relu')(shortcut)
+    
+    return shortcut
+ 
+
+def stage_block(input_tensor, filter_sizes, blocks, reduction_ratio=16, stage=''):
+    strides = 2 if stage != '2' else 1
+    
+    x = SE_residual_block(input_tensor, filter_sizes, strides, reduction_ratio) # projection layer
+
+    for i in range(blocks-1):
+        x = SE_residual_block(x, filter_sizes, reduction_ratio=reduction_ratio)
+    
+    return x
+    
+
+def SE_ResNet50(model_input, classes=10):
+    stage_1 = conv2d_bn(model_input, 64, (7, 7), strides=2, padding='same') # (112, 112, 64)
+    stage_1 = MaxPooling2D((3, 3), strides=2, padding='same')(stage_1) # (56, 56, 64)
+    
+    stage_2 = stage_block(stage_1, [64, 64, 256], 3, reduction_ratio=16, stage='2')
+    stage_3 = stage_block(stage_2, [128, 128, 512], 4, reduction_ratio=16, stage='3') # (28, 28, 512)
+    stage_4 = stage_block(stage_3, [256, 256, 1024], 6, reduction_ratio=16, stage='4') # (14, 14, 1024)
+    stage_5 = stage_block(stage_4, [512, 512, 2048], 3, reduction_ratio=16, stage='5') # (7, 7, 2048)
+
+    gap = GlobalAveragePooling2D()(stage_5)
+    
+    model_output = Dense(classes, activation='softmax', kernel_initializer='he_normal')(gap) # 'softmax'
+    
+    model = Model(inputs=model_input, outputs=model_output, name='SE-ResNet50')
+        
+    return model
+```
+>[이전 포스트](https://sike6054.github.io/blog/paper/first-post/)의 ResNet-50 구현 코드를 stage 단위로 보기 좋게 리팩토링한 후에 SE block을 추가했다.
+>
+>`stage_block()`의 첫 라인은 **stage 2**의 특성상 prejection layer의 stride를 1로 줘야하기 때문에 삽입한 루틴이다.
+>
+>`SE_block()`에서 scale 전에 `Reshape`을 하는 이유는 `Dense`의 output shape이 1D이기 때문이다.
+>
+>기타 학습 코드는 생략했다.
 
 ---
 ## 4. Model and Computational Complexity
