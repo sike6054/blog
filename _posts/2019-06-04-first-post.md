@@ -316,7 +316,7 @@ Table.4에서는 previous best single-model의 성능과 비교한다. 우리의
 keras에서 18-layer plain/residual network를 비교하자면 다음과 같다. 위 실험에서 18-layer의 경우에는 dimension matching을 위해 zero-padding을 이용했었지만, 이 외에는 어차피 projection을 사용하기 때문에 projection으로 구현한다.
 
 ``` python
-def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu', name='default'):
+def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu'):
     x = Conv2D(filters, kernel_size, kernel_initializer='he_normal', padding=padding, strides=strides)(x)
     x = BatchNormalization()(x)
     if activation:
