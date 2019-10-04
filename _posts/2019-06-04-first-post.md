@@ -415,8 +415,8 @@ def bottleneck_projection(input_tensor, filter_sizes, strides=2):
     x = conv2d_bn(x, filter_2, (3, 3))
     x = conv2d_bn(x, filter_3, (1, 1), activation=None)
     
-    shortcut = conv2d_bn(input_tensor, filter_3, (1, 1), strides=strides, activation=None)
-    shortcut = Add()([x, shortcut])
+    projected_input = conv2d_bn(input_tensor, filter_3, (1, 1), strides=strides, activation=None)
+    shortcut = Add()([projected_input, x])
     shortcut = Activation(activation='relu')(shortcut)
     
     return shortcut
