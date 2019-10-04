@@ -258,7 +258,7 @@ Squeeze-and-Excitation block은 입력 $$X\in \Bbb{R}^{H'\times W'\times C'}$$�
 <br/>
 >**Eqn.1**
 >
->$$u_c = v_c\ast X = \sum_{s=1}^{C'} {v_c^s \ast x^s$$
+>$$u_c = v_c\ast X = \sum_{s=1}^{C'} {v_c^s \ast x^s}$$
 
 <br/>
 **Eqn.1**의 각 notation은 다음을 의미하며, 표기의 단순화를 위해 bias는 생략된다.
