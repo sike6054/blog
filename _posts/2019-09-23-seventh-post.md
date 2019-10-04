@@ -78,9 +78,7 @@ Vision task에서 인공 신경망 알고리즘은 널리 사용되고 있으며
 
 <br/>
 ![Fig.1](/blog/images/SENet, Fig.1(removed).png )
->**Fig.1** <br/>Adfgds.
->
->인fghf.
+>**Fig.1** <br/>A Squeeze-and-Excitation block.
 
 <br/>
 **Fig.1**의 SE building block을 보자. 임의로 주어진 $$F_{tr}$$은 입력 $$X$$는 feature map $$U$$로 mapping되고, $$U$$는 다음의 두 operation을 순서대로 통과한다.
@@ -99,7 +97,6 @@ Vision task에서 인공 신경망 알고리즘은 널리 사용되고 있으며
 
 - 이 weight들은 feature map $$U$$에 적용되며, 이렇게 생성된 SE block의 출력은 후속 layer에 바로 사용될 수 있다.
 >**Fig.1**의 $$F_{ex}(\cdot , W)$$ 및 $$F_{scale}(\cdot ,\cdot)$$ 에 해당.
-```
 
 <br/>
 이러한 SE block의 stack으로 **SENet**을 구성할 수 있다.
@@ -261,7 +258,7 @@ Squeeze-and-Excitation block은 입력 $$X\in \Bbb{R}^{H'\times W'\times C'}$$�
 <br/>
 >**Eqn.1**
 >
->**$$u_c = v_c\ast X = \sum_{s=1}^{C'} {v_c^s \ast x^s$$**.
+>$$u_c = v_c\ast X = \sum_{s=1}^{C'} {v_c^s \ast x^s$$
 
 <br/>
 **Eqn.1**의 각 notation은 다음을 의미하며, 표기의 단순화를 위해 bias는 생략된다.
@@ -320,7 +317,7 @@ Channel dependency를 이용하기 위해, 먼저 출력 feature들의 각 chann
 <br/>
 >**Eqn.2**
 >
->**$$z_c = F_{sq}(u_c) = \frac{1}{H\times W}\sum_{i=1}^H \sum_{j=1}^W {u_{c}(i,j)}$$**.
+>$$z_c = F_{sq}(u_c) = \frac{1}{H\times W}\sum_{i=1}^H \sum_{j=1}^W {u_{c}(i,j)}$$
 
 <br/>
 **(Discussion)**
@@ -349,15 +346,15 @@ Channel dependency를 이용하기 위해, 먼저 출력 feature들의 각 chann
 <br/>
 >**Eqn.3**
 >
->**$$s = F_{ex}(z, W) = \Sigma(g(z, W)) = \Sigma(W_2\delta(W_1z))$$**.
+>$$s = F_{ex}(z, W) = \sigma(g(z, W)) = \sigma(W_2\delta(W_1z))$$.
 
 <br/>
 **Eqn.3**의 각 notation은 다음을 의미한다.
 - $$\delta$$ is ReLU
 
-- $$W_1 \in \Bbb{R}^{\frac{C}{r}\times C}$$
+- $$W_1 \in \Bbb{R}^{\frac{C}{r}\times C}$$.
 
-- $$W_2 \in \Bbb{R}^{C\times \frac{C}{r}}$$
+- $$W_2 \in \Bbb{R}^{C\times \frac{C}{r}}$$.
 
 <br/>
 Model complexity를 제한하면서 일반화를 돕기 위해, non-linearity 주위에 2개의 FC layer로 bottleneck을 형성함으로써 gating mechanism을 parameter화 한다.
@@ -373,7 +370,7 @@ SE block의 최종 출력은 activation $$s$$로 $$U$$를 rescaling하여 얻는
 <br/>
 >**Eqn.4**
 >
->**$$\widetilde{x}_c = F_{scale}(u_c, s_c) = s_c u_c $$**.
+>$$\widetilde{x}_c = F_{scale}(u_c, s_c) = s_c u_c $$.
 
 <br/>
 **Eqn.4**의 각 notation은 다음을 의미한다.
@@ -393,7 +390,7 @@ SE block의 최종 출력은 activation $$s$$로 $$U$$를 rescaling하여 얻는
 <br/>
 **(Discussion)**
 - Excitation operator는 input-specific descriptor인 $$z$$를 channel weight set에 mapping한다.
->여기서 input-specific descriptor $$z$$는 **squeeze** operation의 결과에 해당한다. 즉, GAP를 통과한 $$z$$를 channel-wise weight로써 사용할 수 있게 해주는 것이 **excitation** operation으로 볼 수 있다.
+>여기서 input-specific descriptor ** $$z$$ **는 **squeeze** operation의 결과에 해당한다. 즉, GAP를 통과한 ** $$z$$ **를 channel-wise weight로써 사용할 수 있게 해주는 것이 **excitation** operation으로 볼 수 있다.
 
 <br/>
 - SE block은 본질적으로 입력에 따라 조절되는 dynamic한 성질을 도입하는데, 이는 convolution filter가 동작되는 local receptive field에만 국한되지 않은 relationship을 갖는 channel 상에서의 self-attention 동작으로 볼 수 있다.
@@ -496,7 +493,7 @@ FC layer에 의해 추가된 parameter의 수는 구체적으로 **Eqn.5**를 �
 <br/>
 >**Eqn.5**
 >
->**$$\frac{2}{r}\sum_{s=1}^S N_s\cdot C_s^2$$**.
+>$$\frac{2}{r}\sum_{s=1}^S N_s\cdot {C_s}^2$$
 >
 >GAP와 bottleneck FC layer 간의 parameter와 두 FC layer 간의 parameter에 해당한다.
 
@@ -586,7 +583,7 @@ SE-ResNet과 ResNet 아키텍처를, 여러 depth에 대해 비교한 결과를 
 >
 >괄호 안의 숫자는 re-implementation에 대한 성능 향상도를 나타낸다.
 >
->$$\dagger$$은 validaion set 중, non-blacklisted subset에 대해 측정된 성능이다.
+>$$\dagger$$는 validaion set 중, non-blacklisted subset에 대해 측정된 성능이다.
 >
 >VGG-16과 SE-VGG-16은 BN을 사용하여 학습됐다.
 
