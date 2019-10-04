@@ -425,7 +425,7 @@ def ResNet50(model_input, classes=10):
     conv1 = conv2d_bn(model_input, 64, (7, 7), strides=2, padding='same') # (112, 112, 64)
     
     conv2_1 = MaxPooling2D((3, 3), strides=2, padding='same')(conv1) # (56, 56, 64)
-    conv2_2 = bottleneck_identity(conv2_1, [64, 64, 256])
+    conv2_2 = bottleneck_projection(conv2_1, [64, 64, 256], strides=1)
     conv2_3 = bottleneck_identity(conv2_2, [64, 64, 256])
     conv2_4 = bottleneck_identity(conv2_3, [64, 64, 256])# (56, 56, 256)
     
@@ -638,7 +638,6 @@ Keras 구현에서 60K iteration만큼 동작하도록 callback 함수 구현
 
 ### 2019-10-05 수정
 Keras 구현에서 bottleneck layer의 코드 가독성을 위해 일부 수정
-ResNet50 일부 
 
 <br/>
 ---
