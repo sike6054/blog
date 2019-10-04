@@ -462,7 +462,7 @@ def ResNet50(model_input, classes=10):
 
 ``` python
 from keras.models import Model, Input
-from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Activation, Dense, BatchNormalization, ZeroPadding2D
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Activation, Dense, BatchNormalization
 from keras.layers import Add
 from keras.optimizers import SGD
 from keras.callbacks import ReduceLROnPlateau
