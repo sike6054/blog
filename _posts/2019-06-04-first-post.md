@@ -638,6 +638,7 @@ Keras 구현에서 60K iteration만큼 동작하도록 callback 함수 구현
 
 ### 2019-10-05 수정
 Keras 구현에서 bottleneck layer의 코드 가독성을 위해 일부 수정
+ResNet50 일부 
 
 <br/>
 ---
