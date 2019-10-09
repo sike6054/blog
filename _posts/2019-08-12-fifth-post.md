@@ -184,7 +184,7 @@ x = Conv2D(32, (1, 1), activation='relu')(x)
 이는 TensorFlow에서 사용할 수 있는 효율적인 depthwise separable convolution으로 실현되며, Keras에서도 **SeparableConv2D**라는 이름의 layer로 제공된다.
 
 <br/>
-아까 separable convolution의 선행하는 layer가 bias를 사용하지 않는다고 언급했는데, Kears code로 정확히 알아보자. 우선 **separable convolution layer**를 사용하는 방법은 다음과 같다.
+아까 separable convolution의 선행하는 layer가 bias를 사용하지 않는다고 언급했는데, Keras code로 정확히 알아보자. 우선 **separable convolution layer**를 사용하는 방법은 다음과 같다.
 ``` python
 # Separable Convolution
 x = DepthwiseConv2D((3, 3), use_bias=False)(x)
