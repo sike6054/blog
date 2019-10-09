@@ -395,7 +395,7 @@ ImageNet에 대한 실험은 각각 약 3일이 걸렸고, JFT에 대한 실험�
 >JFT dataset에 대해 full convergence로 학습하려면 3개월씩 걸리기 때문에, 이렇게까지 학습하진 않았다고 한다.
 
 <br/>
-필요한 건 대충 나왔으니, Kears로 구현해보자. **Xception** 모델을 정의하면 다음과 같다.
+필요한 건 대충 나왔으니, Keras로 구현해보자. **Xception** 모델을 정의하면 다음과 같다.
 ``` python
 def conv2d_bn(x, filters, kernel_size, padding='same', strides=1, activation='relu', weight_decay=1e-5):
     x = Conv2D(filters, kernel_size, padding=padding, strides=strides, kernel_regularizer=l2(weight_decay))(x)
