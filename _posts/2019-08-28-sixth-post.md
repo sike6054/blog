@@ -16,9 +16,6 @@ toc: true
 HUANG, Gao, et al. **"Densely Connected Convolutional Networks"**. In: Proceedings of the IEEE conference on computer vision and pattern recognition. 2017. p.4700-4708.
 > a.k.a. [DenseNet paper](https://arxiv.org/pdf/1608.06993.pdf)
 
-<br/>
-Keras 구현 코드 삽입 예정.
-
 ---
 ## Abstract
 입력에 가까운 layer와 출력에 가까운 layer 사이에 shorter connection이 포함되면, 더 깊고 정확하면서 효율적으로 학습할 수 있다.
