@@ -403,8 +403,10 @@ Regularization을 통한 residual branch 간의 correlation 증감 여부를 확
 >Alignment issue는 동일한 조건으로 같은 모델을 하더라도, 동일한 위치의 layer가 항상 같은 표현을 학습한다고 보장할 수 없기 때문에 발생하는 문제다. 즉, 두 vector 간의 covariance 계산에서 이러한 issue가 고려될 수 있다.
 >
 >본문에서 레퍼 달아둔 [논문](https://arxiv.org/pdf/1511.07543.pdf)에 따르면, core representation은 공유되지만, rare feature들은 그렇지 않다고 한다. 아래의 두 그림을 참조하자.
+>
 ><br/>
 >![Extra.7](/blog/images/Shake-Shake, Extra.7(removed).png )
+>
 ><br/>
 >![Extra.8](/blog/images/Shake-Shake, Extra.8(removed).png )
 
