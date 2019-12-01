@@ -24,7 +24,7 @@ Keras 코드 삽입 예정.
 이 논문에서 소개하는 방법은 overfitting 문제에 직면한 딥 러닝 실무자를 돕기 위함이다.
 
 <br/>
-아이디어는 multi-branch network에서 **standard summation of parallel branches**를 **stochastic affine combination**으로 대체하는 것이다. (check)
+아이디어는 multi-branch network에서 **standard summation of parallel branches**를 **stochastic affine combination**으로 대체하는 것이다.
 
 <br/>
 Shake-shake regularization이 3-branch resnet에 적용되었을 때, CIFAR-10/CIFAR-100에서 2.86%/15.85%의 테스트 오류를 달성했다.
@@ -69,7 +69,7 @@ Regularization method로써 제시되지는 않았지만, [BN](https://arxiv.org
 
 <br/>
 위 마지막 두 연구처럼, 본 연구에서 제안하는 방법은 **standard summation of parallel branches**를 **stochastic affine combination**으로 대체함으로써 **multi-branch network의 일반화 능력을 향상**시키는 것을 목표로 한다.
->only multi-branch network? (check)
+>2개의 branch가 있는 모델로 제안하는 regularization 기법의 성능을 검증하고 있다.
 
 <br/>
 ### 1.1. Motivation
@@ -134,7 +134,7 @@ Binary variable 대신 향상/감소 계수로 대체하는 것은 [Shakeout](ht
 >![Extra.3](/blog/images/Shake-Shake, Extra.3(removed).png )
 
 <br/>
-위와 같은 기법들이 input tensor와 noise tensor 간에 element-wise multiplication을 수행할 때, Shake-Shake regularization은 전체 image tensor에 하나의 scalar $$\alpha_{i}$$(or $$1-\alpha_{i}$$)를 곱한다. (check)
+위와 같은 기법들이 input tensor와 noise tensor 간에 element-wise multiplication을 수행할 때, Shake-Shake regularization은 전체 image tensor에 하나의 scalar $$\alpha_{i}$$(or $$1-\alpha_{i}$$)를 곱한다.
 
 <br/>
 ### 1.3. Training procedure
@@ -166,9 +166,9 @@ Shake-Shake regularization는 gradient noise를 **gradient augmentation** 형태
 
 ---
 ## 2. Improving on the best single shot published results on CIFAR
-<br/>
+
 ### 2.1. CIFAR-10
-<br/>
+
 ### 2.1.1. Implementation details
 네트워크는 총 26-layer로 이루어져 있으며, 구조는 다음과 같다.
 - 첫 번째 layer는 16개의 filter가 있는 3x3 conv.
@@ -257,7 +257,7 @@ Base network는 26 2x32d ResNet이다.
 >예를 들어, 26 2x32d 모델의 두 번째 stage에서는 dimension이 128x64x16x16인 mini-batch tensor $$x_i$$로 변환 된다.
 
 <br/>
-- 첫 번째 dimension(mini-batch)을 따라 tensor를 slicing하고, 각 $$j^{th}$$ slice에 scalar $$\alpha_{i.j}$$(or $$1 - \alpha_{i.j})를 곱한다.
+- 첫 번째 dimension(mini-batch)을 따라 tensor를 slicing하고, 각 $$j^{th}$$ slice에 scalar $$\alpha_{i.j}$$(or $$1 - \alpha_{i.j}$$)를 곱한다.
 >위의 예제에서는 slice가 128개, 각 slice의 dimension은 64x16x16이 된다.
 
 <br/>
