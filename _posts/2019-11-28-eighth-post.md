@@ -104,7 +104,7 @@ Shake-Shake regularization은 **2개의 tensor를 stochastic하게 blending**함
 >$$x_{i+1} = x_i + \mathcal{F}(x_i, \mathcal{W}_i^{(1)}) + \mathcal{F}(x_i, \mathcal{W}_i^{(2)})$$
 
 <br/>
-본 논문에서 제안하는 modification은 $$\alpha_i가 uniform distribution을 따르는 [0, 1] 범위의 랜덤 값인 경우, 학습 시에 **Eqn.2**를 따른다.
+본 논문에서 제안하는 modification은 $$\alpha_i$$가 uniform distribution을 따르는 [0, 1] 범위의 랜덤 값인 경우, 학습 시에 **Eqn.2**를 따른다.
 
 <br/>
 >**Eqn.2**
