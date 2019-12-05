@@ -16,9 +16,6 @@ toc: true
 GASTALDI, Xavier. **"Shake-shake regularization"**. arXiv preprint arXiv:1705.07485, 2017.
 >[Paper](https://arxiv.org/pdf/1705.07485.pdf)
 
-<br/>
-Keras 코드 삽입 예정.
-
 ---
 ## Abstract
 이 논문에서 소개하는 방법은 overfitting 문제에 직면한 딥 러닝 실무자를 돕기 위함이다.
@@ -69,6 +66,8 @@ Regularization method로써 제시되지는 않았지만, [BN](https://arxiv.org
 
 <br/>
 위 마지막 두 연구처럼, 본 연구에서 제안하는 방법은 **standard summation of parallel branches**를 **stochastic affine combination**으로 대체함으로써 **multi-branch network의 일반화 능력을 향상**시키는 것을 목표로 한다.
+>Affine combination은 linear combination에서의 계수 합을 1로 제한하는 것을 말하며, 논문에서는 2개의 branch에 곱해지는 scaling 계수가 이에 해당한다. ([참고](https://wikidocs.net/17412))
+>
 >2개의 branch가 있는 모델로 제안하는 regularization 기법의 성능을 검증하고 있다.
 
 <br/>
@@ -216,7 +215,7 @@ Downsampling 시에 사용되는 구조는 2개의 concatenated flow로 이루�
 - Initial learning rate : 0.2
 
 - [Cosine annealing](https://arxiv.org/pdf/1608.03983.pdf) without restart
->원 논문에서 제안한 cosine annealing을 적용한 learning rate 변화는 아래의 그래프와 같다.
+>원 논문에서 제안한 cosine annealing을 적용하면 learning rate가 아래의 그래프와 같이 변화한다.
 >
 >![Extra.4](/blog/images/Shake-Shake, Extra.4(removed).png )
 >
@@ -293,6 +292,349 @@ Base network는 26 2x32d ResNet이다.
 
 <br/>
 Scaling 계수를 **"Image"** 레벨에서 적용하는 것이 regularization의 효과가 더 좋았다.
+
+<br/>
+이번에는 CIFAR-10에 대한 성능 평가 모델을 keras로 구현한다.
+>구현은 아래 링크들을 참고했다.
+>
+>[Link-1](https://github.com/xgastaldi/shake-shake), [Link-2](http://research.sualab.com/practice/review/2018/06/28/shake-shake-regularization-review.html), [Link-3](https://github.com/jonnedtc/Shake-Shake-Keras)
+
+<br/>
+``` python
+n_blocks = 4
+d = 32 # Width of the first shake_block.
+
+def Shake_ResNet26(model_input, classes=10):
+    x = Conv2D(16, (3, 3), strides=1, padding='same', use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(model_input) # (32, 32, 16)
+    x = BatchNormalization()(x)
+    
+    x = shake_stage(x, d, n_blocks) # (32, 32, 32)
+    x = shake_stage(x, d*(2**1), n_blocks) # (16, 16, 64)
+    x = shake_stage(x, d*(2**2), n_blocks) # (8, 8, 128)
+
+    x = GlobalAveragePooling2D()(x)
+    
+    model_output = Dense(classes, activation='softmax', kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(x) # 'softmax'
+    
+    model = Model(inputs=model_input, outputs=model_output, name='Shake-ResNet26')
+        
+    return model
+
+```
+>3개의 shake_stage로 구성, 각 stage의 feature map size는 32/16/8이며, filter의 개수는 32/64/128으로 구현됐다.
+>
+>Filter의 개수는 downsampling 시에 2배로 늘어난다고 해놓고, 정작 구현 코드에서는 입력 filter의 개수와 출력 filter의 개수가 다르게 입력되면 filter를 2배로 늘리고 있다.
+>
+>이 부분 때문에 다음 코드의 일부가 꼬여버렸다.
+
+<br/>
+``` python
+def shake_stage(x, filters, blocks=4):
+    strides = 2 if filters != d else 1
+    
+    x = shake_block(x, filters, strides) # projection layer
+
+    for i in range(blocks-1):
+        x = shake_block(x, filters, 1)
+    
+    return x
+```
+>첫 번째 shake_stage일 경우에만 downsampling을 수행하지 않도록 되어있으며, 각 shake_stage는 4개의 shake_block을 가진다.
+
+``` python
+def shake_block(x, filters, strides=1):
+    if strides == 1 and filters != d:
+        residual = x  
+    else:
+        residual = shake_projection(x, filters, strides)
+    
+    branch_1 = Activation('relu')(x)
+    branch_1 = Conv2D(filters, (3, 3), strides=strides, padding='same', use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(branch_1)
+    branch_1 = BatchNormalization()(branch_1)
+    branch_1 = Activation('relu')(branch_1)
+    branch_1 = Conv2D(filters, (3, 3), strides=1, padding='same', use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(branch_1)
+    branch_1 = BatchNormalization()(branch_1)
+    
+    branch_2 = Activation('relu')(x)
+    branch_2 = Conv2D(filters, (3, 3), strides=strides, padding='same', use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(branch_2)
+    branch_2 = BatchNormalization()(branch_2)
+    branch_2 = Activation('relu')(branch_2)
+    branch_2 = Conv2D(filters, (3, 3), strides=1, padding='same', use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(branch_2)
+    branch_2 = BatchNormalization()(branch_2)
+    
+    shaked_branches = ShakeShake()([branch_1, branch_2])
+    
+    return Add()([residual, shaked_branches])
+    
+```
+>각 shake_block은 **ReLU - Conv(3x3) - BN - ReLU - Conv(3x3) - BN - Mul** 구조의 residual branch를 2개 가진다.
+>
+>본문에서는 downsampling이 일어날 시(strides != 1)에 커스텀 구조를 사용한다고 해놓고는, 위에서 말했듯이 저자의 구현 코드에서는 입력 filter의 개수와 출력 filter의 개수가 다르다는 이유로 첫 번째 stage에서도 커스텀 구조를 거친다.
+>
+>따라서 각 stage의 첫 번째 block의 경우에는 stride에 관계없이 shake_projection을 수행한 후에 addition하며, 나머지 block에서는 입력을 그대로 addition하는 identity mapping을 따른다.
+>
+>**Mul**에 해당하는 ShakeShake 부분은 아래의 shake_projection 다음에 설명한다.
+
+<br/>
+``` python
+def shake_projection(x, filters, strides):
+    x = Activation('relu')(x)
+    
+    proj_1 = Lambda(lambda y: y[:, 0::strides, 0::strides, :])(x)
+    proj_1 = Conv2D(filters//2, (1, 1), strides=1, use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(proj_1)
+    
+    if strides == 1:
+        proj_2 = ZeroPadding2D( ((1, 0), (1, 0)) )(x)
+        proj_2 = Lambda(lambda y: y[:, :-1, :-1, :])(proj_2)
+        
+    elif strides == 2:
+        if K.int_shape(x)[1]%2 == 0:
+            proj_2 = Lambda(lambda y: y[:, 1::strides, 1::strides, :])(x)
+        else:
+            proj_2 = ZeroPadding2D( ((1, 0), (1, 0)) )(x)
+            proj_2 = Lambda(lambda y: y[:, 0::strides, 0::strides, :])(proj_2)
+            
+    proj_2 = Conv2D(filters//2, (1, 1), strides=1, use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(proj_2)
+    
+    '''
+    proj_1 = AveragePooling2D((1, 1), strides=strides)(x)
+    proj_1 = Conv2D(filters//2, (1, 1), strides=1, use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(proj_1)
+    
+    proj_2 = ZeroPadding2D( ((1, 0), (1, 0)) )(x)
+    proj_2 = Lambda(lambda y: y[:, :-1, :-1, :])(proj_2)
+    proj_2 = AveragePooling2D((1, 1), strides=strides)(proj_2)
+    proj_2 = Conv2D(filters//2, (1, 1), strides=1, use_bias=False, kernel_initializer='he_normal', kernel_regularizer=l2(1e-4))(proj_2)
+    '''
+    
+    concat = Concatenate()([proj_1, proj_2])
+    
+    return BatchNormalization()(concat)
+
+```
+>본문에서 설명하는 아키텍처는 하단에 주석처리한 부분에 해당한다.
+>
+>굳이 다른 방법으로 구현한 이유는 두 가지다. 우선 1x1 AvgPooling의 의도를 생각하면 굳이 사용할 필요가 없기 때문이고, 약간의 information loss가 발생하기 때문이다.
+>
+>본문의 방법대로 구현한 경우에 각 projection branch가 취하는 pixel은 아래의 그림과 같다.
+>
+>![Extra.9](/blog/images/Shake-Shake, Extra.9(removed).png )
+>
+>입력 feature map의 length가 짝수인 경우에는 proj_2가 zero padded pixel을 취하고, 우측과 하단의 1 pixel 만큼은 버리는 현상이 생긴다.
+>
+>이러한 information loss를 보완하기 위해, 위의 shake_projection 구현에서는 feature map 길이의 odd/even 여부에 따라 다르게 구현했다. 위와 같이 구현했을 때, 각 projection branch가 취하는 pixel은 아래의 그림과 같이 바뀐다.
+>
+>![Extra.10](/blog/images/Shake-Shake, Extra.10(removed).png )
+>
+>strides가 1인 경우도 작성한 이유는, 위에서 언급한 저자의 거짓말로 인해 꼬여버린 부분이다. 이 부분에는 stride가 1이기 때문에, 취하는 pixel의 차이를 유지하기 위해 우측 하단의 pixel을 버리는 현상을 보완하지 않았다.
+
+<br/>
+``` python
+class ShakeShake(Layer):
+    def __init__(self, **kwargs):
+        super(ShakeShake, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        super(ShakeShake, self).build(input_shape)
+
+    def call(self, x):
+        # unpack x1 and x2
+        assert isinstance(x, list)
+        x1, x2 = x
+        
+        forward, backward, level = shake_type.split('-')
+        
+        # create alpha and beta
+        batch_size = K.shape(x1)[0] # K.int_shape(x1)[0]
+        
+        if level == 'B':
+            alpha = K.random_uniform((1, 1, 1, 1))
+            beta = K.random_uniform((1, 1, 1, 1))
+            
+            alpha = K.tile(alpha, (batch_size,1,1,1))
+            beta = K.tile(beta, (batch_size,1,1,1))
+            
+        elif level == 'I':
+            alpha = K.random_uniform((batch_size, 1, 1, 1))
+            beta = K.random_uniform((batch_size, 1, 1, 1))
+            
+        def on_train():
+            # Forward
+            if forward == 'E':
+                scaled_forward = 0.5*x1 + 0.5*x2
+                
+            elif forward in ['K', 'S']:
+                scaled_forward = alpha*x1 + (1-alpha)*x2
+            
+            # Backward
+            if backward == 'E':
+                scaled_backward = 0.5*x1 + 0.5*x2
+                
+            elif backward == 'K':
+                return scaled_forward
+            
+            elif backward == 'S':
+                scaled_backward = beta*x1 + (1-beta)*x2
+            
+            return scaled_backward + K.stop_gradient(scaled_forward - scaled_backward)
+        
+        # E-E during testing phase
+        def on_test():
+            return 0.5*x1 + 0.5*x2
+        
+        return K.in_train_phase(on_train, on_test)
+
+    def compute_output_shape(self, input_shape):
+        assert isinstance(input_shape, list)
+        return input_shape[0]
+
+```
+>shake_block의 **Mul**에 해당하는 부분이다. **E-E-B** ~ **S-S-I**에 해당하는 모든 타입들을 구현해뒀으며, 각 barnch의 출력에 scaling 계수를 곱한 후에 둘을 더하는 것까지 포함하여 출력으로 return 한다.
+>
+>K.stop_gradient()는 네트워크의 forward 연산 시에 identity로 동작하며, backward 연산 시에는 통째로 무시된다.
+>
+>즉, forward 시에는 **scaled_backward + scaled_forward - scaled_backward**가 되어, **scaled_forward**만 남으며, backward 시에는 **scaled_backward**만 남아있게 된다.
+>
+>K.in_train_phase()는 training 시에 첫 번째로 넘겨받은 인자를 수행하며, inference 시에는 두 번째로 넘겨받은 이자를 수행한다.
+>
+>즉, inference 시에는 **Even-Even**으로 동작.
+
+<br/>
+``` python
+class LearningRateSchedule(Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        lr = K.get_value(self.model.optimizer.lr)
+        cosine_decay = 0.5 * (1 + math.cos(math.pi * epoch / epochs))
+        K.set_value(self.model.optimizer.lr, lr*cosine_decay)
+```
+>Cosine annealing을 callback 함수로 구현한다.
+
+<br/>
+``` python
+datagen = ImageDataGenerator(horizontal_flip=True)
+
+def data_generator(generator, X, Y, crop_shape=(32, 32), pad_length=4, batch_size=128):
+    gen_X_Y = generator.flow(X, Y, batch_size=batch_size)
+    
+    while True:
+        batch_x, batch_y = gen_X_Y.next()
+
+        cropped_batch = []
+        
+        for img in batch_x:
+            # zero padding
+            padded_img = np.pad(img, ((pad_length, pad_length), (pad_length, pad_length), (0,0)), mode='constant')
+            
+            # random crop
+            delta_h = np.random.randint(0, padded_img.shape[0] - crop_shape[0] + 1)
+            delta_w = np.random.randint(0, padded_img.shape[1] - crop_shape[1] + 1)
+            
+            cropped_batch.append(padded_img[delta_h:(delta_h+crop_shape[0]), delta_w:(delta_w+crop_shape[1]), :])
+            
+        yield (np.stack(cropped_batch), batch_y)
+```
+>data_generator 호출 시에 generator로 datagen을 넘겨받는다. 
+>
+>gen_X_Y는 randomly horizontal flip이 적용된 입력을 batch 단위(shape=(128, 32, 32, 3))로 return 받는다. 
+>
+>각 이미지에 대해 4 pixel만큼 zero-padding을 수행하고 32x32 크기로 random crop을 수행한다.
+
+<br/>
+``` python
+from keras.models import Model, Input
+from keras.layers import Conv2D, GlobalAveragePooling2D, Activation, Dense, BatchNormalization, ZeroPadding2D
+from keras.layers import Add, Concatenate, Layer, Lambda
+from keras.optimizers import SGD
+from keras.callbacks import Callback, ModelCheckpoint, CSVLogger, ReduceLROnPlateau
+from keras.preprocessing.image import ImageDataGenerator
+from keras.regularizers import l2
+
+from keras.utils import to_categorical
+from keras.datasets import cifar10
+
+import keras.backend as K
+import tensorflow as tf
+
+import numpy as np
+import math
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
+class ShakeShake(Layer):
+    ...
+
+def shake_projection(x, filters, strides):
+    ...
+    
+def shake_block(x, filters, strides=1):
+    ...
+ 
+def shake_stage(x, filters, blocks=4):
+    ...
+    
+def Shake_ResNet26(model_input, classes=10):
+    ...
+
+class LearningRateSchedule(Callback):
+    ...
+
+def data_generator(generator, X, Y, crop_shape=(32, 32), pad_length=4, batch_size=128):
+    ...
+    
+shake_type = 'S-S-I' # 'Forward-Backward-Level' # Forward in {E,K,S} / Backward in {E,K,S} / Level in {B,I}
+n_blocks = 4
+d = 32 # Width of the first shake_block.
+
+input_shape = (32, 32, 3)
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+x_train = x_train.astype('float32')/255.
+x_test =  x_test.astype('float32')/255.
+
+mean_train = np.mean(x_train, axis=(0, 1, 2))
+std_train = np.std(x_train, axis=(0, 1, 2))
+
+x_train = (x_train - mean_train) / std_train
+x_test = (x_test - mean_train) / std_train
+
+y_train = to_categorical(y_train, num_classes=10)
+y_test = to_categorical(y_test, num_classes=10)
+
+model_input = Input( shape=input_shape )
+
+model = Shake_ResNet26(model_input, 10)
+
+batch_size = 128
+epochs = 1800
+optimizer = SGD(lr=0.2, decay=1e-4, momentum=0.9)
+
+model.compile(optimizer, 'categorical_crossentropy', ['acc'])
+
+datagen = ImageDataGenerator(horizontal_flip=True)
+
+filepath = 'weights/' + model.name + '.{epoch:02d}-{acc:.2f}-{val_acc:.2f}.hdf5'
+callbacks_list = [ModelCheckpoint(filepath, 
+                                  monitor='val_acc',
+                                  verbose=1, 
+                                  save_weights_only=True, 
+                                  save_best_only=True, 
+                                  mode='auto', 
+                                  period=1),
+                  ReduceLROnPlateau(monitor='val_loss', patience=epochs+1),
+                  CSVLogger('logs/' + model.name + '.log'),
+                  LearningRateSchedule()]
+
+history = model.fit_generator(data_generator(datagen, x_train, y_train, (input_shape[0], input_shape[1]), 4, batch_size), 
+                                      steps_per_epoch=50000//batch_size, 
+                                      epochs=epochs, 
+                                      callbacks=callbacks_list, 
+                                      validation_data=(x_test, y_test))    
+
+```
+>학습을 수행하는 main 코드다.
+>
+>Callback 함수 중, ReduceLROnPlateau()의 patience를 epochs+1로 준 이유는 CSVLogger에 learning rate가 찍혀 나오도록 하기 위함이다. (cosine annealing으로 learning rate scheduling을 수행하기 때문에 동작할 필요가 없음.)
 
 <br/>
 ### 2.2. CIFAR-100
