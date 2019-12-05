@@ -299,7 +299,6 @@ Scaling 계수를 **"Image"** 레벨에서 적용하는 것이 regularization의
 >
 >[Link-1](https://github.com/xgastaldi/shake-shake), [Link-2](http://research.sualab.com/practice/review/2018/06/28/shake-shake-regularization-review.html), [Link-3](https://github.com/jonnedtc/Shake-Shake-Keras)
 
-<br/>
 ``` python
 n_blocks = 4
 d = 32 # Width of the first shake_block.
@@ -323,9 +322,9 @@ def Shake_ResNet26(model_input, classes=10):
 ```
 >3개의 shake_stage로 구성, 각 stage의 feature map size는 32/16/8이며, filter의 개수는 32/64/128으로 구현됐다.
 >
->Filter의 개수는 downsampling 시에 2배로 늘어난다고 해놓고, 정작 구현 코드에서는 입력 filter의 개수와 출력 filter의 개수가 다르게 입력되면 filter를 2배로 늘리고 있다.
+>분명 본문에서는 downsampling 시에 filter 개수가 2배로 늘어난다고 했는데, 저자의 구현 코드를 보면 입력 filter의 개수와 출력 filter의 개수가 다르게 입력됐을 때 filter 개수를 2배로 늘리고 있다.
 >
->이 부분 때문에 다음 코드의 일부가 꼬여버렸다.
+>이 부분 때문에 코드의 일부가 꼬여버렸다.
 
 <br/>
 ``` python
@@ -341,6 +340,7 @@ def shake_stage(x, filters, blocks=4):
 ```
 >첫 번째 shake_stage일 경우에만 downsampling을 수행하지 않도록 되어있으며, 각 shake_stage는 4개의 shake_block을 가진다.
 
+<br/>
 ``` python
 def shake_block(x, filters, strides=1):
     if strides == 1 and filters != d:
