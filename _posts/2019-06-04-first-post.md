@@ -271,7 +271,7 @@ Table.3에서는 3가지 옵션 모두 plain network보다 훨씬 우수함을 �
 
 <br/>
 **Deeper Bottleneck Architectures**<br/>
-다음으로 ImageNet dataset을 위한 deeper network를 설명한다. 감당할 수 없는 training time에 대한 우려로 인해, building block을 bottleneck desing으로 수정한다. 각 residual function F, 2-layer stack대신 3-layer stack을 사용한다(Fig.5 참조). 3개의 layer는 각각 순서대로 1x1, 3x3, 1x1 conv layer이며, 1x1 conv layer는 dimension을 줄이거나 늘리는 용도로 사용하며, 3x3 layer의 input/output의 dimension을 줄인 bottleneck으로 둔다. Fig.5에서는 2-layer stack과 3-layer stack의 디자인을 보여준다. 둘은 유사한 time complexity를 갖는다.
+다음으로 ImageNet dataset을 위한 deeper network를 설명한다. 감당할 수 없는 training time에 대한 우려로 인해, building block을 bottleneck design으로 수정한다. 각 residual function F, 2-layer stack대신 3-layer stack을 사용한다(Fig.5 참조). 3개의 layer는 각각 순서대로 1x1, 3x3, 1x1 conv layer이며, 1x1 conv layer는 dimension을 줄이거나 늘리는 용도로 사용하며, 3x3 layer의 input/output의 dimension을 줄인 bottleneck으로 둔다. Fig.5에서는 2-layer stack과 3-layer stack의 디자인을 보여준다. 둘은 유사한 time complexity를 갖는다.
 
 <br/>
 ![Fig.5](/blog/images/ResNet, Fig.5(removed).png )
