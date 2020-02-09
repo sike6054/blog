@@ -295,7 +295,7 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 
 <br/>
 `(your name) conda install -c anaconda tensorflow-gpu`
->CPU로만 학습한다면 `tensorflow-gpu` 대신 `tensorflow`를 쓰면 된다.
+>CPU로만 학습하고 싶다면 `tensorflow-gpu` 대신 `tensorflow`를 쓰면 된다.
 
 <br/>
 ## 3.2 패키지 설치
