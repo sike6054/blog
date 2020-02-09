@@ -315,7 +315,8 @@ model.fit(x_train, y_train, batch_size=32, epochs=6, validation_split=0.2, callb
 <br/>`conda install scikit-image`
 <br/>`conda install -c conda-forge bdw-gc`
 <br/>`conda install -c conda-forge geos`
-<br/>`conda install -c conda-forge imgaug `
+<br/>`conda install -c conda-forge imgaug`
+<br/>`conda install seaborn`
 
 
 
