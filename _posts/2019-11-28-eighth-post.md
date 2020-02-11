@@ -646,9 +646,11 @@ CIFAR-100에 대한 평가에 사용된 아키텍처는 pre-activation을 제외
 
 <br/>
 **Table.2**의 base network는 ResNeXt-29 2x4x64d 에 해당한다.
->Network depth(29) / residual branches(2) with grouped convolutions(4) each conv's width(64)
+>Network depth(29) / residual branches(2) / cardinality(4) / bottleneck depth(64)
 >
->Grouped convolution의 개수는 cardinality에 해당한다. 즉, 하나의 residual branch는 아래의 그림을 따른다.
+>Grouped convolution으로 구현하는 경우에는 bottleneck depth(64) 대신 group conv(256)이 된다. ([ResNeXt](https://arxiv.org/pdf/1611.05431.pdf)의 type C에 해당)
+>
+>즉, 하나의 residual branch는 아래의 그림을 따른다.
 >
 >![Extra.6](/blog/images/Shake-Shake, Extra.6(removed).png )
 
@@ -907,7 +909,11 @@ CIFAR-10에 대해 아키텍처 **(C)**와 다른 범위의 값을 사용한 모
 <br/>
 이러한 원리를 이해한다면, 더 크고 복잡한 아키텍처에서도 응용할 수 있을 것이다.
 
+
 ---
+
+### 2020-02-11 수정
+2.2절에서 ResNeXt-29 2x4x64d 아키텍처 설명이 잘못된 부분을 수정
 
 <br/>
 <br/>
