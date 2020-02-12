@@ -494,7 +494,7 @@ class ShakeShake(Layer):
 >
 >즉, forward 시에는 **scaled_backward + scaled_forward - scaled_backward**가 되어, **scaled_forward**만 남으며, backward 시에는 **scaled_backward**만 남아있게 된다.
 >
->K.in_train_phase()는 training 시에 첫 번째로 넘겨받은 인자를 수행하며, inference 시에는 두 번째로 넘겨받은 이자를 수행한다.
+>K.in_train_phase()는 training 시에 첫 번째로 넘겨받은 인자를 수행하며, inference 시에는 두 번째로 넘겨받은 자를 수행한다.
 >
 >즉, inference 시에는 **Even-Even**으로 동작.
 
