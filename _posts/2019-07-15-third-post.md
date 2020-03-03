@@ -365,7 +365,7 @@ Inception module 내부의 filter bank size를 포함한 네트워크 구조의 
 - $$p(k\mid x) = \frac{e^{z_k}}{\sum_{i=1}^K e^{z_i}}$$.
 
 - $$z_i$$는 *logit* 혹은 *unnormalized log-probability*다.
->*logit*은 *weighted sum* 정도로 생각하면 된다.
+>*logit*은 classifier의 activation을 제외한 *weighted sum* 으로 생각하면 된다.
 
 <br/>
 이 학습 데이터의 label $$q(k|x)$$에 대한 ground-truth distribution을 고려하여 정규화하면, $$\sum_{k} q(k|x)=1$$이 된다.
