@@ -363,24 +363,24 @@ def ResNet18(model_input, classes=10):
     conv3_1 = conv2d_bn(shortcut_1, 128, (3, 3), strides=2)
     conv3_2 = conv2d_bn(conv3_1, 128, (3, 3)) # (28, 28, 128)
     
-    shortcut_2 = conv2d_bn(conv3_2, 128, (1, 1), strides=2, activation=None) # (56, 56, 64) -> (28, 28, 128)
-    shortcut_2 = Add()([shortcut_2, shortcut_1])
+    shortcut_2 = conv2d_bn(shortcut_1, 128, (1, 1), strides=2, activation=None) # (56, 56, 64) -> (28, 28, 128)
+    shortcut_2 = Add()([conv3_2, shortcut_2])
     shortcut_2 = Activation(activation='relu')(shortcut_2) # (28, 28, 128)
 
     
     conv4_1 = conv2d_bn(shortcut_2, 256, (3, 3), strides=2)
     conv4_2 = conv2d_bn(conv4_1, 256, (3, 3)) # (14, 14, 256)
     
-    shortcut_3 = conv2d_bn(conv4_2, 256, (1, 1), strides=2, activation=None) # (28, 28, 128) -> (14, 14, 256)
-    shortcut_3 = Add()([shortcut_3, shortcut_2])
+    shortcut_3 = conv2d_bn(shortcut_2, 256, (1, 1), strides=2, activation=None) # (28, 28, 128) -> (14, 14, 256)
+    shortcut_3 = Add()([conv4_2, shortcut_3])
     shortcut_3 = Activation(activation='relu')(shortcut_3) # (14, 14, 256)
     
     
     conv5_1 = conv2d_bn(shortcut_3, 512, (3, 3), strides=2)
     conv5_2 = conv2d_bn(conv5_1, 512, (3, 3)) # (7, 7, 512)
     
-    shortcut_4 = conv2d_bn(conv5_2, 512, (1, 1), strides=2, activation=None) # (14, 14, 256) -> (7, 7, 512)
-    shortcut_4 = Add()([shortcut_4, shortcut_3])
+    shortcut_4 = conv2d_bn(shortcut_3, 512, (1, 1), strides=2, activation=None) # (14, 14, 256) -> (7, 7, 512)
+    shortcut_4 = Add()([conv5_2, shortcut_4])
     shortcut_4 = Activation(activation='relu')(shortcut_4) # (7, 7, 512)
     
 
