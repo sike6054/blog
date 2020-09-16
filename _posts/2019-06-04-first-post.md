@@ -368,7 +368,7 @@ def ResNet18(model_input, classes=10):
     shortcut_2 = Activation(activation='relu')(shortcut_2) # (28, 28, 128)
 
     
-    conv4_1 = conv2d_bn(conv3_2, 256, (3, 3), strides=2)
+    conv4_1 = conv2d_bn(shortcut_2, 256, (3, 3), strides=2)
     conv4_2 = conv2d_bn(conv4_1, 256, (3, 3)) # (14, 14, 256)
     
     shortcut_3 = conv2d_bn(shortcut_2, 256, (1, 1), strides=2, activation=None) # (28, 28, 128) -> (14, 14, 256)
@@ -376,7 +376,7 @@ def ResNet18(model_input, classes=10):
     shortcut_3 = Activation(activation='relu')(shortcut_3) # (14, 14, 256)
     
     
-    conv5_1 = conv2d_bn(conv4_2, 512, (3, 3), strides=2)
+    conv5_1 = conv2d_bn(shortcut_3, 512, (3, 3), strides=2)
     conv5_2 = conv2d_bn(conv5_1, 512, (3, 3)) # (7, 7, 512)
     
     shortcut_4 = conv2d_bn(shortcut_3, 512, (1, 1), strides=2, activation=None) # (14, 14, 256) -> (7, 7, 512)
@@ -638,6 +638,9 @@ Keras 구현에서 60K iteration만큼 동작하도록 callback 함수 구현
 
 ### 2019-10-05 수정
 Keras 구현에서 bottleneck layer의 코드 가독성을 위해 일부 수정
+
+### 2020-09-16 수정
+ResNet18 구현 코드의 오타 수정
 
 <br/>
 ---
